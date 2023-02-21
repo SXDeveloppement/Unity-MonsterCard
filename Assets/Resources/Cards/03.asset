@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
+  m_Name: 03
+  m_EditorClassIdentifier: 
+  name: ADMental1
+  description: 'Deal %d1 mental damage '
+  artwork: {fileID: -1461499335, guid: 11bef174ec5bbec48913d77ac78bbde3, type: 3}
+  manaCost: 1
+  priority: 2
+  elementalAffinity: 5
+  type: 0
+  from: 0
+  effects:
+  - {fileID: 11400000, guid: 0b2680673f3dc0f44973499ce64567ae, type: 2}

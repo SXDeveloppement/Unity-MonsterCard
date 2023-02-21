@@ -221,9 +221,10 @@ public class GameManager : MonoBehaviour
             int indexChild = child.GetSiblingIndex();
             MonsterDisplay monsterDisplay = child.gameObject.GetComponent<MonsterDisplay>();
             monsterDisplay.healthAvailable = monstersGOList[indexChild].GetComponent<MonsterDisplay>().healthAvailable;
+            monsterDisplay.healthMax = monstersGOList[indexChild].GetComponent<MonsterDisplay>().healthMax;
             monsterDisplay.manaAvailable = monstersGOList[indexChild].GetComponent<MonsterDisplay>().manaAvailable;
             monsterDisplay.manaMax = monstersGOList[indexChild].GetComponent<MonsterDisplay>().manaMax;
-
+            
             monsterDisplay.refreshHealthPoint();
             monsterDisplay.refreshManaPoint();
 

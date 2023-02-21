@@ -26,6 +26,7 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     public List<Card> graveList; // Liste des cartes dans le cimetière
 
     public bool ownedByOppo;
+    public bool isKO;
 
     Vector2 lifeBarSizeCached;
     Vector2 manaBarSizeCached;
@@ -69,7 +70,9 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     // Update is called once per frame
     void Update()
     {
-        
+        if (healthAvailable <= 0) {
+            isKO = true;
+        }
     }
 
     void IDropHandler.OnDrop(PointerEventData eventData) {

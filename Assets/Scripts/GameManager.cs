@@ -420,6 +420,7 @@ public class GameManager : MonoBehaviour
 
         // On change de monstre actif
         nextMonster.SetActive(true);
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
         GO_MonsterInvoked = nextMonster;
 
         // On pioche de nouvelle carte dans le deck du nouveau monstre

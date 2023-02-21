@@ -13,3 +13,7 @@ public enum Type {
 public enum From {
     Monster, Slot1, Slot2, Slot3, Slot4
 }
+
+public enum TargetType {
+    PlayerMonster, OpponantMonster, PlayerEquipment, OpponantEquipment, PlayerAura, OpponantAura, SlotVisible, SlotHidden
+}

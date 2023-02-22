@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: 06
+  m_Name: 07
   m_EditorClassIdentifier: 
-  name: ADCombat1
-  description: Deal %d3 combat damage
-  artwork: {fileID: -963042467, guid: 16fe21a5621dbda49873eaff9cda07ae, type: 3}
+  name: ADNeutral1
+  description: Deal %d3 neutral damage
+  artwork: {fileID: 45502439, guid: 11bef174ec5bbec48913d77ac78bbde3, type: 3}
   manaCost: 1
   priority: 1
   elementalAffinity: 4
   type: 0
+  targetType: 01000000
   from: 0
   effects:
   - {fileID: 11400000, guid: a76402cfc9b3c0443b261cf7344686e2, type: 2}

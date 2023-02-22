@@ -7,11 +7,11 @@ public enum ElementalAffinity {
 }
 
 public enum Type {
-    Spell, Enchantment, Aura
+    Spell, Enchantment, Aura, CounterAttack, Echo
 }
 
 public enum From {
-    Monster, Slot1, Slot2, Slot3, Slot4
+    Monster, Equipment1, Equipment2, Equipment3, Equipment4
 }
 
 public enum TargetType {

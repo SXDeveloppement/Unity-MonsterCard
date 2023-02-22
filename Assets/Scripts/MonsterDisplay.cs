@@ -79,7 +79,22 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         GameObject cardPlayed = eventData.pointerDrag;
         GameObject target = gameObject;
 
-        gameManager.activeCardOnTarget(cardPlayed, target);
+        // On vérifie les conditions de ciblage pour pouvoir activer la carte
+        bool targetCondition = false;
+        TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
+        foreach (TargetType targetType in cardPlayedTargetType) {
+            if (!ownedByOppo && targetType == TargetType.PlayerMonster
+                || ownedByOppo && targetType == TargetType.OpponantMonster) {
+                targetCondition = true;
+            } else {
+                Debug.Log("ERR : bad target");
+            }
+        }
+
+        // On active la carte si les conditions de ciblages sont respectées
+        if (targetCondition) {
+            gameManager.activeCardOnTarget(cardPlayed, target);
+        }
     }
 
     // Modifie l'affichage pour le monstre de l'adversaire

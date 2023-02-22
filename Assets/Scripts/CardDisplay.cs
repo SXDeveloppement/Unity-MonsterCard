@@ -84,4 +84,16 @@ public class CardDisplay : MonoBehaviour
         }
        
     }
+
+    // On retourne la carte face caché
+    public void showHiddenFace() {
+        gameObject.transform.Find("Front").gameObject.SetActive(false);
+        gameObject.transform.Find("Back").gameObject.SetActive(true);
+    }
+
+    // On retourne la carte face visible
+    public void showVisibleFace() {
+        gameObject.transform.Find("Front").gameObject.SetActive(true);
+        gameObject.transform.Find("Back").gameObject.SetActive(false);
+    }
 }

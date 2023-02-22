@@ -19,6 +19,7 @@ MonoBehaviour:
   priority: 1
   elementalAffinity: 3
   type: 0
+  targetType: 01000000
   from: 0
   effects:
   - {fileID: 11400000, guid: a76402cfc9b3c0443b261cf7344686e2, type: 2}

@@ -11,6 +11,7 @@ public class Card : ScriptableObject {
     public int priority;
     public ElementalAffinity elementalAffinity;
     public Type type;
+    public TargetType[] targetType;
     public From from;
     public CardEffect[] effects;
 

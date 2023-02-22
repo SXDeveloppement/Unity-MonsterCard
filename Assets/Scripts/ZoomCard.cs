@@ -8,6 +8,7 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public int marginBottom;
     public float scaleZoom;
+    public float scaleZoomBoard;
     public GameObject placeHolder;
 
     Vector3 cachedScale;
@@ -29,6 +30,7 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         
     }
 
+    // Quand le curseur entre sur la carte
     public void OnPointerEnter(PointerEventData eventData) {
         if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Hand) {
             siblingIndex = transform.GetSiblingIndex();
@@ -42,12 +44,16 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 // On calcule la nouvelle position de la carte zoomé pour quelle s'affiche entièrement a l'écran
                 // PosY + différence de hauteur avec le zoom /2 + différence de hauteur entre la carte nonZoom et la hauteur de la main (hand) + une marge paramétrable
                 float positionY = localPosition.y + marginBottom + height * (scaleZoom - 1) / 2 + height - transform.parent.GetComponent<RectTransform>().rect.height;
-                transform.localPosition = new Vector3(localPosition.x, positionY , localPosition.z);
+                transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z);
                 createPlaceholder();
             }
+        } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Board) {
+            transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
+            transform.parent.SetAsLastSibling();
         }
     }
 
+    // Quand le curseur quitte la carte
     public void OnPointerExit(PointerEventData eventData) {
         if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Hand) {
             transform.localScale = cachedScale;
@@ -56,9 +62,12 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 transform.localPosition = localPosition;
                 changeWithPlaceholder();
             }
+        } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Board) {
+            transform.localScale = cachedScale;
         }
     }
 
+    // Crée le placeholder a la position de la carte
     public void createPlaceholder() {
         placeHolder = new GameObject();
         placeHolder.tag = "PlaceHolder";
@@ -69,6 +78,7 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         placeHolder.transform.SetSiblingIndex(siblingIndex);
     }
 
+    // Prend la position du placeholder dans le layout
     public void changeWithPlaceholder() {
         GameObject.Find("GameManager").GetComponent<GameManager>().dragged = false;
         gameObject.GetComponent<CanvasGroup>().blocksRaycasts = true;
@@ -79,6 +89,15 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         gameObject.GetComponent<LayoutElement>().ignoreLayout = false;
     }
 
+    // Réinitialise la carte
+    public void reinitCard() {
+        GameObject.Find("GameManager").GetComponent<GameManager>().dragged = false;
+        gameObject.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        destroyPlaceholder();
+        gameObject.GetComponent<LayoutElement>().ignoreLayout = false;
+    }
+
+    // Détruit le placeholder de la carte
     public void destroyPlaceholder() {
         if (placeHolder != null) {
             Destroy(placeHolder);

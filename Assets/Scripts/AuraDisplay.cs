@@ -4,17 +4,17 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SlotDisplay : MonoBehaviour, IDropHandler
+public class AuraDisplay : MonoBehaviour, IDropHandler
 {
-    public GameObject GO_Slot1;
-    public GameObject GO_Slot2;
-    public GameObject GO_Slot3;
-    public GameObject GO_Slot4;
+    public GameObject GO_Aura1;
+    public GameObject GO_Aura2;
+    public GameObject GO_Aura3;
+    public GameObject GO_Aura4;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame
@@ -22,7 +22,6 @@ public class SlotDisplay : MonoBehaviour, IDropHandler
     {
         
     }
-
 
     void IDropHandler.OnDrop(PointerEventData eventData) {
         GameObject cardPlayed = eventData.pointerDrag;
@@ -33,17 +32,7 @@ public class SlotDisplay : MonoBehaviour, IDropHandler
             // On vérifie les conditions de ciblage pour pouvoir placer la carte
             TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
             foreach (TargetType targetType in cardPlayedTargetType) {
-                if (targetType == TargetType.SlotHidden || targetType == TargetType.SlotVisible) {
-                    if (targetType == TargetType.SlotHidden) {
-                        cardPlayed.GetComponent<CardDisplay>().showHiddenFace();
-                        cardPlayed.GetComponent<CardDisplay>().hiddenCard = true;
-                    }
-
-                    if (targetType == TargetType.SlotVisible) {
-                        cardPlayed.GetComponent<CardDisplay>().showVisibleFace();
-                        cardPlayed.GetComponent<CardDisplay>().hiddenCard = false;
-                    }
-
+                if (targetType == TargetType.PlayerAura) {
                     cardPlayed.transform.SetParent(targetSlot.transform);
                     cardPlayed.GetComponent<CardDisplay>().status = Status.Board;
                     cardPlayed.GetComponent<ZoomCard>().reinitCard();

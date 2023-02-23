@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     public List<GameObject> monstersGOListOppo; // Liste des GO de tous les monstres de l'adversaire
     public GameObject GO_MonsterTeamLayout;
     public GameObject GO_TeamArea;
+    public GameObject GO_CounterAttackArea;
 
     
 
@@ -416,6 +417,12 @@ public class GameManager : MonoBehaviour
         foreach (Transform cardInHand in GO_Hand.transform) {
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Add(cardInHand.gameObject.GetComponent<CardDisplay>().card);
             Destroy(cardInHand.gameObject);
+        }
+
+        // On place les cartes de la zone "contre-attaque" dans le cimetière du monstre
+        CardDisplay[] cardDisplayCounters = GO_CounterAttackArea.GetComponentsInChildren<CardDisplay>();
+        foreach(CardDisplay cardDisplayCounter in cardDisplayCounters) {
+            inGrave(cardDisplayCounter.gameObject);
         }
 
         // On change de monstre actif

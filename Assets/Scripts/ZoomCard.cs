@@ -50,6 +50,13 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Board) {
             transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
             transform.parent.SetAsLastSibling();
+
+            // Si c'est une carte face caché, on la retourne face visible
+            if (GetComponent<CardDisplay>().hiddenCard) {
+                //GetComponent<CardDisplay>().showVisibleFace();
+                StartCoroutine(GetComponent<CardDisplay>().flipFront());
+                StopCoroutine(GetComponent<CardDisplay>().flipFront());
+            }
         }
     }
 
@@ -64,6 +71,13 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             }
         } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Board) {
             transform.localScale = cachedScale;
+
+            // Si c'est une carte face caché, on la replace en position face caché
+            if (GetComponent<CardDisplay>().hiddenCard) {
+                //GetComponent<CardDisplay>().showHiddenFace();
+                StartCoroutine(GetComponent<CardDisplay>().flipBack());
+                StopCoroutine(GetComponent<CardDisplay>().flipBack());
+            }
         }
     }
 

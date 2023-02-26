@@ -87,7 +87,6 @@ public class GameManager : MonoBehaviour
                 newMonster.transform.SetParent(GO_MonsterAreaOppo.transform);
                 newMonster.transform.localPosition = new Vector3(273f, 28f, 0f);
                 newMonster.GetComponent<MonsterDisplay>().ownerOppo();
-                newMonster.SetActive(false);
 
                 // On ajoute le nouveau monstre a la liste
                 monstersGOListOppo.Add(newMonster);
@@ -114,9 +113,11 @@ public class GameManager : MonoBehaviour
         if (!GO_MonsterInvoked.activeSelf) {
             GO_MonsterInvoked.SetActive(true);
             refreshDeckText();
+            instantiateEquipment(GO_MonsterInvoked);
         }
         if (!GO_MonsterInvokedOppo.activeSelf) {
             GO_MonsterInvokedOppo.SetActive(true);
+            instantiateEquipment(GO_MonsterInvokedOppo);
         }
         if (!GO_TeamArea.transform.GetChild(0).gameObject.activeSelf) {
             foreach (Transform child in GO_TeamArea.transform) {
@@ -124,6 +125,19 @@ public class GameManager : MonoBehaviour
             }
         }
 
+    }
+
+    // On instantie l'équipement d'un monstre
+    public void instantiateEquipment(GameObject monster) {
+        foreach (Equipment equipment in monster.GetComponent<MonsterDisplay>().equipmentList) {
+            GameObject newEquipment = Instantiate(GO_Equipment);
+            newEquipment.GetComponent<EquipmentDisplay>().equipment = equipment;
+            if (monster == GO_MonsterInvoked) {
+                newEquipment.transform.SetParent(GO_EquipmentArea.transform);
+            } else {
+                newEquipment.transform.SetParent(GO_EquipmentAreaOppo.transform);
+            }            
+        }
     }
 
     // Termine le tour en cours
@@ -437,6 +451,14 @@ public class GameManager : MonoBehaviour
         // On réinitialise son mana
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
 
+        // On actualise les équipements
+        //// On détruit les équipements du monstre actif
+        foreach (Transform child in GO_EquipmentArea.transform) {
+            Destroy(child.gameObject);
+        }
+        //// On instantie l'équipement du nouveau monstre
+        instantiateEquipment(GO_MonsterInvoked);
+
         // On actualise le deck et le cimetière
         refreshDeckText();
         refreshGrave();
@@ -451,12 +473,23 @@ public class GameManager : MonoBehaviour
             child.gameObject.SetActive(false);
         }
 
+        // On réinitialise le mana de l'ancien monstre
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
+
         // On change de monstre actif
         nextMonster.SetActive(true);
         GO_MonsterInvokedOppo = nextMonster;
 
-        // On réinitialise son mana
+        // On réinitialise le mana du nouveau monstre
         GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().resetMana();
+
+        // On actualise les équipements
+        //// On détruit les équipements du monstre actif
+        foreach (Transform child in GO_EquipmentAreaOppo.transform) {
+            Destroy(child.gameObject);
+        }
+        //// On instantie l'équipement du nouveau monstre
+        instantiateEquipment(GO_MonsterInvokedOppo);
 
         // On actualise le deck et le cimetière
         // De l'adversaire

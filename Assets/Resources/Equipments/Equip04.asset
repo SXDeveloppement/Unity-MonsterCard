@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1e1715ae4f94aae41aec9eba36784a56, type: 3}
-  m_Name: Equip01
+  m_Name: Equip04
   m_EditorClassIdentifier: 
-  name: Equip01
-  artwork: {fileID: 21300000, guid: 1b09ef645626e9c43adefd9c50efbe8a, type: 3}
-  healthPoint: 15
-  powerPoint: 120
+  name: Equip04
+  artwork: {fileID: 21300000, guid: 8a64b5d6a8ac74a47ad9c36f07bae359, type: 3}
+  healthPoint: 5
+  powerPoint: 300
   guardPoint: 100
-  speedPoint: 40
+  speedPoint: 50

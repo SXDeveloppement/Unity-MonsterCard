@@ -25,8 +25,10 @@ public class GameManager : MonoBehaviour
     public GameObject GO_MonsterTeamLayout;
     public GameObject GO_TeamArea;
     public GameObject GO_CounterAttackArea;
+    public GameObject GO_Equipment; // Prefab
+    public GameObject GO_EquipmentArea;
+    public GameObject GO_EquipmentAreaOppo;
 
-    
 
     Dictionary<ElementalAffinity, float> fireDico;
     Dictionary<ElementalAffinity, float> waterDico;

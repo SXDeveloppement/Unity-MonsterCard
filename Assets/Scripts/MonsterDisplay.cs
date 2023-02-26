@@ -24,6 +24,7 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     public int manaAvailable;
     public List<Card> deckList; // Liste des cartes dans le deck
     public List<Card> graveList; // Liste des cartes dans le cimetière
+    public List<Equipment> equipmentList; // Liste des équipements du monstre
 
     public bool ownedByOppo;
     public bool isKO;
@@ -44,17 +45,26 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             deckList.Add(DBCards[rand.Next(DBCards.Length)]);
         }
 
+        // Choisi 4 équipements aléatoire pour le monstre
+        Equipment[] DBEquipment = Resources.LoadAll<Equipment>("Equipments");
+        for (int i = 0; i < 4; i++) {
+            Random rand = new Random();
+            equipmentList.Add(DBEquipment[rand.Next(DBEquipment.Length)]);
+        }
+
         // Ajouter la vie bonus des équipements
         healthMax = monster.healthPoint;
+        foreach (Equipment equipment in equipmentList) {
+            healthMax += equipment.healthPoint;
+        }
         healthAvailable = healthMax;
 
         manaMax = 1;
         manaAvailable = manaMax;
 
         artworkImage.sprite = monster.artwork;
-        powerText.text = monster.powerPoint.ToString();
-        guardText.text = monster.guardPoint.ToString();
-        speedText.text = monster.speedPoint.ToString();
+        // On actualise les stats du monstre
+        refreshStats();
 
         // Affichage des affinités élémentaires du monstre
         foreach (ElementalAffinity affinity in monster.elementalAffinity) {
@@ -111,9 +121,30 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         GO_ManaBar.transform.Find("Text").localScale = flipX;
     }
 
+    // Actualise les stats
+    public void refreshStats() {
+        int power = monster.powerPoint;
+        foreach (Equipment equipment in equipmentList) {
+            power += equipment.powerPoint;
+        }
+        powerText.text = power.ToString();
+
+        int guard = monster.guardPoint;
+        foreach (Equipment equipment in equipmentList) {
+            guard += equipment.guardPoint;
+        }
+        guardText.text = guard.ToString();
+
+        int speed = monster.speedPoint;
+        foreach (Equipment equipment in equipmentList) {
+            speed += equipment.speedPoint;
+        }
+        speedText.text = speed.ToString();
+    }
+
     // Actualise la barre de vie
     public void refreshHealthPoint() {
-        GO_LifeBar.transform.Find("Text").GetComponent<TMP_Text>().text = healthAvailable.ToString() + "/" + monster.healthPoint.ToString();
+        GO_LifeBar.transform.Find("Text").GetComponent<TMP_Text>().text = healthAvailable.ToString() + "/" + healthMax.ToString();
 
         // On modifie la taille de la barre
         GO_LifeBar.transform.Find("Health").transform.localScale = new Vector3((float)healthAvailable / healthMax, 1f, 1f);

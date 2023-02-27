@@ -22,9 +22,16 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     public int healthMax;
     public int manaMax;
     public int manaAvailable;
+    public int powerEquiped; // Power du monstre + des équipements
+    public int guardEquiped; // Guard du monstre + des équipements
+    public int speedEquiped; // Speed du monstre + des équipements
+
     public List<Card> deckList; // Liste des cartes dans le deck
     public List<Card> graveList; // Liste des cartes dans le cimetière
     public List<Equipment> equipmentList; // Liste des équipements du monstre
+
+    public List<Card> cardEnchantments; // Liste des cartes d'enchantement
+
 
     public bool ownedByOppo;
     public bool isKO;
@@ -37,6 +44,12 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        cardEnchantments = new List<Card>() {
+            ScriptableObject.CreateInstance<Card>(),
+            ScriptableObject.CreateInstance<Card>(),
+            ScriptableObject.CreateInstance<Card>(),
+            ScriptableObject.CreateInstance<Card>()
+        };
 
         // Création du deck de 30 cartes avec des cartes aléatoires de la DB
         Card[] DBCards = Resources.LoadAll<Card>("Cards");
@@ -96,14 +109,15 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             if (!ownedByOppo && targetType == TargetType.PlayerMonster
                 || ownedByOppo && targetType == TargetType.OpponantMonster) {
                 targetCondition = true;
-            } else {
-                Debug.Log("ERR : bad target");
+                break;
             }
         }
 
         // On active la carte si les conditions de ciblages sont respectées
         if (targetCondition) {
             gameManager.activeCardOnTarget(cardPlayed, target);
+        } else {
+            Debug.Log("ERR : bad target");
         }
     }
 
@@ -127,18 +141,21 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         foreach (Equipment equipment in equipmentList) {
             power += equipment.powerPoint;
         }
+        powerEquiped = power;
         powerText.text = power.ToString();
 
         int guard = monster.guardPoint;
         foreach (Equipment equipment in equipmentList) {
             guard += equipment.guardPoint;
         }
+        guardEquiped = guard;
         guardText.text = guard.ToString();
 
         int speed = monster.speedPoint;
         foreach (Equipment equipment in equipmentList) {
             speed += equipment.speedPoint;
         }
+        speedEquiped = speed;
         speedText.text = speed.ToString();
     }
 

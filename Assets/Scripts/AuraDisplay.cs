@@ -11,10 +11,12 @@ public class AuraDisplay : MonoBehaviour, IDropHandler
     public GameObject GO_Aura3;
     public GameObject GO_Aura4;
 
+    GameManager gameManager;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
@@ -27,16 +29,28 @@ public class AuraDisplay : MonoBehaviour, IDropHandler
         GameObject cardPlayed = eventData.pointerDrag;
         GameObject targetSlot = eventData.pointerCurrentRaycast.gameObject;
 
+        // On vérifie que la cible soit bien un emplacement d'aura
+        bool isAura = false;
+        if (targetSlot == GO_Aura1 || targetSlot == GO_Aura2 || targetSlot == GO_Aura3 || targetSlot == GO_Aura4) {
+            isAura = true;
+        }
+
         // Si l'emplacement est vide
-        if (targetSlot.transform.childCount == 0) {
+        if (isAura && targetSlot.transform.childCount == 0) {
             // On vérifie les conditions de ciblage pour pouvoir placer la carte
+            bool targetCondition = false;
             TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
             foreach (TargetType targetType in cardPlayedTargetType) {
                 if (targetType == TargetType.PlayerAura) {
-                    cardPlayed.transform.SetParent(targetSlot.transform);
-                    cardPlayed.GetComponent<CardDisplay>().status = Status.Board;
-                    cardPlayed.GetComponent<ZoomCard>().reinitCard();
+                    gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true);
+                    targetCondition = true;
+                    break;
                 }
+            }
+
+            // On place la carte si les conditions de ciblages sont respectées
+            if (!targetCondition) {
+                Debug.Log("ERR : bad target");
             }
         }
     }

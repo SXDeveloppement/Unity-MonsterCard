@@ -6,8 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using Random = System.Random;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
     public bool dragged; // TRUE si on drag&drop une carte
 
     public GameObject GO_Card; // Prefab
@@ -25,10 +24,12 @@ public class GameManager : MonoBehaviour
     public GameObject GO_MonsterTeamLayout;
     public GameObject GO_TeamArea;
     public GameObject GO_CounterAttackArea;
+    public GameObject GO_CounterAttackAreaOppo;
+    public GameObject GO_AuraArea;
+    public GameObject GO_AuraAreaOppo;
     public GameObject GO_Equipment; // Prefab
     public GameObject GO_EquipmentArea;
     public GameObject GO_EquipmentAreaOppo;
-
 
     Dictionary<ElementalAffinity, float> fireDico;
     Dictionary<ElementalAffinity, float> waterDico;
@@ -61,7 +62,6 @@ public class GameManager : MonoBehaviour
 
                 // On ajoute le nouveau monstre a la liste
                 monstersGOList.Add(newMonster);
-
                 addedMonster.Add(DBMonsters[randomInt]);
 
                 // On instantie le monstre dans la fenêtre d'équipe du joueur
@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
                 newMonsterTeamLayout.GetComponent<MonsterDisplay>().monster = DBMonsters[randomInt];
                 newMonsterTeamLayout.transform.SetParent(GO_TeamArea.transform);
                 newMonsterTeamLayout.GetComponent<MonsterDisplay>().ownedByOppo = false;
+      
             }
         }
 
@@ -129,14 +130,27 @@ public class GameManager : MonoBehaviour
 
     // On instantie l'équipement d'un monstre
     public void instantiateEquipment(GameObject monster) {
+        GO_EquipmentArea.GetComponent<HorizontalLayoutGroup>().enabled = true;
+        int i = 0;
         foreach (Equipment equipment in monster.GetComponent<MonsterDisplay>().equipmentList) {
             GameObject newEquipment = Instantiate(GO_Equipment);
             newEquipment.GetComponent<EquipmentDisplay>().equipment = equipment;
+            newEquipment.GetComponent<EquipmentDisplay>().slotId = i;
             if (monster == GO_MonsterInvoked) {
                 newEquipment.transform.SetParent(GO_EquipmentArea.transform);
             } else {
                 newEquipment.transform.SetParent(GO_EquipmentAreaOppo.transform);
-            }            
+            }
+
+            // On instantie les cartes enchantements
+            if (monster.GetComponent<MonsterDisplay>().cardEnchantments[i].name != null) {
+                GameObject newCardEnchantment = Instantiate(GO_Card);
+                newCardEnchantment.GetComponent<CardDisplay>().card = monster.GetComponent<MonsterDisplay>().cardEnchantments[i];
+                newCardEnchantment.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                newCardEnchantment.GetComponent<CardDisplay>().putOnBoard(newEquipment, true);
+            }
+
+            i++;
         }
     }
 
@@ -273,6 +287,32 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // On place la carte sur le terrain
+    public void tryToPutOnBoard(GameObject cardPlayed, GameObject target, bool isVisible) {
+        // Carte face visible, on doit dépenser du mana
+        if (isVisible) {
+            // On place la carte si son cout en mana est inférieur ou égal au mana disponible
+            if (cardPlayed.GetComponent<CardDisplay>().card.manaCost <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable) {
+                cardPlayed.GetComponent<CardDisplay>().putOnBoard(target, true);
+                GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= cardPlayed.GetComponent<CardDisplay>().card.manaCost;
+                GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
+
+                // Si c'est un enchantement on stock le GO de la carte dans MonsterDisplay
+                if (target.GetComponent<EquipmentDisplay>() != null) {
+                    GO_MonsterInvoked.GetComponent<MonsterDisplay>().cardEnchantments[target.GetComponent<EquipmentDisplay>().slotId] = cardPlayed.GetComponent<CardDisplay>().card;
+                    cardPlayed.transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+                    cardPlayed.transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
+                    cardPlayed.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+                }
+            } else {
+                // On affiche un message d'erreur
+                Debug.Log("ERR : no mana available");
+            }
+        } else { // Carte face caché, pas besoin de dépenser de mana
+            cardPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
+        }
+    }
+
     // Initialisation du tableau d'affinité
     void initializeArrayAffinity() {
         fireDico = new Dictionary<ElementalAffinity, float>() {
@@ -394,8 +434,10 @@ public class GameManager : MonoBehaviour
             defenser = GO_MonsterInvokedOppo;
         }
 
-        int power = attacker.GetComponent<MonsterDisplay>().monster.powerPoint;
-        int guard = defenser.GetComponent<MonsterDisplay>().monster.guardPoint;
+        int power = attacker.GetComponent<MonsterDisplay>().powerEquiped;
+        int guard = defenser.GetComponent<MonsterDisplay>().guardEquiped;
+        int speedAttacker = attacker.GetComponent<MonsterDisplay>().speedEquiped;
+        int speedDefenser = defenser.GetComponent<MonsterDisplay>().speedEquiped;
         float diffPowerGuard = 0;
         // On vérifie si le power > guard
         if (power > guard) {
@@ -414,7 +456,17 @@ public class GameManager : MonoBehaviour
         // On calcule le coef d'affinité max
         float affinityCoef = coefAffinityMax(attackAffinity, target);
 
-        float resultDamage = amountDamage * (1 + Mathf.Log(1 + diffPowerGuard) * 2 / 3) * bonusAffinity * affinityCoef;
+        // Calcule des dégâts avant les multiplicateurs
+        float resultDamage = amountDamage * (1 + Mathf.Log(1 + diffPowerGuard) * 2 / 3);
+        // Calcule des dégâts avec les multiplicateurs
+        resultDamage = resultDamage * bonusAffinity;
+        // Calcule des dégâts avec l'impacte de la "Speed"
+        resultDamage = resultDamage + (int)((speedAttacker - speedDefenser) / 100);
+        // Calcule des dégâts avec le coef d'affinité
+        resultDamage = resultDamage * affinityCoef;
+        if (resultDamage < 0) {
+            resultDamage = 0;
+        }
         return Mathf.RoundToInt(resultDamage);
     }
 
@@ -441,23 +493,31 @@ public class GameManager : MonoBehaviour
             inGrave(cardDisplayCounter.gameObject);
         }
 
+        // On détruit les équipements du monstre actif
+        foreach (Transform child in GO_EquipmentArea.transform) {
+            // On sauvegarde les enchantements du monstre actif
+            if (child.GetComponentInChildren<CardDisplay>() != null) {
+                int slotId = child.GetComponent<EquipmentDisplay>().slotId;
+                GO_MonsterInvoked.GetComponent<MonsterDisplay>().cardEnchantments[slotId] = child.GetComponentInChildren<CardDisplay>().card;
+            }
+            Destroy(child.gameObject);
+        }
+        
         // On change de monstre actif
         nextMonster.SetActive(true);
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
         GO_MonsterInvoked = nextMonster;
+
+        // On instantie l'équipement du nouveau monstre
+        instantiateEquipment(GO_MonsterInvoked);
 
         // On pioche de nouvelle carte dans le deck du nouveau monstre
         draw(amountCardInHand);
         // On réinitialise son mana
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
 
-        // On actualise les équipements
-        //// On détruit les équipements du monstre actif
-        foreach (Transform child in GO_EquipmentArea.transform) {
-            Destroy(child.gameObject);
-        }
-        //// On instantie l'équipement du nouveau monstre
-        instantiateEquipment(GO_MonsterInvoked);
+        // On actualise les dégâts affichés sur les cartes
+        StartCoroutine(refreshAllDamageText());
 
         // On actualise le deck et le cimetière
         refreshDeckText();
@@ -491,8 +551,61 @@ public class GameManager : MonoBehaviour
         //// On instantie l'équipement du nouveau monstre
         instantiateEquipment(GO_MonsterInvokedOppo);
 
+        // On actualise les dégâts affichés sur les cartes
+        StartCoroutine(refreshAllDamageText());
+
         // On actualise le deck et le cimetière
         // De l'adversaire
+    }
+
+    // Actualisation des dégâts affichés sur les cartes
+    public IEnumerator refreshAllDamageText() {
+        yield return null;
+        //// Cartes du joueur
+        // Dans la main du joueur
+        foreach (CardDisplay cardDisplay in GO_Hand.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.refreshDescriptionDamage();
+            }
+        }
+        // Dans la zone de contre-attaque
+        foreach (CardDisplay cardDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.refreshDescriptionDamage();
+            }
+        }
+        // Dans la zone d'équipement
+        foreach (CardDisplay cardDisplay in GO_EquipmentArea.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.refreshDescriptionDamage();
+            }
+        }
+        // Dans la zone d'aura
+        foreach (CardDisplay cardDisplay in GO_AuraArea.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.refreshDescriptionDamage();
+            }
+        }
+
+        //// Cartes de l'adversaire
+        // Dans la zone de contre-attaque
+        foreach (CardDisplay cardDisplay in GO_CounterAttackAreaOppo.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.refreshDescriptionDamage();
+            }
+        }
+        // Dans la zone d'équipement
+        foreach (CardDisplay cardDisplay in GO_EquipmentAreaOppo.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.refreshDescriptionDamage();
+            }
+        }
+        // Dans la zone d'aura
+        foreach (CardDisplay cardDisplay in GO_AuraAreaOppo.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.refreshDescriptionDamage();
+            }
+        }
     }
 
     // DEBUG Affiche le prochain monstre

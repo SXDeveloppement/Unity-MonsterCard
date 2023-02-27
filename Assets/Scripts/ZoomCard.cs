@@ -32,6 +32,7 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     // Quand le curseur entre sur la carte
     public void OnPointerEnter(PointerEventData eventData) {
+        // Si on ne déplace pas de carte et que la souris est sur une carte de la main
         if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Hand) {
             siblingIndex = transform.GetSiblingIndex();
             localPosition = transform.localPosition;
@@ -47,15 +48,19 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z);
                 createPlaceholder();
             }
+        // Si on ne déplace pas de carte et que la souris est sur une carte placé sur le terrain
         } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Board) {
             transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
+            if (transform.parent.parent.GetComponent<HorizontalLayoutGroup>() != null) {
+                transform.parent.parent.GetComponent<HorizontalLayoutGroup>().enabled = false;
+            }
             transform.parent.SetAsLastSibling();
 
             // Si c'est une carte face caché, on la retourne face visible
             if (GetComponent<CardDisplay>().hiddenCard) {
-                //GetComponent<CardDisplay>().showVisibleFace();
-                StartCoroutine(GetComponent<CardDisplay>().flipFront());
-                StopCoroutine(GetComponent<CardDisplay>().flipFront());
+                GetComponent<CardDisplay>().showVisibleFace();
+                //StartCoroutine(GetComponent<CardDisplay>().flipFront());
+                //StopCoroutine(GetComponent<CardDisplay>().flipFront());
             }
         }
     }
@@ -74,9 +79,9 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
             // Si c'est une carte face caché, on la replace en position face caché
             if (GetComponent<CardDisplay>().hiddenCard) {
-                //GetComponent<CardDisplay>().showHiddenFace();
-                StartCoroutine(GetComponent<CardDisplay>().flipBack());
-                StopCoroutine(GetComponent<CardDisplay>().flipBack());
+                GetComponent<CardDisplay>().showHiddenFace();
+                //StartCoroutine(GetComponent<CardDisplay>().flipBack());
+                //StopCoroutine(GetComponent<CardDisplay>().flipBack());
             }
         }
     }

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
-public class EquipmentDisplay : MonoBehaviour
+public class EquipmentDisplay : MonoBehaviour, IDropHandler 
 {
     public Equipment equipment;
     public TMP_Text nameText;
@@ -15,9 +15,15 @@ public class EquipmentDisplay : MonoBehaviour
     public TMP_Text hpText;
     public Image artworkImage;
 
+    public int slotId;
+
+    GameManager gameManager;
+
     // Start is called before the first frame update
     void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+
         nameText.text = equipment.name;
         powerText.text = equipment.powerPoint.ToString();
         guardText.text = equipment.guardPoint.ToString();
@@ -30,5 +36,30 @@ public class EquipmentDisplay : MonoBehaviour
     void Update()
     {
         
+    }
+
+    void IDropHandler.OnDrop(PointerEventData eventData) {
+        GameObject cardPlayed = eventData.pointerDrag;
+        GameObject targetSlot = eventData.pointerCurrentRaycast.gameObject;
+
+        // On vérifie que la cible soit bien un emplacement d'equipement
+        // Si l'emplacement n'est pas déjà enchanté
+        if (targetSlot == gameObject && targetSlot.transform.GetComponentInChildren<CardDisplay>() == null) {
+            // On vérifie les conditions de ciblage pour pouvoir placer la carte
+            bool targetCondition = false;
+            TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
+            foreach (TargetType targetType in cardPlayedTargetType) {
+                if (targetType == TargetType.PlayerEquipment) {
+                    gameManager.tryToPutOnBoard(cardPlayed, gameObject, true);
+                    targetCondition = true;
+                    break;
+                }
+            }
+
+            // On place la carte si les conditions de ciblages sont respectées
+            if (!targetCondition) {
+                Debug.Log("ERR : bad target");
+            }
+        }
     }
 }

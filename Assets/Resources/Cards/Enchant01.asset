@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
+  m_Name: Enchant01
+  m_EditorClassIdentifier: 
+  name: Enchant01
+  description: Monster gain +100 power and +50 speed
+  artwork: {fileID: 21300000, guid: 2d2707fba10ff4b4393eab1fd3d23eb2, type: 3}
+  manaCost: 4
+  priority: 1
+  elementalAffinity: 6
+  type: 1
+  targetType: 02000000
+  from: 0
+  effects: []

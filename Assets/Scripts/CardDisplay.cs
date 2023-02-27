@@ -51,6 +51,21 @@ public class CardDisplay : MonoBehaviour {
         gameManager.inGrave(gameObject);
     }
 
+    // On place la carte face visible
+    public void putOnBoard(GameObject target, bool isVisible) {
+        if (isVisible) {
+            showVisibleFace();
+            hiddenCard = false;
+        } else {
+            showHiddenFace();
+            hiddenCard = true;
+        }
+
+        transform.SetParent(target.transform);
+        status = Status.Board;
+        GetComponent<ZoomCard>().reinitCard();
+    }
+
     // Renvoi les dégats de base de l'attaque
     public List<int> getBaseDamage() {
         string pattern = @"\%D(\d+)";
@@ -68,7 +83,6 @@ public class CardDisplay : MonoBehaviour {
     public void refreshDescriptionDamage() {
         string pattern = @"\%D\d+";
         Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
-        //int trueDamage = gameManager.calculateDamage(gameManager.GO_MonsterInvokedOppo, card.elementalAffinity, getBaseDamage());
 
         string output = null;
         foreach (int baseDamage in getBaseDamage()) {

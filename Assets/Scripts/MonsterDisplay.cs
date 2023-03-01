@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 using Random = System.Random;
+using System.Linq;
 
 public class MonsterDisplay : MonoBehaviour, IDropHandler
 {
@@ -15,6 +16,8 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     public TMP_Text powerText;
     public TMP_Text guardText;
     public TMP_Text speedText;
+    public TMP_Text healthText;
+    public TMP_Text manaText;
     public Image artworkImage;
     public GameObject GO_Affinity;
 
@@ -22,15 +25,22 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     public int healthMax;
     public int manaMax;
     public int manaAvailable;
-    public int powerEquiped; // Power du monstre + des équipements
-    public int guardEquiped; // Guard du monstre + des équipements
-    public int speedEquiped; // Speed du monstre + des équipements
+    public int powerEquiped = 0; // Power du monstre + des équipements
+    public int guardEquiped = 0; // Guard du monstre + des équipements
+    public int speedEquiped = 0; // Speed du monstre + des équipements
 
     public List<Card> deckList; // Liste des cartes dans le deck
     public List<Card> graveList; // Liste des cartes dans le cimetière
     public List<Equipment> equipmentList; // Liste des équipements du monstre
-
     public List<Card> cardEnchantments; // Liste des cartes d'enchantement
+
+    public List<BuffDebuff> buffDebuffList; // Liste des buff / debuff du monstre
+    public int buffPower; // Power bonus total accordé par les buffs et débuff (positif ou négatif)
+    public int buffGuard; // Guard bonus total accordé par les buffs et débuff
+    public int buffSpeed; // Speed bonus total accordé par les buffs et débuff
+    public int buffMana; // Mana bonus total accordé par les buffs et débuff
+    public int buffDamageRaw; // Dommage brute bonus total accordé par les buffs et débuff
+    public int buffDamagePercent; // Dommage en pourcentage bonus total accordé par les buffs et débuff
 
 
     public bool ownedByOppo;
@@ -39,6 +49,8 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     Vector2 lifeBarSizeCached;
     Vector2 manaBarSizeCached;
     GameManager gameManager;
+
+    private bool init = true;
 
     // Start is called before the first frame update
     void Start()
@@ -65,34 +77,43 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             equipmentList.Add(DBEquipment[rand.Next(DBEquipment.Length)]);
         }
 
+        // Calcule power, guard et speed avec équipement
+        calculeStatsEquiped();
+        refreshStats();
+
         // Ajouter la vie bonus des équipements
         healthMax = monster.healthPoint;
         foreach (Equipment equipment in equipmentList) {
             healthMax += equipment.healthPoint;
         }
         healthAvailable = healthMax;
+        refreshHealthPoint();
 
+        // On initialise la mana
         manaMax = 1;
         manaAvailable = manaMax;
+        refreshManaPoint();
 
+        // On ajout l''illustration du monstre
         artworkImage.sprite = monster.artwork;
-        // On actualise les stats du monstre
-        refreshStats();
 
         // Affichage des affinités élémentaires du monstre
         foreach (ElementalAffinity affinity in monster.elementalAffinity) {
             GO_Affinity.transform.Find(affinity.ToString()).gameObject.SetActive(true);
         }
-
-        refreshHealthPoint();
-        refreshManaPoint();
-
-        gameObject.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (init) {
+            StartCoroutine(refreshUI());
+            if (gameObject.transform.GetSiblingIndex() != 0) {
+                gameObject.SetActive(false);
+            }
+            init = false;
+        }
+
         if (healthAvailable <= 0) {
             isKO = true;
         }
@@ -135,50 +156,10 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         GO_ManaBar.transform.Find("Text").localScale = flipX;
     }
 
-    // Actualise les stats
-    public void refreshStats() {
-        int power = monster.powerPoint;
-        foreach (Equipment equipment in equipmentList) {
-            power += equipment.powerPoint;
-        }
-        powerEquiped = power;
-        powerText.text = power.ToString();
-
-        int guard = monster.guardPoint;
-        foreach (Equipment equipment in equipmentList) {
-            guard += equipment.guardPoint;
-        }
-        guardEquiped = guard;
-        guardText.text = guard.ToString();
-
-        int speed = monster.speedPoint;
-        foreach (Equipment equipment in equipmentList) {
-            speed += equipment.speedPoint;
-        }
-        speedEquiped = speed;
-        speedText.text = speed.ToString();
-    }
-
-    // Actualise la barre de vie
-    public void refreshHealthPoint() {
-        GO_LifeBar.transform.Find("Text").GetComponent<TMP_Text>().text = healthAvailable.ToString() + "/" + healthMax.ToString();
-
-        // On modifie la taille de la barre
-        GO_LifeBar.transform.Find("Health").transform.localScale = new Vector3((float)healthAvailable / healthMax, 1f, 1f);
-    }
-
-    // Actualise la barre de mana
-    public void refreshManaPoint() {
-        GO_ManaBar.transform.Find("Text").GetComponent<TMP_Text>().text = manaAvailable.ToString() + "/" + manaMax.ToString();
-
-        // On modifie la taille de la barre
-        GO_ManaBar.transform.Find("Mana").transform.localScale = new Vector3((float)manaAvailable / manaMax, 1f, 1f);
-    }
-
     // Réinitiliation du mana
     public void resetMana() {
         manaAvailable = manaMax;
-        refreshManaPoint();
+        StartCoroutine(refreshUI());
     }
 
     // Action lors d'un nouveau tour
@@ -197,6 +178,140 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         if (healthAvailable < 0) {
             healthAvailable = 0;
         }
-        refreshHealthPoint();
+        StartCoroutine(refreshUI());
     }
+
+    // Instantie un buff / debuff
+    public GameObject instantiateBuffDebuff(BuffDebuffType buffDebuffType, int amount, int turnAmount) {
+        GameObject newGOBuffDebuff = Instantiate(gameManager.GO_BuffDebuff);
+        BuffDebuff newBuffDebuff = newGOBuffDebuff.GetComponent<BuffDebuff>();
+        newBuffDebuff.targetMonster = gameObject;
+        newBuffDebuff.buffDebuffType = buffDebuffType;
+        newBuffDebuff.amount = amount;
+        newBuffDebuff.turn = turnAmount;
+
+        if (gameObject == gameManager.GO_MonsterInvoked) {
+            if (amount >= 0) {
+                newGOBuffDebuff.transform.SetParent(gameManager.GO_BuffArea.transform);
+            } else {
+                newGOBuffDebuff.transform.SetParent(gameManager.GO_DebuffArea.transform);
+            }
+        } else {
+            if (amount >= 0) {
+                newGOBuffDebuff.transform.SetParent(gameManager.GO_BuffAreaOppo.transform);
+            } else {
+                newGOBuffDebuff.transform.SetParent(gameManager.GO_DebuffAreaOppo.transform);
+            }
+        }
+
+        return newGOBuffDebuff;
+    }
+
+    // Ajout d'un buff / debuff
+    public void addBuffDebuff(BuffDebuffType buffDebuffType, int amount, int turnAmount) {
+        GameObject buffDebuffGO = instantiateBuffDebuff(buffDebuffType, amount, turnAmount);
+        buffDebuffGO.GetComponent<BuffDebuff>().applyRemove(true);
+        buffDebuffList.Add(buffDebuffGO.GetComponent<BuffDebuff>());
+
+        StartCoroutine(refreshUI());
+        sortBuffDebuffList();
+    }
+
+    // Suppression d'un buff / debuff
+    public void removeBuffDebuff(BuffDebuff buffDebuff, bool refresh = true) {
+        buffDebuffList.Remove(buffDebuff);
+        sortBuffDebuffList();
+
+        if (refresh) {
+            gameManager.refreshBuffDebuff();
+            StartCoroutine(refreshUI());
+        }
+
+        Destroy(buffDebuff.gameObject);
+    }
+
+    // Suppression de tous les buff / debuff
+    public void removeAllBuffDebuff() {
+        List<BuffDebuff> copyList = new List<BuffDebuff>(buffDebuffList);
+        foreach (BuffDebuff buffDebuff in copyList) {
+            buffDebuff.applyRemove(false, false);
+        }
+
+        StartCoroutine(refreshUI());
+        StartCoroutine(gameManager.refreshAllDamageText());
+    }
+
+    // Réorganise la liste des buff/debuff
+    public void sortBuffDebuffList() {
+        buffDebuffList.Sort((x, y) => {
+            int ret = string.Compare(x.buffDebuffType.ToString(), y.buffDebuffType.ToString());
+            if (ret != 0) {
+                return ret;
+            } else {
+                ret = x.amount.CompareTo(y.amount);
+
+                if (ret != 0) {
+                    return ret;
+                } else {
+                    return x.turn.CompareTo(y.turn);
+                }
+            }
+        });
+    }
+
+    // On calcule power, guard et speed avec equipement
+    public void calculeStatsEquiped() {
+        int power = monster.powerPoint;
+        foreach (Equipment equipment in equipmentList) {
+            power += equipment.powerPoint;
+        }
+        powerEquiped = power;
+
+        int guard = monster.guardPoint;
+        foreach (Equipment equipment in equipmentList) {
+            guard += equipment.guardPoint;
+        }
+        guardEquiped = guard;
+
+        int speed = monster.speedPoint;
+        foreach (Equipment equipment in equipmentList) {
+            speed += equipment.speedPoint;
+        }
+        speedEquiped = speed;
+    }
+
+    //*********** ACTUALISATION de l'UI ***************//
+
+    // Actualise les stats
+    public void refreshStats() {
+        powerText.text = (powerEquiped + buffPower).ToString();
+        guardText.text = (guardEquiped + buffGuard).ToString();
+        speedText.text = (speedEquiped + buffSpeed).ToString();
+    }
+
+    // Actualise la barre de vie
+    public void refreshHealthPoint() {
+        healthText.text = healthAvailable.ToString() + "/" + healthMax.ToString();
+
+        // On modifie la taille de la barre
+        GO_LifeBar.transform.Find("Health").transform.localScale = new Vector3((float)healthAvailable / healthMax, 1f, 1f);
+    }
+
+    // Actualise la barre de mana
+    public void refreshManaPoint() {
+        manaText.text = manaAvailable.ToString() + "/" + manaMax.ToString();
+
+        // On modifie la taille de la barre
+        GO_ManaBar.transform.Find("Mana").transform.localScale = new Vector3((float)manaAvailable / manaMax, 1f, 1f);
+    }
+
+    // On actualise toute l'UI du monstre
+    public IEnumerator refreshUI() {
+        yield return null;
+        refreshStats();
+        refreshHealthPoint();
+        refreshManaPoint();
+    }
+
+
 }

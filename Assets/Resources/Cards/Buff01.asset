@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: Enchant01
+  m_Name: Buff01
   m_EditorClassIdentifier: 
-  name: Enchant01
-  description: Monster gain 100 power and 50 speed
-  artwork: {fileID: 21300000, guid: 2d2707fba10ff4b4393eab1fd3d23eb2, type: 3}
-  manaCost: 4
+  name: Buff01
+  description: Your monster gain 200 power for 2 turns
+  artwork: {fileID: 21300000, guid: 0e94ebf8f174af24dad980c9549039ba, type: 3}
+  manaCost: 1
   priority: 1
   elementalAffinity: 6
-  type: 1
-  targetType: 02000000
+  type: 0
+  targetType: 0000000001000000
   from: 0
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: a31c218b99562fd40a346381c2c6769b, type: 2}

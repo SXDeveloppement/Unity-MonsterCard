@@ -17,3 +17,7 @@ public enum From {
 public enum TargetType {
     PlayerMonster, OpponantMonster, PlayerEquipment, OpponantEquipment, PlayerAura, OpponantAura, SlotVisible, SlotHidden
 }
+
+public enum BuffDebuffType {
+    Power, Guard, Speed, Mana, DamageRaw, DamagePercent
+}

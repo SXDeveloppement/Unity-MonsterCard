@@ -30,6 +30,11 @@ public class GameManager : MonoBehaviour {
     public GameObject GO_Equipment; // Prefab
     public GameObject GO_EquipmentArea;
     public GameObject GO_EquipmentAreaOppo;
+    public GameObject GO_BuffDebuff; // Prefab
+    public GameObject GO_BuffArea;
+    public GameObject GO_DebuffArea;
+    public GameObject GO_BuffAreaOppo;
+    public GameObject GO_DebuffAreaOppo;
 
     Dictionary<ElementalAffinity, float> fireDico;
     Dictionary<ElementalAffinity, float> waterDico;
@@ -38,6 +43,8 @@ public class GameManager : MonoBehaviour {
     Dictionary<ElementalAffinity, float> combatDico;
     Dictionary<ElementalAffinity, float> mentalDico;
     Dictionary<ElementalAffinity, float> neutralDico;
+
+    private bool init = true;
 
     // Start is called before the first frame update
     void Start()
@@ -67,10 +74,8 @@ public class GameManager : MonoBehaviour {
                 // On instantie le monstre dans la fenêtre d'équipe du joueur
                 GameObject newMonsterTeamLayout = Instantiate(GO_MonsterTeamLayout);
                 newMonsterTeamLayout.name = "MonsterTeamLayout";
-                newMonsterTeamLayout.GetComponent<MonsterDisplay>().monster = DBMonsters[randomInt];
                 newMonsterTeamLayout.transform.SetParent(GO_TeamArea.transform);
-                newMonsterTeamLayout.GetComponent<MonsterDisplay>().ownedByOppo = false;
-      
+                newMonsterTeamLayout.GetComponent<MonsterLayoutTeamDisplay>().monsterLinked = newMonster;
             }
         }
 
@@ -94,14 +99,16 @@ public class GameManager : MonoBehaviour {
 
                 addedMonster.Add(DBMonsters[randomInt]);
             }
-        }        
+        }
 
 
         // On affiche le premier monstre
-        monstersGOList[0].SetActive(true);
-        monstersGOListOppo[0].SetActive(true);
+        //monstersGOList[0].SetActive(true);
+        //monstersGOListOppo[0].SetActive(true);
         GO_MonsterInvoked = monstersGOList[0];
         GO_MonsterInvokedOppo = monstersGOListOppo[0];
+
+        GO_TeamArea.transform.parent.gameObject.SetActive(true);
 
         refreshDeckText();
         refreshGraveText();
@@ -111,21 +118,15 @@ public class GameManager : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (!GO_MonsterInvoked.activeSelf) {
-            GO_MonsterInvoked.SetActive(true);
-            refreshDeckText();
+        if (init) {
             instantiateEquipment(GO_MonsterInvoked);
-        }
-        if (!GO_MonsterInvokedOppo.activeSelf) {
-            GO_MonsterInvokedOppo.SetActive(true);
             instantiateEquipment(GO_MonsterInvokedOppo);
-        }
-        if (!GO_TeamArea.transform.GetChild(0).gameObject.activeSelf) {
             foreach (Transform child in GO_TeamArea.transform) {
-                child.gameObject.SetActive(true);
+                child.gameObject.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
             }
+            GO_TeamArea.transform.parent.gameObject.SetActive(false);
+            init = false;
         }
-
     }
 
     // On instantie l'équipement d'un monstre
@@ -156,13 +157,17 @@ public class GameManager : MonoBehaviour {
 
     // Termine le tour en cours
     public void endTurn() {
+        // On retire un tour au buff / debuff
+        buffDebuffAddTurn(-1);
+        buffDebuffAddTurnOppo(-1);
+        refreshBuffDebuff();
 
         newTurn();
     }
 
     // Commende un nouveau tour
     public void newTurn() {
-        draw(1);
+        //draw(1);
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().newTurn();
     }
 
@@ -250,14 +255,16 @@ public class GameManager : MonoBehaviour {
     public void refreshTeamAreaLayout() {
         foreach (Transform child in GO_TeamArea.transform) {
             int indexChild = child.GetSiblingIndex();
-            MonsterDisplay monsterDisplay = child.gameObject.GetComponent<MonsterDisplay>();
-            monsterDisplay.healthAvailable = monstersGOList[indexChild].GetComponent<MonsterDisplay>().healthAvailable;
-            monsterDisplay.healthMax = monstersGOList[indexChild].GetComponent<MonsterDisplay>().healthMax;
-            monsterDisplay.manaAvailable = monstersGOList[indexChild].GetComponent<MonsterDisplay>().manaAvailable;
-            monsterDisplay.manaMax = monstersGOList[indexChild].GetComponent<MonsterDisplay>().manaMax;
-            
-            monsterDisplay.refreshHealthPoint();
-            monsterDisplay.refreshManaPoint();
+            MonsterLayoutTeamDisplay monsterLayoutTeamDisplay = child.gameObject.GetComponent<MonsterLayoutTeamDisplay>();
+            MonsterDisplay monsterDisplay = monsterLayoutTeamDisplay.monsterLinked.GetComponent<MonsterDisplay>();
+            monsterLayoutTeamDisplay.refreshMonsterUI();
+            //monsterDisplay.healthAvailable = monstersGOList[indexChild].GetComponent<MonsterDisplay>().healthAvailable;
+            //monsterDisplay.healthMax = monstersGOList[indexChild].GetComponent<MonsterDisplay>().healthMax;
+            //monsterDisplay.manaAvailable = monstersGOList[indexChild].GetComponent<MonsterDisplay>().manaAvailable;
+            //monsterDisplay.manaMax = monstersGOList[indexChild].GetComponent<MonsterDisplay>().manaMax;
+
+            //monsterDisplay.refreshHealthPoint();
+            //monsterDisplay.refreshManaPoint();
 
             GameObject buttonSwap = GO_TeamArea.transform.parent.Find("LayoutSelection").GetChild(indexChild).GetComponentInChildren<Button>().gameObject;
             if (monstersGOList[indexChild] == GO_MonsterInvoked || monsterDisplay.healthAvailable <= 0) {
@@ -434,10 +441,10 @@ public class GameManager : MonoBehaviour {
             defenser = GO_MonsterInvokedOppo;
         }
 
-        int power = attacker.GetComponent<MonsterDisplay>().powerEquiped;
-        int guard = defenser.GetComponent<MonsterDisplay>().guardEquiped;
-        int speedAttacker = attacker.GetComponent<MonsterDisplay>().speedEquiped;
-        int speedDefenser = defenser.GetComponent<MonsterDisplay>().speedEquiped;
+        int power = attacker.GetComponent<MonsterDisplay>().powerEquiped + attacker.GetComponent<MonsterDisplay>().buffPower;
+        int guard = defenser.GetComponent<MonsterDisplay>().guardEquiped + defenser.GetComponent<MonsterDisplay>().buffGuard;
+        int speedAttacker = attacker.GetComponent<MonsterDisplay>().speedEquiped + attacker.GetComponent<MonsterDisplay>().buffSpeed;
+        int speedDefenser = defenser.GetComponent<MonsterDisplay>().speedEquiped + defenser.GetComponent<MonsterDisplay>().buffSpeed;
         float diffPowerGuard = 0;
         // On vérifie si le power > guard
         if (power > guard) {
@@ -474,11 +481,6 @@ public class GameManager : MonoBehaviour {
     public void swapMonster(int indexMonster) {
         GameObject nextMonster = monstersGOList[indexMonster];
 
-        // On desactive tous les GO des monstres
-        foreach (Transform child in GO_MonsterArea.transform) {
-            child.gameObject.SetActive(false);
-        }
-
         // On compte le nombre de carte dans la main
         int amountCardInHand = GO_Hand.transform.childCount;
         // On remet les cartes de la main dans le deck du monstre précédant
@@ -502,10 +504,20 @@ public class GameManager : MonoBehaviour {
             }
             Destroy(child.gameObject);
         }
-        
+
+        // On reset le mana et on supprime tous les buff et debuff du précédent monstre
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().removeAllBuffDebuff();
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshStats();
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
+
+        // On desactive tous les GO des monstres
+        foreach (Transform child in GO_MonsterArea.transform) {
+            child.gameObject.SetActive(false);
+        }
+
         // On change de monstre actif
         nextMonster.SetActive(true);
-        GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
         GO_MonsterInvoked = nextMonster;
 
         // On instantie l'équipement du nouveau monstre
@@ -606,6 +618,40 @@ public class GameManager : MonoBehaviour {
                 cardDisplay.refreshDescriptionDamage();
             }
         }
+    }
+
+    // On modifie les tours restant pour les buff / debuff du monstre du joueur
+    public void buffDebuffAddTurn(int turnAmount) {
+        List<BuffDebuff> copyList = new List<BuffDebuff>(GO_MonsterInvoked.GetComponent<MonsterDisplay>().buffDebuffList);
+        foreach (BuffDebuff buffDebuff in copyList) {
+            buffDebuff.addTurn(turnAmount);
+        }
+    }
+
+    // On modifie les tours restant pour les buff / debuff du monstre adverse
+    public void buffDebuffAddTurnOppo(int turnAmount) {
+        List<BuffDebuff> copyList = new List<BuffDebuff>(GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().buffDebuffList);
+        foreach (BuffDebuff buffDebuff in copyList) {
+            buffDebuff.addTurn(turnAmount);
+        }
+    }
+
+    // On actualise l'affichage des buff / debuff
+    public void refreshBuffDebuff() {
+        // buff / debuff de notre monstre
+        List<BuffDebuff> copyList = new List<BuffDebuff>(GO_MonsterInvoked.GetComponent<MonsterDisplay>().buffDebuffList);
+        foreach (BuffDebuff buffDebuff in copyList) {
+            buffDebuff.GetComponent<BuffDebuffDisplay>().refresh();
+        }
+
+        // buff / debuff du monstre adverse
+        List<BuffDebuff> copyList2 = new List<BuffDebuff>(GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().buffDebuffList);
+        foreach (BuffDebuff buffDebuff in copyList2) {
+            buffDebuff.GetComponent<BuffDebuffDisplay>().refresh();
+        }
+
+        // On actualise les dégâts affichés sur les cartes
+        StartCoroutine(refreshAllDamageText());
     }
 
     // DEBUG Affiche le prochain monstre

@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: Enchant01
+  m_Name: Debuff01
   m_EditorClassIdentifier: 
-  name: Enchant01
-  description: Monster gain 100 power and 50 speed
-  artwork: {fileID: 21300000, guid: 2d2707fba10ff4b4393eab1fd3d23eb2, type: 3}
-  manaCost: 4
+  name: Debuff01
+  description: Enemy monster loses 200 guard for 2 turns
+  artwork: {fileID: 21300000, guid: 1c28e4865ca4cb8488126f0f5f47bc1a, type: 3}
+  manaCost: 1
   priority: 1
   elementalAffinity: 6
-  type: 1
-  targetType: 02000000
+  type: 0
+  targetType: 0100000000000000
   from: 0
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: 6cf633d0e534428499629e97dee5bb9a, type: 2}

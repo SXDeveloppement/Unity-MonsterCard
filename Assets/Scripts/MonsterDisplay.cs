@@ -21,6 +21,7 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     public Image artworkImage;
     public GameObject GO_Affinity;
 
+    public GameObject monsterLayoutTeamLinked; // GO du monstre affiché dans la fenêtre de l'équipe
     public int healthAvailable;
     public int healthMax;
     public int manaMax;
@@ -52,6 +53,18 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
 
     private bool init = true;
 
+    // Variable temporaire pour l'update de l'UI
+    int powerEquipedTemp = 0;
+    int guardEquipedTemp = 0;
+    int speedEquipedTemp = 0;
+    int healthAvailableTemp = 0;
+    int manaMaxTemp = 0;
+    int manaAvailableTemp = 0;
+    int buffPowerTemp = 0;
+    int buffGuardTemp = 0;
+    int buffSpeedTemp = 0; 
+    int buffManaTemp = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -79,7 +92,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
 
         // Calcule power, guard et speed avec équipement
         calculeStatsEquiped();
-        refreshStats();
 
         // Ajouter la vie bonus des équipements
         healthMax = monster.healthPoint;
@@ -87,12 +99,10 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             healthMax += equipment.healthPoint;
         }
         healthAvailable = healthMax;
-        refreshHealthPoint();
 
         // On initialise la mana
         manaMax = 1;
         manaAvailable = manaMax;
-        refreshManaPoint();
 
         // On ajout l''illustration du monstre
         artworkImage.sprite = monster.artwork;
@@ -103,11 +113,13 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         }
     }
 
+
+
     // Update is called once per frame
     void Update()
     {
         if (init) {
-            StartCoroutine(refreshUI());
+            //StartCoroutine(refreshUI());
             if (gameObject.transform.GetSiblingIndex() != 0) {
                 gameObject.SetActive(false);
             }
@@ -116,6 +128,39 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
 
         if (healthAvailable <= 0) {
             isKO = true;
+        }
+
+        // On refresh l'UI si des variables ont changé
+        if (healthAvailable != healthAvailableTemp) {
+            healthAvailableTemp = healthAvailable;
+            refreshHealthPoint();
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+        }
+        if (manaAvailable != manaAvailableTemp || manaMax != manaMaxTemp || buffMana != buffManaTemp) {
+            manaMaxTemp = manaMax;
+            manaAvailableTemp = manaAvailable;
+            refreshManaPoint();
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+        }
+        if (powerEquiped != powerEquipedTemp || buffPower != buffPowerTemp) {
+            buffPowerTemp = buffPower;
+            refreshPower();
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+        }
+        if (guardEquiped != guardEquipedTemp || buffGuard != buffGuardTemp) {
+            buffGuardTemp = buffGuard;
+            refreshGuard();
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+        }
+        if (speedEquiped != speedEquipedTemp || buffSpeed != buffSpeedTemp) {
+            buffSpeedTemp = buffSpeed;
+            refreshSpeed();
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
         }
     }
 
@@ -159,7 +204,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     // Réinitiliation du mana
     public void resetMana() {
         manaAvailable = manaMax;
-        StartCoroutine(refreshUI());
     }
 
     // Action lors d'un nouveau tour
@@ -178,7 +222,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         if (healthAvailable < 0) {
             healthAvailable = 0;
         }
-        StartCoroutine(refreshUI());
     }
 
     // Instantie un buff / debuff
@@ -212,8 +255,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         GameObject buffDebuffGO = instantiateBuffDebuff(buffDebuffType, amount, turnAmount);
         buffDebuffGO.GetComponent<BuffDebuff>().applyRemove(true);
         buffDebuffList.Add(buffDebuffGO.GetComponent<BuffDebuff>());
-
-        StartCoroutine(refreshUI());
         sortBuffDebuffList();
     }
 
@@ -224,7 +265,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
 
         if (refresh) {
             gameManager.refreshBuffDebuff();
-            StartCoroutine(refreshUI());
         }
 
         Destroy(buffDebuff.gameObject);
@@ -237,7 +277,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             buffDebuff.applyRemove(false, false);
         }
 
-        StartCoroutine(refreshUI());
         StartCoroutine(gameManager.refreshAllDamageText());
     }
 
@@ -282,36 +321,56 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
 
     //*********** ACTUALISATION de l'UI ***************//
 
-    // Actualise les stats
-    public void refreshStats() {
-        powerText.text = (powerEquiped + buffPower).ToString();
-        guardText.text = (guardEquiped + buffGuard).ToString();
-        speedText.text = (speedEquiped + buffSpeed).ToString();
+    // Actualise la puissance du monstre
+    public void refreshPower() {
+        powerText.text = getPowerPointString();
+    }
+    public string getPowerPointString() {
+        return (powerEquiped + buffPower).ToString();
+    }
+
+    // Actualise la defense du monstre
+    public void refreshGuard() {
+        guardText.text = getGuardPointString();
+    }
+    public string getGuardPointString() {
+        return (guardEquiped + buffGuard).ToString();
+    }
+
+    // Actualise la vitesse du monstre
+    public void refreshSpeed() {
+        speedText.text = getSpeedPointString();
+    }
+    public string getSpeedPointString() {
+        return (speedEquiped + buffSpeed).ToString();
     }
 
     // Actualise la barre de vie
     public void refreshHealthPoint() {
-        healthText.text = healthAvailable.ToString() + "/" + healthMax.ToString();
+        healthText.text = getHealthBarString();
 
         // On modifie la taille de la barre
-        GO_LifeBar.transform.Find("Health").transform.localScale = new Vector3((float)healthAvailable / healthMax, 1f, 1f);
+        GO_LifeBar.transform.Find("Health").transform.localScale = getHealthBarScale();
     }
+    public string getHealthBarString() {
+        return healthAvailable.ToString() + "/" + healthMax.ToString();
+    }
+    public Vector3 getHealthBarScale() {
+        return new Vector3((float)healthAvailable / healthMax, 1f, 1f);
+    }
+
 
     // Actualise la barre de mana
     public void refreshManaPoint() {
-        manaText.text = manaAvailable.ToString() + "/" + manaMax.ToString();
+        manaText.text = getManaBarString();
 
         // On modifie la taille de la barre
-        GO_ManaBar.transform.Find("Mana").transform.localScale = new Vector3((float)manaAvailable / manaMax, 1f, 1f);
+        GO_ManaBar.transform.Find("Mana").transform.localScale = getManaBarScale();
     }
-
-    // On actualise toute l'UI du monstre
-    public IEnumerator refreshUI() {
-        yield return null;
-        refreshStats();
-        refreshHealthPoint();
-        refreshManaPoint();
+    public string getManaBarString() {
+        return manaAvailable.ToString() + "/" + manaMax.ToString();
     }
-
-
+    public Vector3 getManaBarScale() {
+        return new Vector3((float)manaAvailable / manaMax, 1f, 1f);
+    }
 }

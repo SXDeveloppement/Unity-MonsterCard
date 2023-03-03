@@ -15,6 +15,10 @@ public class Card : ScriptableObject {
     public From from;
     public CardEffect[] effects;
 
+    public int sbirePowerPoint;
+    public int sbireHealthPoint;
+
+
     public void activeEffect(GameObject target) {
         foreach(var effect in effects) {
             effect.ExecuteEffect(target, this);

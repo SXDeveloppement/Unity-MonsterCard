@@ -26,17 +26,17 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
     public void refreshMonsterUI() {
         MonsterDisplay monsterDisplay = monsterLinked.GetComponent<MonsterDisplay>();
         artworkImage.sprite = monsterDisplay.artworkImage.sprite;
-        powerText.text = monsterDisplay.powerText.text;
-        guardText.text = monsterDisplay.guardText.text;
-        speedText.text = monsterDisplay.speedText.text;
-        healthText.text = monsterDisplay.healthText.text;
-        manaText.text = monsterDisplay.manaText.text;
+        powerText.text = monsterDisplay.getPowerPointString();
+        guardText.text = monsterDisplay.getGuardPointString();
+        speedText.text = monsterDisplay.getSpeedPointString();
+        healthText.text = monsterDisplay.getHealthBarString();
+        manaText.text = monsterDisplay.getManaBarString();
 
         // On modifie la taille de la barre
-        healthText.transform.parent.Find("Health").transform.localScale = new Vector3((float)monsterDisplay.healthAvailable / monsterDisplay.healthMax, 1f, 1f);
+        healthText.transform.parent.Find("Health").transform.localScale = monsterDisplay.getHealthBarScale();
 
         // On modifie la taille de la barre
-        manaText.transform.parent.Find("Mana").transform.localScale = new Vector3((float)monsterDisplay.manaAvailable / monsterDisplay.manaMax, 1f, 1f);
+        manaText.transform.parent.Find("Mana").transform.localScale = monsterDisplay.getManaBarScale();
     }
 
 }

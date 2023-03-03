@@ -7,7 +7,7 @@ public enum ElementalAffinity {
 }
 
 public enum Type {
-    Spell, Enchantment, Aura, CounterAttack, Echo
+    Spell, Enchantment, Aura, CounterAttack, Echo, Sbire
 }
 
 public enum From {
@@ -15,9 +15,14 @@ public enum From {
 }
 
 public enum TargetType {
-    PlayerMonster, OpponantMonster, PlayerEquipment, OpponantEquipment, PlayerAura, OpponantAura, SlotVisible, SlotHidden
+    PlayerMonster, OpponantMonster, PlayerEquipment, OpponantEquipment, PlayerAura, OpponantAura, SlotVisible, SlotHidden, PlayerSbire, OpponantSbire
 }
 
 public enum BuffDebuffType {
     Power, Guard, Speed, Mana, DamageRaw, DamagePercent
+}
+
+// quickness = célérité / pierce = piétinement / lead combat = Initiative
+public enum SbirePassifEffect {
+    Quickness, Pierce, LeadCombat
 }

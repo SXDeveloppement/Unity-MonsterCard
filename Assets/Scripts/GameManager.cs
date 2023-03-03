@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour {
     // Start is called before the first frame update
     void Start()
     {
+
         dragged = false;
         initializeArrayAffinity();
 
@@ -76,6 +77,7 @@ public class GameManager : MonoBehaviour {
                 newMonsterTeamLayout.name = "MonsterTeamLayout";
                 newMonsterTeamLayout.transform.SetParent(GO_TeamArea.transform);
                 newMonsterTeamLayout.GetComponent<MonsterLayoutTeamDisplay>().monsterLinked = newMonster;
+                newMonster.GetComponent<MonsterDisplay>().monsterLayoutTeamLinked = newMonsterTeamLayout;
             }
         }
 
@@ -101,18 +103,10 @@ public class GameManager : MonoBehaviour {
             }
         }
 
-
-        // On affiche le premier monstre
-        //monstersGOList[0].SetActive(true);
-        //monstersGOListOppo[0].SetActive(true);
         GO_MonsterInvoked = monstersGOList[0];
         GO_MonsterInvokedOppo = monstersGOListOppo[0];
 
         GO_TeamArea.transform.parent.gameObject.SetActive(true);
-
-        refreshDeckText();
-        refreshGraveText();
-
     }
 
     // Update is called once per frame
@@ -125,6 +119,8 @@ public class GameManager : MonoBehaviour {
                 child.gameObject.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
             }
             GO_TeamArea.transform.parent.gameObject.SetActive(false);
+            refreshDeckText();
+            refreshGraveText();
             init = false;
         }
     }
@@ -508,8 +504,6 @@ public class GameManager : MonoBehaviour {
         // On reset le mana et on supprime tous les buff et debuff du précédent monstre
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().removeAllBuffDebuff();
-        GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshStats();
-        GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
 
         // On desactive tous les GO des monstres
         foreach (Transform child in GO_MonsterArea.transform) {

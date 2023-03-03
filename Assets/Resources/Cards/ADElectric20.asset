@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: Aura01
+  m_Name: ADElectric20
   m_EditorClassIdentifier: 
-  name: Aura01
-  description: All your monster have +1 mana
-  artwork: {fileID: 1702657407, guid: 16fe21a5621dbda49873eaff9cda07ae, type: 3}
+  name: ADElectric20
+  description: Deal %D20 electric damages to target opponant unit
+  artwork: {fileID: 21300000, guid: 5a74c7b6ea7456d40abc501a45981adf, type: 3}
   manaCost: 2
   priority: 1
-  elementalAffinity: 6
-  type: 2
-  targetType: 05000000
+  elementalAffinity: 2
+  type: 0
+  targetType: 0100000009000000
   from: 0
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: dd4f070f6e9dd98439b5eb8ca19db54a, type: 2}
   sbirePowerPoint: 0
   sbireHealthPoint: 0

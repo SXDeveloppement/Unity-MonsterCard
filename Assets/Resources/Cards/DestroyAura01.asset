@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: Aura01
+  m_Name: DestroyAura01
   m_EditorClassIdentifier: 
-  name: Aura01
-  description: All your monster have +1 mana
-  artwork: {fileID: 1702657407, guid: 16fe21a5621dbda49873eaff9cda07ae, type: 3}
-  manaCost: 2
+  name: DestroyAura01
+  description: Destroy target aura
+  artwork: {fileID: 21300000, guid: bd33123859fb8d34e9ef23f1a505e1bb, type: 3}
+  manaCost: 1
   priority: 1
   elementalAffinity: 6
-  type: 2
-  targetType: 05000000
+  type: 0
+  targetType: 0600000007000000
   from: 0
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: 1d856031627db6d45be8affd46d25eac, type: 2}
   sbirePowerPoint: 0
   sbireHealthPoint: 0

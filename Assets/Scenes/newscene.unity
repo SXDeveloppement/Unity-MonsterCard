@@ -1259,7 +1259,7 @@ RectTransform:
   m_GameObject: {fileID: 295822153}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 939131646}
@@ -2114,14 +2114,14 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 4
+  m_ChildAlignment: 3
   m_Spacing: 5
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!1 &492531389
 GameObject:
@@ -4219,6 +4219,7 @@ MonoBehaviour:
   GO_Aura2: {fileID: 1429836948}
   GO_Aura3: {fileID: 2129334993}
   GO_Aura4: {fileID: 1588950046}
+  ownByOppo: 1
 --- !u!114 &939131648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5887,14 +5888,14 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 4
+  m_ChildAlignment: 3
   m_Spacing: 5
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!224 &1459185898
 RectTransform:
@@ -8810,6 +8811,7 @@ MonoBehaviour:
   GO_Aura2: {fileID: 1195767030}
   GO_Aura3: {fileID: 801152845}
   GO_Aura4: {fileID: 1378419035}
+  ownByOppo: 0
 --- !u!1 &2039970319
 GameObject:
   m_ObjectHideFlags: 0
@@ -9406,7 +9408,7 @@ RectTransform:
   m_GameObject: {fileID: 2134704422}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2130358377}

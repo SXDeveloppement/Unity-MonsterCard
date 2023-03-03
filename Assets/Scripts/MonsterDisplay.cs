@@ -145,22 +145,31 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
                 monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
         }
         if (powerEquiped != powerEquipedTemp || buffPower != buffPowerTemp) {
+            powerEquipedTemp = powerEquiped;
             buffPowerTemp = buffPower;
             refreshPower();
             if (!ownedByOppo)
-                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
+            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+                StartCoroutine(gameManager.refreshAllDamageText());
         }
         if (guardEquiped != guardEquipedTemp || buffGuard != buffGuardTemp) {
+            guardEquipedTemp = guardEquiped;
             buffGuardTemp = buffGuard;
             refreshGuard();
             if (!ownedByOppo)
-                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
+            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+                StartCoroutine(gameManager.refreshAllDamageText());
         }
         if (speedEquiped != speedEquipedTemp || buffSpeed != buffSpeedTemp) {
+            speedEquipedTemp = speedEquiped;
             buffSpeedTemp = buffSpeed;
             refreshSpeed();
             if (!ownedByOppo)
-                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
+            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+                StartCoroutine(gameManager.refreshAllDamageText());
         }
     }
 
@@ -277,7 +286,7 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             buffDebuff.applyRemove(false, false);
         }
 
-        StartCoroutine(gameManager.refreshAllDamageText());
+        //StartCoroutine(gameManager.refreshAllDamageText());
     }
 
     // Réorganise la liste des buff/debuff

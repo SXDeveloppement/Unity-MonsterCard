@@ -10,16 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: 01
+  m_Name: DestroyEnchantment
   m_EditorClassIdentifier: 
-  name: ADFire1
-  description: Deal %d3 fire damage and %d1 fire damage
-  artwork: {fileID: -1308927029, guid: 11bef174ec5bbec48913d77ac78bbde3, type: 3}
+  name: DestroyEnchantment01
+  description: Destroy target enchantment
+  artwork: {fileID: 21300000, guid: 8fae361b70ce15e4caf53ca8a8f87de8, type: 3}
   manaCost: 1
   priority: 1
-  elementalAffinity: 0
+  elementalAffinity: 6
   type: 0
-  targetType: 0100000007000000
+  targetType: 0300000004000000
   from: 0
   effects:
-  - {fileID: 11400000, guid: a76402cfc9b3c0443b261cf7344686e2, type: 2}
+  - {fileID: 11400000, guid: 11b5e789c203e9b42838a9f53ccb29eb, type: 2}
+  sbirePowerPoint: 0
+  sbireHealthPoint: 0

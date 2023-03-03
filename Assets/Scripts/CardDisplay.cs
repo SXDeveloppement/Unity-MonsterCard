@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
-public class CardDisplay : MonoBehaviour {
+public class CardDisplay : MonoBehaviour, IDropHandler {
     public Card card;
     public TMP_Text nameText;
     public TMP_Text descriptionText;
@@ -14,8 +15,10 @@ public class CardDisplay : MonoBehaviour {
     public TMP_Text typeText;
     public Image artworkImage;
 
+    public GameObject ownByMonster; // GO du monstre qui possède cette carte
     public Status status;
     public bool hiddenCard;
+
     public AnimationCurve scaleCurve;
     public float duration = 0.5f;
 
@@ -42,6 +45,29 @@ public class CardDisplay : MonoBehaviour {
     // Update is called once per frame
     void Update() {
 
+    }
+
+    void IDropHandler.OnDrop(PointerEventData eventData) {
+        GameObject cardPlayed = eventData.pointerDrag;
+        GameObject target = gameObject;
+
+        // On vérifie les conditions de ciblage pour pouvoir activer la carte
+        bool targetCondition = false;
+        TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
+        foreach (TargetType cardTargetType in cardPlayedTargetType) {
+            if (card.type == Type.Aura && (cardTargetType == TargetType.OpponantCardAura && ownByMonster.GetComponent<MonsterDisplay>().ownedByOppo || cardTargetType == TargetType.PlayerCardAura && !ownByMonster.GetComponent<MonsterDisplay>().ownedByOppo) || card.type == Type.Enchantment && (cardTargetType == TargetType.OpponantCardEnchantment && ownByMonster.GetComponent<MonsterDisplay>().ownedByOppo || cardTargetType == TargetType.PlayerCardEnchantment && !ownByMonster.GetComponent<MonsterDisplay>().ownedByOppo)) 
+            {
+                targetCondition = true;
+                break;
+            }
+        }
+
+        // On active la carte si les conditions de ciblages sont respectées
+        if (targetCondition) {
+            gameManager.activeCardOnTarget(cardPlayed, target);
+        } else {
+            Debug.Log("ERR : bad target");
+        }
     }
 
     // On active les effets de la carte

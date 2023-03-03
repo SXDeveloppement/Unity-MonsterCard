@@ -128,6 +128,7 @@ public class GameManager : MonoBehaviour {
     // On instantie l'équipement d'un monstre
     public void instantiateEquipment(GameObject monster) {
         GO_EquipmentArea.GetComponent<HorizontalLayoutGroup>().enabled = true;
+        GO_EquipmentAreaOppo.GetComponent<HorizontalLayoutGroup>().enabled = true;
         int i = 0;
         foreach (Equipment equipment in monster.GetComponent<MonsterDisplay>().equipmentList) {
             GameObject newEquipment = Instantiate(GO_Equipment);
@@ -135,8 +136,10 @@ public class GameManager : MonoBehaviour {
             newEquipment.GetComponent<EquipmentDisplay>().slotId = i;
             if (monster == GO_MonsterInvoked) {
                 newEquipment.transform.SetParent(GO_EquipmentArea.transform);
+                newEquipment.GetComponent<EquipmentDisplay>().ownByOppo = false;
             } else {
                 newEquipment.transform.SetParent(GO_EquipmentAreaOppo.transform);
+                newEquipment.GetComponent<EquipmentDisplay>().ownByOppo = true;
             }
 
             // On instantie les cartes enchantements
@@ -177,6 +180,7 @@ public class GameManager : MonoBehaviour {
             newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
             newCard.name = newCard.GetComponent<CardDisplay>().card.name;
             newCard.GetComponent<CardDisplay>().status = Status.Hand;
+            newCard.GetComponent<CardDisplay>().ownByMonster = GO_MonsterInvoked;
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
         }
         refreshDeckText();
@@ -189,21 +193,27 @@ public class GameManager : MonoBehaviour {
 
     // Envoi une carte au cimetière
     public void inGrave(GameObject activedCard) {
-        GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList.Add(activedCard.GetComponent<CardDisplay>().card);
+        //GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList.Add(activedCard.GetComponent<CardDisplay>().card);
+        CardDisplay cardDisplay = activedCard.GetComponent<CardDisplay>();
+        MonsterDisplay monsterDisplay = cardDisplay.ownByMonster.GetComponent<MonsterDisplay>();
+        monsterDisplay.graveList.Add(cardDisplay.card);
 
         // On classe la liste des carte du cimetière par ordre alpha sur le nom de la carte
-        GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList = GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList.OrderBy(o => o.name).ToList();
+        //GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList = GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList.OrderBy(o => o.name).ToList();
+        monsterDisplay.graveList = monsterDisplay.graveList.OrderBy(o => o.name).ToList();
 
         Destroy(activedCard);
         dragged = false;
 
-        // On detruit les cartes actuel du cimetière
-        foreach (Transform child in GO_GravePlayerList.transform) {
-            Destroy(child.gameObject);
-        }
+        if (cardDisplay.ownByMonster == GO_MonsterInvoked) {
+            // On detruit les cartes actuel du cimetière
+            foreach (Transform child in GO_GravePlayerList.transform) {
+                Destroy(child.gameObject);
+            }
 
-        refreshGrave();
-        refreshGraveText();
+            refreshGrave();
+            refreshGraveText();
+        }
     }
 
     // On refresh les cartes du cimetière
@@ -254,13 +264,6 @@ public class GameManager : MonoBehaviour {
             MonsterLayoutTeamDisplay monsterLayoutTeamDisplay = child.gameObject.GetComponent<MonsterLayoutTeamDisplay>();
             MonsterDisplay monsterDisplay = monsterLayoutTeamDisplay.monsterLinked.GetComponent<MonsterDisplay>();
             monsterLayoutTeamDisplay.refreshMonsterUI();
-            //monsterDisplay.healthAvailable = monstersGOList[indexChild].GetComponent<MonsterDisplay>().healthAvailable;
-            //monsterDisplay.healthMax = monstersGOList[indexChild].GetComponent<MonsterDisplay>().healthMax;
-            //monsterDisplay.manaAvailable = monstersGOList[indexChild].GetComponent<MonsterDisplay>().manaAvailable;
-            //monsterDisplay.manaMax = monstersGOList[indexChild].GetComponent<MonsterDisplay>().manaMax;
-
-            //monsterDisplay.refreshHealthPoint();
-            //monsterDisplay.refreshManaPoint();
 
             GameObject buttonSwap = GO_TeamArea.transform.parent.Find("LayoutSelection").GetChild(indexChild).GetComponentInChildren<Button>().gameObject;
             if (monstersGOList[indexChild] == GO_MonsterInvoked || monsterDisplay.healthAvailable <= 0) {
@@ -540,7 +543,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // On réinitialise le mana de l'ancien monstre
-        GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
+        GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().resetMana();
 
         // On change de monstre actif
         nextMonster.SetActive(true);
@@ -645,7 +648,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // On actualise les dégâts affichés sur les cartes
-        StartCoroutine(refreshAllDamageText());
+        //StartCoroutine(refreshAllDamageText());
     }
 
     // DEBUG Affiche le prochain monstre

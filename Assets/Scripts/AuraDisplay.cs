@@ -11,6 +11,8 @@ public class AuraDisplay : MonoBehaviour, IDropHandler
     public GameObject GO_Aura3;
     public GameObject GO_Aura4;
 
+    public bool ownByOppo;
+
     GameManager gameManager;
 
     // Start is called before the first frame update
@@ -40,8 +42,8 @@ public class AuraDisplay : MonoBehaviour, IDropHandler
             // On vérifie les conditions de ciblage pour pouvoir placer la carte
             bool targetCondition = false;
             TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-            foreach (TargetType targetType in cardPlayedTargetType) {
-                if (targetType == TargetType.PlayerAura) {
+            foreach (TargetType cardTargetType in cardPlayedTargetType) {
+                if (cardTargetType == TargetType.PlayerAura && !ownByOppo) {
                     gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true);
                     targetCondition = true;
                     break;

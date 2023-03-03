@@ -16,6 +16,7 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
     public Image artworkImage;
 
     public int slotId;
+    public bool ownByOppo;
 
     GameManager gameManager;
 
@@ -48,8 +49,8 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
             // On vérifie les conditions de ciblage pour pouvoir placer la carte
             bool targetCondition = false;
             TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-            foreach (TargetType targetType in cardPlayedTargetType) {
-                if (targetType == TargetType.PlayerEquipment) {
+            foreach (TargetType cardTargetType in cardPlayedTargetType) {
+                if (cardTargetType == TargetType.PlayerEquipment && !ownByOppo) {
                     gameManager.tryToPutOnBoard(cardPlayed, gameObject, true);
                     targetCondition = true;
                     break;

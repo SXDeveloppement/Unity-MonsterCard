@@ -15,9 +15,14 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
     public TMP_Text typeText;
     public Image artworkImage;
 
+    public GameObject sbireFeature;
+    public TMP_Text sbireHealthPoint;
+    public TMP_Text sbirePowerPoint;
+
     public GameObject ownByMonster; // GO du monstre qui possède cette carte
     public Status status;
     public bool hiddenCard;
+    public bool sbireHasAttacked = false;
 
     public AnimationCurve scaleCurve;
     public float duration = 0.5f;
@@ -36,6 +41,12 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
         priorityText.text = card.priority.ToString();
         typeText.text = card.type.ToString();
         artworkImage.sprite = card.artwork;
+
+        if (card.type == Type.Sbire && card.sbireHealthPoint > 0) {
+            sbireFeature.SetActive(true);
+            sbireHealthPoint.text = card.sbireHealthPoint.ToString();
+            sbirePowerPoint.text = card.sbirePowerPoint.ToString();
+        }
 
         cardDescriptionCached = card.description;
 
@@ -88,7 +99,20 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
         }
 
         transform.SetParent(target.transform);
-        status = Status.Board;
+        if (target.transform.parent.GetComponent<SlotDisplay>() != null) {
+            if (hiddenCard) {
+                status = Status.SlotHidden;
+            } else {
+                status = Status.SlotVisible;
+            }
+        } else if (target.transform.parent.GetComponent<AuraDisplay>() != null) {
+            status = Status.AuraSlot;
+        } else if (target.GetComponent<EquipmentDisplay>() != null) {
+            status = Status.EnchantmentSlot;
+        }
+        
+
+
         GetComponent<ZoomCard>().reinitCard();
     }
 

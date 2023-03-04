@@ -192,7 +192,7 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         if (targetCondition) {
             gameManager.activeCardOnTarget(cardPlayed, target);
         } else {
-            Debug.Log("ERR : bad target");
+            Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
         }
     }
 

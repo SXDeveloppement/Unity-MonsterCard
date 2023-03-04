@@ -11,6 +11,8 @@ public class SlotDisplay : MonoBehaviour, IDropHandler
     public GameObject GO_Slot3;
     public GameObject GO_Slot4;
 
+    public bool ownedByOppo;
+
     GameManager gameManager;
 
     // Start is called before the first frame update
@@ -36,13 +38,13 @@ public class SlotDisplay : MonoBehaviour, IDropHandler
             isSlot = true;
         }
 
-        // Si l'emplacement est vide
-        if (isSlot && targetSlot.transform.childCount == 0) {
+        // Si l'emplacement est vide et que la carte est dans la main
+        if (isSlot && targetSlot.transform.childCount == 0 && cardPlayed.GetComponent<CardDisplay>().status == Status.Hand) {
             // On vérifie les conditions de ciblage pour pouvoir placer la carte
             bool targetCondition = false;
             TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
             foreach (TargetType targetType in cardPlayedTargetType) {
-                if (targetType == TargetType.SlotHidden || targetType == TargetType.SlotVisible) {
+                if (!ownedByOppo && (targetType == TargetType.SlotHidden || targetType == TargetType.SlotVisible)) {
 
                     if (targetType == TargetType.SlotHidden) {
                         gameManager.tryToPutOnBoard(cardPlayed, targetSlot, false);
@@ -57,7 +59,7 @@ public class SlotDisplay : MonoBehaviour, IDropHandler
 
             // On place la carte si les conditions de ciblages sont respectées
             if (!targetCondition) {
-                Debug.Log("ERR : bad target");
+                Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + ownedByOppo.ToString());
             }
         }
     }

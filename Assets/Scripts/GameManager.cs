@@ -36,6 +36,8 @@ public class GameManager : MonoBehaviour {
     public GameObject GO_BuffAreaOppo;
     public GameObject GO_DebuffAreaOppo;
 
+    public Texture2D cursorTargetTexture; // Icon cursor lors d'un ciblage
+
     Dictionary<ElementalAffinity, float> fireDico;
     Dictionary<ElementalAffinity, float> waterDico;
     Dictionary<ElementalAffinity, float> electricDico;
@@ -136,10 +138,10 @@ public class GameManager : MonoBehaviour {
             newEquipment.GetComponent<EquipmentDisplay>().slotId = i;
             if (monster == GO_MonsterInvoked) {
                 newEquipment.transform.SetParent(GO_EquipmentArea.transform);
-                newEquipment.GetComponent<EquipmentDisplay>().ownByOppo = false;
+                newEquipment.GetComponent<EquipmentDisplay>().ownedByOppo = false;
             } else {
                 newEquipment.transform.SetParent(GO_EquipmentAreaOppo.transform);
-                newEquipment.GetComponent<EquipmentDisplay>().ownByOppo = true;
+                newEquipment.GetComponent<EquipmentDisplay>().ownedByOppo = true;
             }
 
             // On instantie les cartes enchantements

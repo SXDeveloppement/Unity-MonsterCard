@@ -19,6 +19,8 @@ MonoBehaviour:
   priority: 1
   elementalAffinity: 6
   type: 1
-  targetType: 02000000
+  targetType: 0200000009000000
   from: 0
   effects: []
+  sbirePowerPoint: -1
+  sbireHealthPoint: -1

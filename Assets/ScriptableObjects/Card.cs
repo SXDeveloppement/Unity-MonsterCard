@@ -15,8 +15,8 @@ public class Card : ScriptableObject {
     public From from;
     public CardEffect[] effects;
 
-    public int sbirePowerPoint;
-    public int sbireHealthPoint;
+    public int sbirePowerPoint = -1;
+    public int sbireHealthPoint = -1;
 
 
     public void activeEffect(GameObject target) {

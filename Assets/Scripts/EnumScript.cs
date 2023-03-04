@@ -1,5 +1,5 @@
 public enum Status {
-    Unreal, Hand, Graveyard, Board, Hidden
+    Unreal, Hand, Graveyard, SlotVisible, SlotHidden, AuraSlot, EnchantmentSlot
 }
 
 public enum ElementalAffinity {

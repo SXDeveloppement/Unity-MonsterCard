@@ -32,35 +32,37 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     // Quand le curseur entre sur la carte
     public void OnPointerEnter(PointerEventData eventData) {
-        // Si on ne déplace pas de carte et que la souris est sur une carte de la main
-        if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Hand) {
-            siblingIndex = transform.GetSiblingIndex();
-            localPosition = transform.localPosition;
+        // Si on ne déplace pas de carte
+        if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged) {
+            // Si la souris est sur une carte de la main
+            if (GetComponent<CardDisplay>().status == Status.Hand) {
+                siblingIndex = transform.GetSiblingIndex();
+                localPosition = transform.localPosition;
 
-            transform.localScale = new Vector3(scaleZoom, scaleZoom, scaleZoom);
-            gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
-            if (transform.parent.gameObject.name == "Hand") {
-                transform.SetAsLastSibling();
-                float height = gameObject.GetComponent<RectTransform>().rect.size.y;
-                // On calcule la nouvelle position de la carte zoomé pour quelle s'affiche entièrement a l'écran
-                // PosY + différence de hauteur avec le zoom /2 + différence de hauteur entre la carte nonZoom et la hauteur de la main (hand) + une marge paramétrable
-                float positionY = localPosition.y + marginBottom + height * (scaleZoom - 1) / 2 + height - transform.parent.GetComponent<RectTransform>().rect.height;
-                transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z);
-                createPlaceholder();
-            }
-        // Si on ne déplace pas de carte et que la souris est sur une carte placé sur le terrain
-        } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Board) {
-            transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
-            if (transform.parent.parent.GetComponent<HorizontalLayoutGroup>() != null) {
-                transform.parent.parent.GetComponent<HorizontalLayoutGroup>().enabled = false;
-            }
-            transform.parent.SetAsLastSibling();
+                transform.localScale = new Vector3(scaleZoom, scaleZoom, scaleZoom);
+                gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
+                if (transform.parent.gameObject.name == "Hand") {
+                    transform.SetAsLastSibling();
+                    float height = gameObject.GetComponent<RectTransform>().rect.size.y;
+                    // On calcule la nouvelle position de la carte zoomé pour quelle s'affiche entièrement a l'écran
+                    float positionY = localPosition.y + marginBottom + height * (scaleZoom - 1) / 2 + height - transform.parent.GetComponent<RectTransform>().rect.height;
+                    transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z);
+                    createPlaceholder();
+                }
+            // Si la souris est sur une carte placé sur le terrain
+            } else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
+                transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
+                if (transform.parent.parent.GetComponent<HorizontalLayoutGroup>() != null) {
+                    transform.parent.parent.GetComponent<HorizontalLayoutGroup>().enabled = false;
+                }
+                transform.parent.SetAsLastSibling();
 
-            // Si c'est une carte face caché, on la retourne face visible
-            if (GetComponent<CardDisplay>().hiddenCard) {
-                GetComponent<CardDisplay>().showVisibleFace();
-                //StartCoroutine(GetComponent<CardDisplay>().flipFront());
-                //StopCoroutine(GetComponent<CardDisplay>().flipFront());
+                // Si c'est une carte face caché, on la retourne face visible
+                if (GetComponent<CardDisplay>().hiddenCard) {
+                    GetComponent<CardDisplay>().showVisibleFace();
+                    //StartCoroutine(GetComponent<CardDisplay>().flipFront());
+                    //StopCoroutine(GetComponent<CardDisplay>().flipFront());
+                }
             }
         }
     }
@@ -74,7 +76,7 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 transform.localPosition = localPosition;
                 changeWithPlaceholder();
             }
-        } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status == Status.Board) {
+        } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
             transform.localScale = cachedScale;
 
             // Si c'est une carte face caché, on la replace en position face caché

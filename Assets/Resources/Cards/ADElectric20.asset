@@ -23,5 +23,5 @@ MonoBehaviour:
   from: 0
   effects:
   - {fileID: 11400000, guid: dd4f070f6e9dd98439b5eb8ca19db54a, type: 2}
-  sbirePowerPoint: 0
-  sbireHealthPoint: 0
+  sbirePowerPoint: -1
+  sbireHealthPoint: -1

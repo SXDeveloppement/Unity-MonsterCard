@@ -11,7 +11,7 @@ public class AuraDisplay : MonoBehaviour, IDropHandler
     public GameObject GO_Aura3;
     public GameObject GO_Aura4;
 
-    public bool ownByOppo;
+    public bool ownedByOppo;
 
     GameManager gameManager;
 
@@ -37,13 +37,13 @@ public class AuraDisplay : MonoBehaviour, IDropHandler
             isAura = true;
         }
 
-        // Si l'emplacement est vide
-        if (isAura && targetSlot.transform.childCount == 0) {
+        // Si l'emplacement est vide et que la carte dans la main ou dans la zone de contre attaque
+        if (isAura && targetSlot.transform.childCount == 0 && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
             // On vérifie les conditions de ciblage pour pouvoir placer la carte
             bool targetCondition = false;
             TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
             foreach (TargetType cardTargetType in cardPlayedTargetType) {
-                if (cardTargetType == TargetType.PlayerAura && !ownByOppo) {
+                if (cardTargetType == TargetType.PlayerAura && !ownedByOppo) {
                     gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true);
                     targetCondition = true;
                     break;
@@ -52,7 +52,7 @@ public class AuraDisplay : MonoBehaviour, IDropHandler
 
             // On place la carte si les conditions de ciblages sont respectées
             if (!targetCondition) {
-                Debug.Log("ERR : bad target");
+                Debug.Log("ERR : bad target ["+ targetSlot.name + "] / ownByOppo = "+ ownedByOppo.ToString());
             }
         }
     }

@@ -16,7 +16,7 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
     public Image artworkImage;
 
     public int slotId;
-    public bool ownByOppo;
+    public bool ownedByOppo;
 
     GameManager gameManager;
 
@@ -44,13 +44,13 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
         GameObject targetSlot = eventData.pointerCurrentRaycast.gameObject;
 
         // On vérifie que la cible soit bien un emplacement d'equipement
-        // Si l'emplacement n'est pas déjà enchanté
-        if (targetSlot == gameObject && targetSlot.transform.GetComponentInChildren<CardDisplay>() == null) {
+        // Si l'emplacement n'est pas déjà enchanté et que la carte est dans la main ou dans un emplacement de contre attaque
+        if (targetSlot == gameObject && targetSlot.transform.GetComponentInChildren<CardDisplay>() == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
             // On vérifie les conditions de ciblage pour pouvoir placer la carte
             bool targetCondition = false;
             TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
             foreach (TargetType cardTargetType in cardPlayedTargetType) {
-                if (cardTargetType == TargetType.PlayerEquipment && !ownByOppo) {
+                if (cardTargetType == TargetType.PlayerEquipment && !ownedByOppo) {
                     gameManager.tryToPutOnBoard(cardPlayed, gameObject, true);
                     targetCondition = true;
                     break;
@@ -59,7 +59,7 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
 
             // On place la carte si les conditions de ciblages sont respectées
             if (!targetCondition) {
-                Debug.Log("ERR : bad target");
+                Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + ownedByOppo.ToString());
             }
         }
     }

@@ -13,12 +13,12 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     Vector2 sizeCard;
     Vector2 cachedMousePosition;
     GameObject placeHolder;
-    GameObject gameManager;
+    GameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        gameManager = GameObject.Find("GameManager");
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         startScale = transform.localScale;
         sizeCard = transform.GetComponent<RectTransform>().rect.size;
@@ -32,17 +32,22 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
         if (GetComponent<CardDisplay>().status == Status.Hand) {
-            gameManager.GetComponent<GameManager>().dragged = true;
+            gameManager.dragged = true;
 
             cachedMousePosition = eventData.position;
             zoomScale = transform.localScale;
             transform.localScale = startScale;
             placeHolder = GetComponent<ZoomCard>().placeHolder;
             gameObject.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        // Si c'est un sbire sur le champ de bataille et qu'il n'a pas attaque pendant le tour
+        } else if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Sbire 
+            && !GetComponent<CardDisplay>().sbireHasAttacked) {
+            Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
         }
     }
 
     void IDragHandler.OnDrag(PointerEventData eventData) {
+        // Si c'est une carte de la main
         if (GetComponent<CardDisplay>().status == Status.Hand) {
             this.transform.position = eventData.position;
             int indexPlaceHolder = placeHolder.gameObject.transform.GetSiblingIndex();
@@ -94,6 +99,8 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
         if (GetComponent<CardDisplay>().status == Status.Hand) {
             eventData.pointerDrag.GetComponent<ZoomCard>().changeWithPlaceholder();
             transform.localScale = startScale;
+        } else if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Sbire) {
+            Cursor.SetCursor( null, Vector2.zero, CursorMode.Auto);
         }
     }
 }

@@ -11,7 +11,7 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public float scaleZoomBoard;
     public GameObject placeHolder;
 
-    Vector3 cachedScale;
+    public Vector3 cachedScale;
     int siblingIndex;
     Vector3 localPosition;
     Vector2 size;
@@ -76,7 +76,7 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 transform.localPosition = localPosition;
                 changeWithPlaceholder();
             }
-        } else if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged && GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
+        } else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
             transform.localScale = cachedScale;
 
             // Si c'est une carte face caché, on la replace en position face caché

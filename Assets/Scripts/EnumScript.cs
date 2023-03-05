@@ -22,7 +22,7 @@ public enum BuffDebuffType {
     Power, Guard, Speed, Mana, DamageRaw, DamagePercent
 }
 
-// quickness = célérité / pierce = piétinement / lead combat = Initiative
+// quickness = célérité / pierce = piétinement / Domination = Initiative / Tank = provocation de HS
 public enum SbirePassifEffect {
-    Quickness, Pierce, LeadCombat
+    Quickness, Pierce, Domination, Tank
 }

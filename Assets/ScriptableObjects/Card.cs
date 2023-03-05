@@ -17,6 +17,7 @@ public class Card : ScriptableObject {
 
     public int sbirePowerPoint = -1;
     public int sbireHealthPoint = -1;
+    public SbirePassifEffect[] sbirePassifEffects;
 
 
     public void activeEffect(GameObject target) {

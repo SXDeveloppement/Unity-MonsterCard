@@ -170,6 +170,30 @@ public class GameManager : MonoBehaviour {
     public void newTurn() {
         //draw(1);
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().newTurn();
+
+        // On passe les sbires sur le terrain en position repos
+        foreach (SbireDisplay sbireDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<SbireDisplay>()) {
+            if (sbireDisplay.name != null) {
+                sbireDisplay.newTurn();
+            }
+        }
+        foreach (SbireDisplay sbireDisplay in GO_CounterAttackAreaOppo.transform.GetComponentsInChildren<SbireDisplay>()) {
+            if (sbireDisplay.name != null) {
+                sbireDisplay.newTurn();
+            }
+        }
+
+        // On passe les cartes "Echo" du terrain en position activable
+        foreach (CardDisplay cardDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.putOnBoardThisTurn = false;
+            }
+        }
+        foreach (CardDisplay cardDisplay in GO_CounterAttackAreaOppo.transform.GetComponentsInChildren<CardDisplay>()) {
+            if (cardDisplay.name != null) {
+                cardDisplay.putOnBoardThisTurn = false;
+            }
+        }
     }
 
     // Ajoute X carte dans la main
@@ -182,7 +206,7 @@ public class GameManager : MonoBehaviour {
             newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
             newCard.name = newCard.GetComponent<CardDisplay>().card.name;
             newCard.GetComponent<CardDisplay>().status = Status.Hand;
-            newCard.GetComponent<CardDisplay>().ownByMonster = GO_MonsterInvoked;
+            newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked;
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
         }
         refreshDeckText();
@@ -195,19 +219,17 @@ public class GameManager : MonoBehaviour {
 
     // Envoi une carte au cimetière
     public void inGrave(GameObject activedCard) {
-        //GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList.Add(activedCard.GetComponent<CardDisplay>().card);
         CardDisplay cardDisplay = activedCard.GetComponent<CardDisplay>();
-        MonsterDisplay monsterDisplay = cardDisplay.ownByMonster.GetComponent<MonsterDisplay>();
+        MonsterDisplay monsterDisplay = cardDisplay.monsterOwnThis.GetComponent<MonsterDisplay>();
         monsterDisplay.graveList.Add(cardDisplay.card);
 
         // On classe la liste des carte du cimetière par ordre alpha sur le nom de la carte
-        //GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList = GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList.OrderBy(o => o.name).ToList();
         monsterDisplay.graveList = monsterDisplay.graveList.OrderBy(o => o.name).ToList();
 
         Destroy(activedCard);
         dragged = false;
 
-        if (cardDisplay.ownByMonster == GO_MonsterInvoked) {
+        if (cardDisplay.monsterOwnThis == GO_MonsterInvoked) {
             // On detruit les cartes actuel du cimetière
             foreach (Transform child in GO_GravePlayerList.transform) {
                 Destroy(child.gameObject);

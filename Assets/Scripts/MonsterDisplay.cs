@@ -174,25 +174,54 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     }
 
     void IDropHandler.OnDrop(PointerEventData eventData) {
-        GameObject cardPlayed = eventData.pointerDrag;
-        GameObject target = gameObject;
+        if (gameManager.dragged) {
+            GameObject cardPlayed = eventData.pointerDrag;
+            GameObject target = gameObject;
 
-        // On vérifie les conditions de ciblage pour pouvoir activer la carte
-        bool targetCondition = false;
-        TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-        foreach (TargetType targetType in cardPlayedTargetType) {
-            if (!ownedByOppo && targetType == TargetType.PlayerMonster
-                || ownedByOppo && targetType == TargetType.OpponantMonster) {
-                targetCondition = true;
-                break;
+            // Si la carte est un sbire et qu'elle est sur le terrain face visible
+            if (cardPlayed.GetComponent<CardDisplay>().card.type == Type.Sbire 
+            && cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible
+            && cardPlayed.GetComponent<CardDisplay>().monsterOwnThis != gameObject) {
+                bool sbireHaveTaunt = false;
+                foreach (CardDisplay cardDisplay in gameManager.GO_CounterAttackAreaOppo.GetComponentsInChildren<CardDisplay>()) {
+                    if (cardDisplay.card.type == Type.Sbire) {
+                        foreach (SbirePassifEffect sbirePassifEffect in cardDisplay.card.sbirePassifEffects) {
+                            if (sbirePassifEffect == SbirePassifEffect.Tank) {
+                                sbireHaveTaunt = true;
+                                break;
+                            }
+                        }
+
+                        if (sbireHaveTaunt) break;
+                    }
+                }
+
+                if (!sbireHaveTaunt) {
+                    gameManager.dragged = false;
+                    cardPlayed.GetComponent<SbireDisplay>().sbireHasAttacked = true;
+                    takeDamage(cardPlayed.GetComponent<SbireDisplay>().sbirePowerAvailable);
+                } else {
+                    Debug.Log("ERR : Bad target, one sbire or more have Taunt");
+                }
+            } else { 
+                // On vérifie les conditions de ciblage pour pouvoir activer la carte
+                bool targetCondition = false;
+                TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
+                foreach (TargetType targetType in cardPlayedTargetType) {
+                    if (!ownedByOppo && targetType == TargetType.PlayerMonster
+                        || ownedByOppo && targetType == TargetType.OpponantMonster) {
+                        targetCondition = true;
+                        break;
+                    }
+                }
+
+                // On active la carte si les conditions de ciblages sont respectées
+                if (targetCondition) {
+                    gameManager.activeCardOnTarget(cardPlayed, target);
+                } else {
+                    Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
+                }
             }
-        }
-
-        // On active la carte si les conditions de ciblages sont respectées
-        if (targetCondition) {
-            gameManager.activeCardOnTarget(cardPlayed, target);
-        } else {
-            Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
         }
     }
 
@@ -226,8 +255,8 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     }
 
     // Prendre des dégâts
-    public void takeDamage(int amountDamage, ElementalAffinity affinityAttack) {
-        healthAvailable -= gameManager.calculateDamage(gameObject, affinityAttack, amountDamage);
+    public void takeDamage(int takeAmountDamage) {
+        healthAvailable -= takeAmountDamage;
         if (healthAvailable < 0) {
             healthAvailable = 0;
         }

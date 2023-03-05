@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: Sbire01
+  m_Name: Sbire05
   m_EditorClassIdentifier: 
-  name: Sbire01
-  description: 
-  artwork: {fileID: 21300000, guid: bd441d9e570ee49448ab45112ec9145a, type: 3}
+  name: Sbire04
+  description: Quickness
+  artwork: {fileID: 21300000, guid: 4a03f964e9c12b248b356f76ac90456e, type: 3}
   manaCost: 1
   priority: 1
   elementalAffinity: 0
@@ -22,6 +22,6 @@ MonoBehaviour:
   targetType: 08000000
   from: 0
   effects: []
-  sbirePowerPoint: 2
+  sbirePowerPoint: 20
   sbireHealthPoint: 20
-  sbirePassifEffects: 
+  sbirePassifEffects: 00000000

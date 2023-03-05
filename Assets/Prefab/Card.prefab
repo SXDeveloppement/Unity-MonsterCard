@@ -56,13 +56,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 949037291181035167}
-  - component: {fileID: 3240713955406692573}
-  - component: {fileID: 7100378364490564841}
-  - component: {fileID: 465976969300931672}
   - component: {fileID: 2461436705176292480}
   - component: {fileID: 541312273391896622}
   - component: {fileID: 7992826738496623654}
   - component: {fileID: 6538892461626233492}
+  - component: {fileID: 465976969300931672}
+  - component: {fileID: 7100378364490564841}
+  - component: {fileID: 3240713955406692573}
+  - component: {fileID: 4987929618703435391}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -92,95 +93,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 240, y: 315}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &3240713955406692573
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 346344184526720050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb70dc2af18655b4dade27ee84b3e991, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  card: {fileID: 0}
-  nameText: {fileID: 2953330221322925701}
-  descriptionText: {fileID: 4222649248433671578}
-  manaText: {fileID: 5701778015385727218}
-  priorityText: {fileID: 2467290802344995140}
-  typeText: {fileID: 3464614795763010234}
-  artworkImage: {fileID: 2622488361435688404}
-  sbireFeature: {fileID: 8205812526405957601}
-  sbireHealthPoint: {fileID: 909166580722627336}
-  sbirePowerPoint: {fileID: 4060259140415865794}
-  ownByMonster: {fileID: 0}
-  status: 0
-  hiddenCard: 0
-  scaleCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -0.032084804
-      outSlope: -0.032084804
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.7231187
-    - serializedVersion: 3
-      time: 0.4999997
-      value: 0.099762976
-      inSlope: -0.0000010728836
-      outSlope: -0.0000010728836
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: -0.019841457
-      outSlope: -0.019841457
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.23387085
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  duration: 0.1
---- !u!114 &7100378364490564841
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 346344184526720050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 917eb14120dac6846959644a730bf3e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  marginBottom: -25
-  scaleZoom: 1.5
-  scaleZoomBoard: 2
-  placeHolder: {fileID: 0}
---- !u!114 &465976969300931672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 346344184526720050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8822817bf1ab0645b9413aafbeb695d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  underZoom: 0.5
-  cursorTargetTecture: {fileID: 2800000, guid: ad9c7c85e0261804283163329e49772f, type: 3}
 --- !u!114 &2461436705176292480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,6 +163,108 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &465976969300931672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 346344184526720050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8822817bf1ab0645b9413aafbeb695d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  underZoom: 0.5
+--- !u!114 &7100378364490564841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 346344184526720050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 917eb14120dac6846959644a730bf3e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  marginBottom: -25
+  scaleZoom: 1.5
+  scaleZoomBoard: 2
+  placeHolder: {fileID: 0}
+--- !u!114 &3240713955406692573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 346344184526720050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb70dc2af18655b4dade27ee84b3e991, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  card: {fileID: 0}
+  nameText: {fileID: 2953330221322925701}
+  descriptionText: {fileID: 4222649248433671578}
+  manaText: {fileID: 5701778015385727218}
+  priorityText: {fileID: 2467290802344995140}
+  typeText: {fileID: 3464614795763010234}
+  artworkImage: {fileID: 2622488361435688404}
+  monsterOwnThis: {fileID: 0}
+  status: 0
+  hiddenCard: 0
+  ownedByOppo: 0
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.032084804
+      outSlope: -0.032084804
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.7231187
+    - serializedVersion: 3
+      time: 0.4999997
+      value: 0.099762976
+      inSlope: -0.0000010728836
+      outSlope: -0.0000010728836
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -0.019841457
+      outSlope: -0.019841457
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.23387085
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  duration: 0.1
+--- !u!114 &4987929618703435391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 346344184526720050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31c3c9ed44511f94991313e644fdefd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sbireFeature: {fileID: 8205812526405957601}
+  sbireHealthPoint: {fileID: 909166580722627336}
+  sbirePowerPoint: {fileID: 4060259140415865794}
+  sbireHasAttacked: 0
 --- !u!1 &552320955391904798
 GameObject:
   m_ObjectHideFlags: 0

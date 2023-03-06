@@ -19,6 +19,10 @@ MonoBehaviour:
   priority: 1
   elementalAffinity: 4
   type: 4
-  targetType: 06000000
+  targetType: 0800000001000000
   from: 0
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: dd4f070f6e9dd98439b5eb8ca19db54a, type: 2}
+  sbirePowerPoint: -1
+  sbireHealthPoint: -1
+  sbirePassifEffects: 

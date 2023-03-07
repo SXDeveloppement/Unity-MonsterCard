@@ -25,7 +25,7 @@ public class SbireDisplay : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        //gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 
         Card card = GetComponent<CardDisplay>().card;
         if (card.type == Type.Sbire && card.sbireHealthPoint > 0) {
@@ -56,7 +56,7 @@ public class SbireDisplay : MonoBehaviour
         && GetComponent<CardDisplay>().status == Status.SlotVisible
         && GetComponent<CardDisplay>().card.type == Type.Sbire
         ) {
-            gameManager.inGrave(gameObject);
+            //gameManager.inGrave(gameObject);
             Debug.Log("Sbire go in graveyard");
         }
     }

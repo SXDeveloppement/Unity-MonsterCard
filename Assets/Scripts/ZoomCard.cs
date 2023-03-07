@@ -49,7 +49,7 @@ public class ZoomCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                     transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z);
                     createPlaceholder();
                 }
-            // Si la souris est sur une carte placé sur le terrain
+                // Si la souris est sur une carte placé sur le terrain
             } else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
                 transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
                 if (transform.parent.parent.GetComponent<HorizontalLayoutGroup>() != null) {

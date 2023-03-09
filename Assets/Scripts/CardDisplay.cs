@@ -15,6 +15,7 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
     public TMP_Text typeText;
     public Image artworkImage;
     public SpriteRenderer illustration;
+    public GameObject folderBackgrounds;
 
     public Status status;
     public bool hiddenCard;
@@ -34,6 +35,14 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
     // Start is called before the first frame update
     void Start() {
         //gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+
+        // On affiche le bon background en fonction du type élémentaire de la carte
+        foreach (Transform childBackground in folderBackgrounds.transform) {
+            childBackground.gameObject.SetActive(false);
+            if (childBackground.gameObject.name == card.elementalAffinity.ToString()) {
+                childBackground.gameObject.SetActive(true);
+            }
+        }
 
         nameText.text = card.name;
         descriptionText.text = card.description;

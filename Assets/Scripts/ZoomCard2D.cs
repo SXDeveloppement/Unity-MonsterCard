@@ -15,6 +15,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     int siblingIndex;
     Vector3 localPosition;
     Vector2 size;
+    GameObject equipment;
 
     GMTemp gmTemp;
 
@@ -53,8 +54,28 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 // On calcule la nouvelle position de la carte zoomé pour quelle s'affiche entièrement a l'écran
                 //float positionY = localPosition.y + marginBottom + height * (scaleZoom - 1) / 2 + height - transform.parent.GetComponent<RectTransform>().rect.height;
                 float positionY = localPosition.y + (height * scaleZoom - transform.parent.GetComponent<RectTransform>().rect.height) / 2 + marginBottom;
-                transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z - 0.02f);
-                Debug.Log("PointerEnter");
+                transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z - 2f);
+            }
+            // Si la souris est sur une carte du terrain
+            else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
+                transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
+                localPosition = transform.localPosition;
+                transform.localPosition = new Vector3(localPosition.x, localPosition.y, localPosition.z - 2f);
+
+                // Si c'est une carte face caché, on la retourne face visible
+                if (GetComponent<CardDisplay>().hiddenCard) {
+                    GetComponent<CardDisplay>().showVisibleFace();
+                    //StartCoroutine(GetComponent<CardDisplay>().flipFront());
+                    //StopCoroutine(GetComponent<CardDisplay>().flipFront());
+                }
+
+                // Si c'est une carte d'enchantement, on affiche l'equipement
+                if (GetComponent<CardDisplay>().status == Status.EnchantmentSlot) {
+                    equipment = transform.parent.parent.Find("Equipment").GetChild(0).gameObject;
+                    equipment.transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
+                    float positionX = equipment.GetComponent<RectTransform>().rect.width * equipment.transform.localScale.x;
+                    equipment.transform.localPosition = new Vector3(localPosition.x + positionX, localPosition.y, localPosition.z - 2f);
+                }
             }
         }
     }
@@ -65,6 +86,22 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             transform.localScale = cachedScale;
             transform.localPosition = localPosition;
             changeWithPlaceholder();
+        } else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
+            transform.localScale = cachedScale;
+            transform.localPosition = localPosition;
+
+            // Si c'est une carte face caché, on la replace en position face caché
+            if (GetComponent<CardDisplay>().hiddenCard) {
+                GetComponent<CardDisplay>().showHiddenFace();
+                //StartCoroutine(GetComponent<CardDisplay>().flipBack());
+                //StopCoroutine(GetComponent<CardDisplay>().flipBack());
+            }
+
+            // Si c'est une carte d'enchantement, on affiche l'equipement
+            if (GetComponent<CardDisplay>().status == Status.EnchantmentSlot) {
+                equipment.transform.localScale = cachedScale;
+                equipment.transform.localPosition = localPosition;
+            }
         }
     }
 

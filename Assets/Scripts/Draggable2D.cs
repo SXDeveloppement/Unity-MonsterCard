@@ -44,7 +44,6 @@ public class Draggable2D : MonoBehaviour
     }
 
     private void OnMouseDown() {
-        Debug.Log("BeginDrag");
         if (GetComponent<CardDisplay>().status == Status.Hand && !GetComponent<CardDisplay>().ownedByOppo && !gmTemp.dragged) {
             //gameManager.dragged = true;
             gmTemp.dragged = true;
@@ -126,12 +125,14 @@ public class Draggable2D : MonoBehaviour
     }
 
     private void OnMouseUp() {
-        transform.localScale = startScale;
-        this.transform.SetParent(GO_Hand.transform);
-        GetComponent<ZoomCard2D>().changeWithPlaceholder();
-        gmTemp.dragged = false;
-        isDragged = false;
-        GetComponentInParent<HandDisplay>().childHaveChanged = true;
+        if (GetComponent<CardDisplay>().status == Status.Hand) {
+            transform.localScale = startScale;
+            this.transform.SetParent(GO_Hand.transform);
+            GetComponent<ZoomCard2D>().changeWithPlaceholder();
+            gmTemp.dragged = false;
+            isDragged = false;
+            GetComponentInParent<HandDisplay>().childHaveChanged = true;
+        }
     }
 
     //void IEndDragHandler.OnEndDrag(PointerEventData eventData) {

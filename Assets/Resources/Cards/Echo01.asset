@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Echo01
   description: Next turn, deal %D8 combat damage
-  artwork: {fileID: 510289901, guid: 16fe21a5621dbda49873eaff9cda07ae, type: 3}
+  artwork: {fileID: 21300000, guid: f2a52843f1c2b394ca646533781099c2, type: 3}
   manaCost: 4
   priority: 1
   elementalAffinity: 4

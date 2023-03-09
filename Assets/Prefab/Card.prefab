@@ -192,6 +192,7 @@ MonoBehaviour:
   scaleZoom: 1.5
   scaleZoomBoard: 2
   placeHolder: {fileID: 0}
+  cachedScale: {x: 0, y: 0, z: 0}
 --- !u!114 &3240713955406692573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,44 +212,13 @@ MonoBehaviour:
   priorityText: {fileID: 2467290802344995140}
   typeText: {fileID: 3464614795763010234}
   artworkImage: {fileID: 2622488361435688404}
-  monsterOwnThis: {fileID: 0}
+  illustration: {fileID: 0}
+  folderBackgrounds: {fileID: 0}
   status: 0
   hiddenCard: 0
+  putOnBoardThisTurn: 1
+  monsterOwnThis: {fileID: 0}
   ownedByOppo: 0
-  scaleCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -0.032084804
-      outSlope: -0.032084804
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.7231187
-    - serializedVersion: 3
-      time: 0.4999997
-      value: 0.099762976
-      inSlope: -0.0000010728836
-      outSlope: -0.0000010728836
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: -0.019841457
-      outSlope: -0.019841457
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.23387085
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  duration: 0.1
 --- !u!114 &4987929618703435391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,6 +235,11 @@ MonoBehaviour:
   sbireHealthPoint: {fileID: 909166580722627336}
   sbirePowerPoint: {fileID: 4060259140415865794}
   sbireHasAttacked: 0
+  sbireHealthMax: 0
+  sbireHealthAvailable: 0
+  sbireHealthAvailableTemp: 0
+  sbirePowerAvailable: 0
+  sbirePowerAvailableTemp: 0
 --- !u!1 &552320955391904798
 GameObject:
   m_ObjectHideFlags: 0

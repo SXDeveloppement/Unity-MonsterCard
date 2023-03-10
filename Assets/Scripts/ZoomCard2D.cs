@@ -33,7 +33,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     // Quand le curseur entre sur la carte

@@ -2078,7 +2078,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb70dc2af18655b4dade27ee84b3e991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  card: {fileID: 11400000, guid: 08d1fbb9d21c35a47b3c2562ee2ac180, type: 2}
+  card: {fileID: 0}
   nameText: {fileID: 1743009258139680685}
   descriptionText: {fileID: 196143654013680955}
   manaText: {fileID: 2832799309948849284}

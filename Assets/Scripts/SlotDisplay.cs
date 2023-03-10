@@ -39,10 +39,8 @@ public class SlotDisplay : MonoBehaviour
                     if (!ownedByOppo && (targetType == TargetType.SlotHidden || targetType == TargetType.SlotVisible)) {
                         if (targetType == TargetType.SlotHidden) {
                             isPutOnBoard = gameManager.tryToPutOnBoard(cardPlayed, targetSlot, false);
-                            Debug.Log("tryToPutOnBoard Hidden");
                         } else {
                             isPutOnBoard = gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true);
-                            Debug.Log("tryToPutOnBoard Visible");
                         }
 
                         targetCondition = true;

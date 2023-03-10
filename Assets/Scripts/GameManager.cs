@@ -204,19 +204,23 @@ public class GameManager : MonoBehaviour {
 
     // Ajoute X carte dans la main
     public void draw(int drawAmount) {
-        for (int i = 0; i < drawAmount; i++) {
-            GameObject newCard = Instantiate(GO_Card);
-            newCard.gameObject.transform.SetParent(GO_Hand.gameObject.transform);
-            Random rand = new Random();
-            int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
-            newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
-            newCard.name = newCard.GetComponent<CardDisplay>().card.name;
-            newCard.GetComponent<CardDisplay>().status = Status.Hand;
-            newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked;
-            GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
+        if (GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count > 0) {
+            for (int i = 0; i < drawAmount; i++) {
+                GameObject newCard = Instantiate(GO_Card);
+                newCard.gameObject.transform.SetParent(GO_Hand.gameObject.transform);
+                Random rand = new Random();
+                int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
+                newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
+                newCard.name = newCard.GetComponent<CardDisplay>().card.name;
+                newCard.GetComponent<CardDisplay>().status = Status.Hand;
+                newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked;
+                GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
+            }
+            refreshDeckText();
+            GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
+        } else {
+            Debug.Log("ERR : no card in deck");
         }
-        refreshDeckText();
-        GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
     }
     
     // Actualise le nombre de carte restant dans le deck
@@ -237,26 +241,26 @@ public class GameManager : MonoBehaviour {
         dragged = false;
 
         if (cardDisplay.monsterOwnThis == GO_MonsterInvoked) {
-            refreshGrave();
+            //refreshGrave();
             refreshGraveText();
         }
     }
 
     // On refresh les cartes du cimetière
     public void refreshGrave() {
-        // On detruit les cartes actuel du cimetière
-        foreach (Transform child in GO_GravePlayerList.transform) {
-            Destroy(child.gameObject);
-        }
+        //// On detruit les cartes actuel du cimetière
+        //foreach (Transform child in GO_GravePlayerList.transform) {
+        //    Destroy(child.gameObject);
+        //}
 
-        // On instantie les cartes dans le cimetière
-        foreach (Card nextCard in GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList) {
-            GameObject newCard = Instantiate(GO_Card);
-            newCard.gameObject.transform.SetParent(GO_GravePlayerList.transform);
-            newCard.GetComponent<CardDisplay>().card = nextCard;
-            newCard.name = newCard.GetComponent<CardDisplay>().card.name;
-            newCard.GetComponent<CardDisplay>().status = Status.Graveyard;
-        }
+        //// On instantie les cartes dans le cimetière
+        //foreach (Card nextCard in GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList) {
+        //    GameObject newCard = Instantiate(GO_Card);
+        //    newCard.gameObject.transform.SetParent(GO_GravePlayerList.transform);
+        //    newCard.GetComponent<CardDisplay>().card = nextCard;
+        //    newCard.name = newCard.GetComponent<CardDisplay>().card.name;
+        //    newCard.GetComponent<CardDisplay>().status = Status.Graveyard;
+        //}
     }
 
     // Actualise le nombre de carte dans le cimetière

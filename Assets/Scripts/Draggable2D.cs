@@ -42,6 +42,8 @@ public class Draggable2D : MonoBehaviour
         }
     }
 
+
+
     private void OnMouseDown() {
         if (GetComponent<CardDisplay>().status == Status.Hand && !GetComponent<CardDisplay>().ownedByOppo && !gameManager.dragged) {
             gameManager.dragged = true;

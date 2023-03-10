@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
-public class EquipmentDisplay : MonoBehaviour, IDropHandler 
+public class EquipmentDisplay : MonoBehaviour 
 {
     public Equipment equipment;
     public TMP_Text nameText;
@@ -14,9 +14,12 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
     public TMP_Text speedText;
     public TMP_Text hpText;
     public Image artworkImage;
+    public SpriteRenderer illustration;
 
     public int slotId;
     public bool ownedByOppo;
+    public GameObject slotCard;
+    public GameObject cardOnSlot;
 
     GameManager gameManager;
 
@@ -25,12 +28,17 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
+        slotCard = transform.parent.parent.GetChild(1).gameObject;
+
         nameText.text = equipment.name;
         powerText.text = equipment.powerPoint.ToString();
         guardText.text = equipment.guardPoint.ToString();
         speedText.text = equipment.speedPoint.ToString();
         hpText.text = equipment.healthPoint.ToString();
-        artworkImage.sprite = equipment.artwork;
+        if (artworkImage != null)
+            artworkImage.sprite = equipment.artwork;
+        if (illustration != null)
+            illustration.sprite = equipment.artwork;
     }
 
     // Update is called once per frame
@@ -39,23 +47,23 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
         
     }
 
-    void IDropHandler.OnDrop(PointerEventData eventData) {
+    public bool onDrop(GameObject cardPlayed) {
+        bool isPutOnBoard = false;
         if (gameManager.dragged) {
-            GameObject cardPlayed = eventData.pointerDrag;
-            GameObject targetSlot = eventData.pointerCurrentRaycast.gameObject;
+            GameObject targetSlot = this.gameObject;
+            Debug.Log("Drop Equipment");
 
-            // On vérifie que la cible soit bien un emplacement d'equipement
-            // Si l'emplacement n'est pas déjà enchanté et que la carte est dans la main ou dans un emplacement de contre attaque
-            if (targetSlot == gameObject && targetSlot.transform.GetComponentInChildren<CardDisplay>() == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
+            // Si l'emplacement est vide et que la carte dans la main ou dans la zone de contre attaque
+            if (cardOnSlot == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
                 // On vérifie les conditions de ciblage pour pouvoir placer la carte
                 bool targetCondition = false;
                 TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
                 foreach (TargetType cardTargetType in cardPlayedTargetType) {
                     if (cardTargetType == TargetType.PlayerEquipment && !ownedByOppo) {
-                        gameManager.tryToPutOnBoard(cardPlayed, gameObject, true);
+                        isPutOnBoard = gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true);
                         targetCondition = true;
                         break;
-                    }
+                    }                   
                 }
 
                 // On place la carte si les conditions de ciblages sont respectées
@@ -64,5 +72,43 @@ public class EquipmentDisplay : MonoBehaviour, IDropHandler
                 }
             }
         }
+
+        if (isPutOnBoard)
+            cardOnSlot = cardPlayed;
+
+        return isPutOnBoard;
     }
+
+    // On détruit l'enchantement de l'équipement
+    public void destroyEnchantment() {
+        Destroy(cardOnSlot);
+        cardOnSlot = null;
+    }
+
+    //void IDropHandler.OnDrop(PointerEventData eventData) {
+    //    if (gameManager.dragged) {
+    //        GameObject cardPlayed = eventData.pointerDrag;
+    //        GameObject targetSlot = eventData.pointerCurrentRaycast.gameObject;
+
+    //        // On vérifie que la cible soit bien un emplacement d'equipement
+    //        // Si l'emplacement n'est pas déjà enchanté et que la carte est dans la main ou dans un emplacement de contre attaque
+    //        if (targetSlot == gameObject && targetSlot.transform.GetComponentInChildren<CardDisplay>() == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
+    //            // On vérifie les conditions de ciblage pour pouvoir placer la carte
+    //            bool targetCondition = false;
+    //            TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
+    //            foreach (TargetType cardTargetType in cardPlayedTargetType) {
+    //                if (cardTargetType == TargetType.PlayerEquipment && !ownedByOppo) {
+    //                    gameManager.tryToPutOnBoard(cardPlayed, gameObject, true);
+    //                    targetCondition = true;
+    //                    break;
+    //                }
+    //            }
+
+    //            // On place la carte si les conditions de ciblages sont respectées
+    //            if (!targetCondition) {
+    //                Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + ownedByOppo.ToString());
+    //            }
+    //        }
+    //    }
+    //}
 }

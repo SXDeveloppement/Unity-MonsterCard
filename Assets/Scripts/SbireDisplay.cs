@@ -11,8 +11,10 @@ public class SbireDisplay : MonoBehaviour
     public GameObject sbireFeature;
     public TMP_Text sbireHealthPoint;
     public TMP_Text sbirePowerPoint;
+    public GameObject attackAura;
 
     public bool sbireHasAttacked = false;
+    public bool sbireHasAttackedTemp = false;
 
     public int sbireHealthMax;
     public int sbireHealthAvailable;
@@ -25,7 +27,7 @@ public class SbireDisplay : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        gameManager = GameObject.FindAnyObjectByType<GameManager>();
 
         Card card = GetComponent<CardDisplay>().card;
         if (card.type == Type.Sbire && card.sbireHealthPoint > 0) {
@@ -39,6 +41,12 @@ public class SbireDisplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // On affiche l'aura d'attaque si il n'a pas attaqué ce tour
+        if (sbireHasAttacked != sbireHasAttackedTemp) {
+            sbireHasAttackedTemp = sbireHasAttacked;
+            attackAura.SetActive(!sbireHasAttacked);
+        }
+
         // On actualise la vie du sbire quand elle est modifié
         if (sbireHealthAvailable != sbireHealthAvailableTemp) {
             sbireHealthAvailableTemp = sbireHealthAvailable;

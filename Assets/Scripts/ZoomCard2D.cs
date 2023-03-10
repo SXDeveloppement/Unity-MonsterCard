@@ -17,12 +17,13 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     Vector2 size;
     GameObject equipment;
 
-    GMTemp gmTemp;
+    GameManager gameManager;
+    bool pointerIsEnter = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        gmTemp = GameObject.FindAnyObjectByType<GMTemp>();
+        gameManager = GameObject.FindAnyObjectByType<GameManager>();
 
         cachedScale = transform.localScale;
         siblingIndex = transform.GetSiblingIndex();
@@ -37,11 +38,11 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     // Quand le curseur entre sur la carte
     public void OnPointerEnter(PointerEventData eventData) {
-        if (gmTemp.dragged) return;
+        if (gameManager.dragged) return;
 
         // Si on ne déplace pas de carte
         //if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged) {
-        if (!gmTemp.dragged) { 
+        if (!gameManager.dragged) { 
             // Si la souris est sur une carte de la main
             if (GetComponent<CardDisplay>().status == Status.Hand) {
                 siblingIndex = transform.GetSiblingIndex();
@@ -55,6 +56,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 //float positionY = localPosition.y + marginBottom + height * (scaleZoom - 1) / 2 + height - transform.parent.GetComponent<RectTransform>().rect.height;
                 float positionY = localPosition.y + (height * scaleZoom - transform.parent.GetComponent<RectTransform>().rect.height) / 2 + marginBottom;
                 transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z - 2f);
+                pointerIsEnter = true;
             }
             // Si la souris est sur une carte du terrain
             else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
@@ -76,16 +78,21 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                     float positionX = equipment.GetComponent<RectTransform>().rect.width * equipment.transform.localScale.x;
                     equipment.transform.localPosition = new Vector3(localPosition.x + positionX, localPosition.y, localPosition.z - 2f);
                 }
+                pointerIsEnter = true;
             }
         }
     }
 
     // Quand le curseur quitte la carte
     public void OnPointerExit(PointerEventData eventData) {
-        if (GetComponent<CardDisplay>().status == Status.Hand && !gmTemp.dragged) {
+        if (gameManager.dragged) return;
+        if (!pointerIsEnter) return;
+
+        if (GetComponent<CardDisplay>().status == Status.Hand && !gameManager.dragged) {
             transform.localScale = cachedScale;
             transform.localPosition = localPosition;
             changeWithPlaceholder();
+            pointerIsEnter = false;
         } else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
             transform.localScale = cachedScale;
             transform.localPosition = localPosition;
@@ -102,6 +109,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 equipment.transform.localScale = cachedScale;
                 equipment.transform.localPosition = localPosition;
             }
+            pointerIsEnter = false;
         }
     }
 
@@ -129,16 +137,16 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     // Réinitialise la carte
     public void reinitCard() {
-        GameObject.Find("GameManager").GetComponent<GameManager>().dragged = false;
-        gameObject.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        GameObject.FindAnyObjectByType<GameManager>().dragged = false;
+        GetComponent<BoxCollider2D>().enabled = true;
         destroyPlaceholder();
-        gameObject.GetComponent<LayoutElement>().ignoreLayout = false;
     }
 
     // Détruit le placeholder de la carte
     public void destroyPlaceholder() {
         if (placeHolder != null) {
             Destroy(placeHolder);
+            placeHolder = null;
         }
     }
 }

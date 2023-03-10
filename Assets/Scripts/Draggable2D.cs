@@ -18,15 +18,14 @@ public class Draggable2D : MonoBehaviour
     Vector3 position;
     GameObject GO_Hand;
 
-    GMTemp gmTemp;
-    public bool isDragged = false;
+    public bool isDragged = false; // Est glissé pour les cartes de la main
     public bool isDraggedTemp;
+    public bool isHalfDragged = false; // Est a moitié glissé pour les cartes du terrain
 
     // Start is called before the first frame update
     void Start()
     {
-        //gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        gmTemp = GameObject.FindAnyObjectByType<GMTemp>();
+        gameManager = GameObject.FindAnyObjectByType<GameManager>();
 
         startScale = transform.localScale;
         sizeCard = transform.GetComponent<RectTransform>().rect.size;
@@ -44,9 +43,8 @@ public class Draggable2D : MonoBehaviour
     }
 
     private void OnMouseDown() {
-        if (GetComponent<CardDisplay>().status == Status.Hand && !GetComponent<CardDisplay>().ownedByOppo && !gmTemp.dragged) {
-            //gameManager.dragged = true;
-            gmTemp.dragged = true;
+        if (GetComponent<CardDisplay>().status == Status.Hand && !GetComponent<CardDisplay>().ownedByOppo && !gameManager.dragged) {
+            gameManager.dragged = true;
             isDragged = true;
 
             position = transform.position;
@@ -56,24 +54,30 @@ public class Draggable2D : MonoBehaviour
             placeHolder = GetComponent<ZoomCard2D>().placeHolder;
             GO_Hand = this.transform.parent.gameObject;
             this.transform.SetParent(this.transform.parent.parent);
-            //gameObject.GetComponent<CanvasGroup>().blocksRaycasts = false;
-            // Si c'est un sbire sur le terrain et qu'il n'a pas attaqué pendant le tour
         }
-        //} else if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Sbire
-        //&& !GetComponent<SbireDisplay>().sbireHasAttacked && !GetComponent<CardDisplay>().ownedByOppo) {
-        //    gameManager.dragged = true;
-        //    Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
-        //    // Si c'est une carte "Echo" sur le terrain qui n'a pas été posé ce tour ci
-        //} else if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo
-        //&& !GetComponent<CardDisplay>().putOnBoardThisTurn && !GetComponent<CardDisplay>().ownedByOppo) {
-        //    gameManager.dragged = true;
-        //    Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
-        //}
+        // Si c'est un sbire sur le terrain et qu'il n'a pas attaqué pendant le tour
+        else if (!gameManager.dragged 
+            && GetComponent<CardDisplay>().status == Status.SlotVisible 
+            && GetComponent<CardDisplay>().card.type == Type.Sbire
+            && !GetComponent<SbireDisplay>().sbireHasAttacked 
+            && !GetComponent<CardDisplay>().ownedByOppo) {
+            isHalfDragged = true;
+            gameManager.dragged = true;
+            Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
+            transform.localPosition = Vector3.zero;
+            transform.localScale = Vector3.one;
+        }
+        // Si c'est une carte "Echo" sur le terrain qui n'a pas été posé ce tour ci
+        else if (!gameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo
+        && !GetComponent<CardDisplay>().putOnBoardThisTurn && !GetComponent<CardDisplay>().ownedByOppo) {
+            gameManager.dragged = true;
+            Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
+        }
 
     }
 
     private void OnMouseDrag() {
-        if (!isDragged) return;
+        if (!isDragged && !isHalfDragged) return;
 
         // Si c'est une carte de la main
         if (GetComponent<CardDisplay>().status == Status.Hand) {
@@ -125,14 +129,50 @@ public class Draggable2D : MonoBehaviour
     }
 
     private void OnMouseUp() {
-        if (GetComponent<CardDisplay>().status == Status.Hand) {
+        if (!isDragged && !isHalfDragged) return;
+
+        bool dropZoneValid = false;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+        if (hit.collider != null) {
+            GameObject dropZone = hit.collider.gameObject;
+            Debug.Log(dropZone.name);
+            // Contre attaque
+            if (dropZone.GetComponent<SlotDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<SlotDisplay>().onDrop(gameObject);
+            } 
+            // Aura
+            else if (dropZone.GetComponent<AuraDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<AuraDisplay>().onDrop(gameObject);
+            }
+            // Enchantement
+            else if (dropZone.GetComponent<EquipmentDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<EquipmentDisplay>().onDrop(gameObject);
+            }
+            // Monster
+            else if (dropZone.GetComponent<MonsterDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<MonsterDisplay>().onDrop(gameObject);
+                Debug.Log("Drop on monster");
+            }
+            // Card
+            else if (dropZone.GetComponent<CardDisplay>() != null) {
+
+            }
+        }
+
+        // Si on drop sur aucune dropZone valide
+        if (!dropZoneValid && !isHalfDragged) {
             transform.localScale = startScale;
             this.transform.SetParent(GO_Hand.transform);
             GetComponent<ZoomCard2D>().changeWithPlaceholder();
-            gmTemp.dragged = false;
-            isDragged = false;
             GetComponentInParent<HandDisplay>().childHaveChanged = true;
         }
+
+        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        gameManager.dragged = false;
+        isDragged = false;
+        isHalfDragged = false;
     }
 
     //void IEndDragHandler.OnEndDrag(PointerEventData eventData) {

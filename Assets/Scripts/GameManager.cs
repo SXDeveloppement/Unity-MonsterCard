@@ -67,7 +67,8 @@ public class GameManager : MonoBehaviour {
                 newMonster.name = "Monster";
                 newMonster.GetComponent<MonsterDisplay>().monster = DBMonsters[randomInt];
                 newMonster.transform.SetParent(GO_MonsterArea.transform);
-                newMonster.transform.localPosition = new Vector3(273f, 28f, 0f);
+                newMonster.transform.localPosition = Vector3.zero;
+                newMonster.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
                 newMonster.GetComponent<MonsterDisplay>().ownedByOppo = false;
 
                 // On ajoute le nouveau monstre a la liste
@@ -75,11 +76,11 @@ public class GameManager : MonoBehaviour {
                 addedMonster.Add(DBMonsters[randomInt]);
 
                 // On instantie le monstre dans la fenêtre d'équipe du joueur
-                GameObject newMonsterTeamLayout = Instantiate(GO_MonsterTeamLayout);
-                newMonsterTeamLayout.name = "MonsterTeamLayout";
-                newMonsterTeamLayout.transform.SetParent(GO_TeamArea.transform);
-                newMonsterTeamLayout.GetComponent<MonsterLayoutTeamDisplay>().monsterLinked = newMonster;
-                newMonster.GetComponent<MonsterDisplay>().monsterLayoutTeamLinked = newMonsterTeamLayout;
+                //GameObject newMonsterTeamLayout = Instantiate(GO_MonsterTeamLayout);
+                //newMonsterTeamLayout.name = "MonsterTeamLayout";
+                //newMonsterTeamLayout.transform.SetParent(GO_TeamArea.transform);
+                //newMonsterTeamLayout.GetComponent<MonsterLayoutTeamDisplay>().monsterLinked = newMonster;
+                //newMonster.GetComponent<MonsterDisplay>().monsterLayoutTeamLinked = newMonsterTeamLayout;
             }
         }
 
@@ -87,28 +88,29 @@ public class GameManager : MonoBehaviour {
         // Création de l'équipe de 4 monstre pour l'adversaire
         addedMonster = new List<Monster>();
         while (monstersGOListOppo.Count < 4) {
-            Random rand = new Random();
-            int randomInt = rand.Next(DBMonsters.Length);
-            if (!addedMonster.Contains(DBMonsters[randomInt])) {
+            Random rand2 = new Random();
+            int randomInt2 = rand2.Next(DBMonsters.Length);
+            if (!addedMonster.Contains(DBMonsters[randomInt2])) {
                 // Instantie le monstre
-                GameObject newMonster = Instantiate(GO_Monster);
-                newMonster.name = "Monster";
-                newMonster.GetComponent<MonsterDisplay>().monster = DBMonsters[randomInt];
-                newMonster.transform.SetParent(GO_MonsterAreaOppo.transform);
-                newMonster.transform.localPosition = new Vector3(273f, 28f, 0f);
-                newMonster.GetComponent<MonsterDisplay>().ownerOppo();
+                GameObject newMonsterOppo = Instantiate(GO_Monster);
+                newMonsterOppo.name = "MonsterOppo";
+                newMonsterOppo.GetComponent<MonsterDisplay>().monster = DBMonsters[randomInt2];
+                newMonsterOppo.transform.SetParent(GO_MonsterAreaOppo.transform);
+                newMonsterOppo.transform.localPosition = Vector3.zero;
+                newMonsterOppo.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                newMonsterOppo.GetComponent<MonsterDisplay>().ownerOppo();
 
                 // On ajoute le nouveau monstre a la liste
-                monstersGOListOppo.Add(newMonster);
+                monstersGOListOppo.Add(newMonsterOppo);
 
-                addedMonster.Add(DBMonsters[randomInt]);
+                addedMonster.Add(DBMonsters[randomInt2]);
             }
         }
 
         GO_MonsterInvoked = monstersGOList[0];
         GO_MonsterInvokedOppo = monstersGOListOppo[0];
 
-        GO_TeamArea.transform.parent.gameObject.SetActive(true);
+        //GO_TeamArea.transform.parent.gameObject.SetActive(true);
     }
 
     // Update is called once per frame
@@ -117,10 +119,10 @@ public class GameManager : MonoBehaviour {
         if (init) {
             instantiateEquipment(GO_MonsterInvoked);
             instantiateEquipment(GO_MonsterInvokedOppo);
-            foreach (Transform child in GO_TeamArea.transform) {
-                child.gameObject.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
-            }
-            GO_TeamArea.transform.parent.gameObject.SetActive(false);
+            //foreach (Transform child in GO_TeamArea.transform) {
+            //    child.gameObject.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
+            //}
+            //GO_TeamArea.transform.parent.gameObject.SetActive(false);
             refreshDeckText();
             refreshGraveText();
             init = false;
@@ -129,26 +131,30 @@ public class GameManager : MonoBehaviour {
 
     // On instantie l'équipement d'un monstre
     public void instantiateEquipment(GameObject monster) {
-        GO_EquipmentArea.GetComponent<HorizontalLayoutGroup>().enabled = true;
-        GO_EquipmentAreaOppo.GetComponent<HorizontalLayoutGroup>().enabled = true;
+        //GO_EquipmentArea.GetComponent<HorizontalLayoutGroup>().enabled = true;
+        //GO_EquipmentAreaOppo.GetComponent<HorizontalLayoutGroup>().enabled = true;
         int i = 0;
         foreach (Equipment equipment in monster.GetComponent<MonsterDisplay>().equipmentList) {
             GameObject newEquipment = Instantiate(GO_Equipment);
             newEquipment.GetComponent<EquipmentDisplay>().equipment = equipment;
             newEquipment.GetComponent<EquipmentDisplay>().slotId = i;
             if (monster == GO_MonsterInvoked) {
-                newEquipment.transform.SetParent(GO_EquipmentArea.transform);
+                GameObject slotEquipment = GO_EquipmentArea.transform.GetChild(i).GetChild(0).gameObject;
+                newEquipment.transform.SetParent(slotEquipment.transform);
                 newEquipment.GetComponent<EquipmentDisplay>().ownedByOppo = false;
             } else {
-                newEquipment.transform.SetParent(GO_EquipmentAreaOppo.transform);
+                GameObject slotEquipment = GO_EquipmentAreaOppo.transform.GetChild(i).GetChild(0).gameObject;
+                newEquipment.transform.SetParent(slotEquipment.transform);
                 newEquipment.GetComponent<EquipmentDisplay>().ownedByOppo = true;
             }
+            newEquipment.transform.localScale = Vector3.one;
+            newEquipment.transform.localPosition = Vector3.zero;
 
             // On instantie les cartes enchantements
             if (monster.GetComponent<MonsterDisplay>().cardEnchantments[i].name != null) {
                 GameObject newCardEnchantment = Instantiate(GO_Card);
                 newCardEnchantment.GetComponent<CardDisplay>().card = monster.GetComponent<MonsterDisplay>().cardEnchantments[i];
-                newCardEnchantment.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                newEquipment.GetComponent<EquipmentDisplay>().cardOnSlot = newCardEnchantment;
                 newCardEnchantment.GetComponent<CardDisplay>().putOnBoard(newEquipment, true);
             }
 
@@ -210,6 +216,7 @@ public class GameManager : MonoBehaviour {
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
         }
         refreshDeckText();
+        GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
     }
     
     // Actualise le nombre de carte restant dans le deck
@@ -230,11 +237,6 @@ public class GameManager : MonoBehaviour {
         dragged = false;
 
         if (cardDisplay.monsterOwnThis == GO_MonsterInvoked) {
-            // On detruit les cartes actuel du cimetière
-            foreach (Transform child in GO_GravePlayerList.transform) {
-                Destroy(child.gameObject);
-            }
-
             refreshGrave();
             refreshGraveText();
         }
@@ -275,9 +277,9 @@ public class GameManager : MonoBehaviour {
             }
 
             // On actualise les infos des monstres dans la fenêtre d'équipe du joueur
-            if (GO_TeamArea.transform.IsChildOf(target.transform)) {
-                refreshTeamAreaLayout();
-            }
+            //if (GO_TeamArea.transform.IsChildOf(target.transform)) {
+            //    refreshTeamAreaLayout();
+            //}
         }
     }
 
@@ -318,7 +320,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // On place la carte sur le terrain
-    public void tryToPutOnBoard(GameObject cardPlayed, GameObject target, bool isVisible) {
+    public bool tryToPutOnBoard(GameObject cardPlayed, GameObject target, bool isVisible) {
         // Carte face visible, on doit dépenser du mana
         if (isVisible) {
             // On place la carte si son cout en mana est inférieur ou égal au mana disponible
@@ -334,13 +336,17 @@ public class GameManager : MonoBehaviour {
                     cardPlayed.transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
                     cardPlayed.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
                 }
+                return true;
             } else {
                 // On affiche un message d'erreur
                 Debug.Log("ERR : no mana available");
             }
         } else { // Carte face caché, pas besoin de dépenser de mana
             cardPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
+            return true;
         }
+
+        return false;
     }
 
     // Initialisation du tableau d'affinité
@@ -519,13 +525,14 @@ public class GameManager : MonoBehaviour {
         }
 
         // On détruit les équipements du monstre actif
-        foreach (Transform child in GO_EquipmentArea.transform) {
-            // On sauvegarde les enchantements du monstre actif
-            if (child.GetComponentInChildren<CardDisplay>() != null) {
-                int slotId = child.GetComponent<EquipmentDisplay>().slotId;
-                GO_MonsterInvoked.GetComponent<MonsterDisplay>().cardEnchantments[slotId] = child.GetComponentInChildren<CardDisplay>().card;
+        foreach (EquipmentDisplay equipmentDisplay in GO_EquipmentArea.GetComponentsInChildren<EquipmentDisplay>()) {
+            // On sauvegarde les enchantemets du monstre actif
+            if (equipmentDisplay.cardOnSlot != null) {
+                int slotId = equipmentDisplay.slotId;
+                GO_MonsterInvoked.GetComponent<MonsterDisplay>().cardEnchantments[slotId] = equipmentDisplay.cardOnSlot.GetComponent<CardDisplay>().card;
             }
-            Destroy(child.gameObject);
+            equipmentDisplay.destroyEnchantment();
+            Destroy(equipmentDisplay.gameObject);
         }
 
         // On reset le mana et on supprime tous les buff et debuff du précédent monstre
@@ -566,6 +573,17 @@ public class GameManager : MonoBehaviour {
             child.gameObject.SetActive(false);
         }
 
+        // On détruit les équipements du monstre actif
+        foreach (EquipmentDisplay equipmentDisplay in GO_EquipmentAreaOppo.GetComponentsInChildren<EquipmentDisplay>()) {
+            // On sauvegarde les enchantemets du monstre actif
+            if (equipmentDisplay.cardOnSlot != null) {
+                int slotId = equipmentDisplay.slotId;
+                GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().cardEnchantments[slotId] = equipmentDisplay.cardOnSlot.GetComponent<CardDisplay>().card;
+            }
+            equipmentDisplay.destroyEnchantment();
+            Destroy(equipmentDisplay.gameObject);
+        }
+
         // On réinitialise le mana de l'ancien monstre
         GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().resetMana();
 
@@ -576,11 +594,6 @@ public class GameManager : MonoBehaviour {
         // On réinitialise le mana du nouveau monstre
         GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().resetMana();
 
-        // On actualise les équipements
-        //// On détruit les équipements du monstre actif
-        foreach (Transform child in GO_EquipmentAreaOppo.transform) {
-            Destroy(child.gameObject);
-        }
         //// On instantie l'équipement du nouveau monstre
         instantiateEquipment(GO_MonsterInvokedOppo);
 
@@ -691,5 +704,11 @@ public class GameManager : MonoBehaviour {
         } else {
             swapMonsterOppo(GO_MonsterInvokedOppo.transform.GetSiblingIndex() + 1);
         }
+    }
+
+    // DEBUG Ajoute 10 mana au monstre actif
+    public void add10Mana() {
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaMax = 10;
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
     }
 }

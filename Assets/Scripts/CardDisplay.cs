@@ -34,7 +34,7 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
 
     // Start is called before the first frame update
     void Start() {
-        //gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        gameManager = GameObject.FindAnyObjectByType<GameManager>();
 
         // On affiche le bon background en fonction du type élémentaire de la carte
         foreach (Transform childBackground in folderBackgrounds.transform) {
@@ -197,8 +197,8 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
     // On active les effets de la carte
     public void activeCard(GameObject target) {
         card.activeEffect(target);
-        gameObject.GetComponent<ZoomCard>().destroyPlaceholder();
-        //gameManager.inGrave(gameObject);
+        gameObject.GetComponent<ZoomCard2D>().destroyPlaceholder();
+        gameManager.inGrave(gameObject);
     }
 
     // On place la carte face visible
@@ -211,17 +211,25 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
             hiddenCard = true;
         }
 
-        transform.SetParent(target.transform);
-        if (target.transform.parent.GetComponent<SlotDisplay>() != null) {
+        if (target.GetComponent<SlotDisplay>() != null) {
             if (hiddenCard) {
                 status = Status.SlotHidden;
             } else {
                 status = Status.SlotVisible;
             }
-        } else if (target.transform.parent.GetComponent<AuraDisplay>() != null) {
+            transform.SetParent(target.GetComponent<SlotDisplay>().slotCard.transform);
+            transform.localPosition = Vector3.zero;
+            target.GetComponent<SlotDisplay>().cardOnSlot = this.gameObject;
+        } else if (target.GetComponent<AuraDisplay>() != null) {
             status = Status.AuraSlot;
+            transform.SetParent(target.GetComponent<AuraDisplay>().slotCard.transform);
+            transform.localPosition = Vector3.zero;
+            target.GetComponent<AuraDisplay>().cardOnSlot = this.gameObject;
         } else if (target.GetComponent<EquipmentDisplay>() != null) {
             status = Status.EnchantmentSlot;
+            transform.SetParent(target.transform.parent.parent.GetChild(1));
+            transform.localPosition = Vector3.zero;
+            transform.localScale = Vector3.one;
         }
 
         // Si c'est un sbire
@@ -229,7 +237,7 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
             GetComponent<SbireDisplay>().invokeSbire();
         }
         
-        GetComponent<ZoomCard>().reinitCard();
+        GetComponent<ZoomCard2D>().reinitCard();
     }
 
     // Renvoi les dégats de base de l'attaque

@@ -775,6 +775,7 @@ GameObject:
   - component: {fileID: 2283727425901589729}
   - component: {fileID: 4444694765859320513}
   - component: {fileID: 9037063412618865365}
+  - component: {fileID: 3573569114173754747}
   m_Layer: 0
   m_Name: Equipment2D
   m_TagString: Untagged
@@ -848,6 +849,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scaleZoomBoard: 2
+--- !u!114 &3573569114173754747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4111061924981219626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 284d2ae3bbfade84d8f7bd3de05d8653, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equipment: {fileID: 0}
+  nameText: {fileID: 6887675771209554272}
+  powerText: {fileID: 2812250039073194393}
+  guardText: {fileID: 5738895696930594200}
+  speedText: {fileID: 359667233247629671}
+  hpText: {fileID: 7624585986172676474}
+  artworkImage: {fileID: 0}
+  illustration: {fileID: 1697231213418870022}
+  slotId: 0
+  ownedByOppo: 0
 --- !u!1 &4769410755870425097
 GameObject:
   m_ObjectHideFlags: 0

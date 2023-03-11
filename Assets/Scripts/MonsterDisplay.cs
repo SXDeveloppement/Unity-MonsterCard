@@ -106,7 +106,7 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         manaMax = 1;
         manaAvailable = manaMax;
 
-        // On ajout l''illustration du monstre
+        // On ajout l'illustration du monstre
         if (artworkImage != null)
             artworkImage.sprite = monster.artwork;
         if (illustration != null)

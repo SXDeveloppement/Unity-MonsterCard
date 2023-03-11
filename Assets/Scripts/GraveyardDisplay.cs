@@ -33,7 +33,7 @@ public class GraveyardDisplay : MonoBehaviour, IScrollHandler
 
     public void show() {
         if (gameObject.activeSelf) {
-            gameObject.SetActive(false);
+            hide();
         } else {
             gameObject.SetActive(true);
             pageViewed = 1;
@@ -80,7 +80,6 @@ public class GraveyardDisplay : MonoBehaviour, IScrollHandler
                 newCardInGrave.GetComponent<CardDisplay>().status = Status.Graveyard;
             }
 
-        Debug.Log("MaxPage : " + maxPage + " / ActualPage : " + page);
         scrollbar.GetComponent<ScrollBarDisplay>().initScrollbar(maxPage, page);
     }
     

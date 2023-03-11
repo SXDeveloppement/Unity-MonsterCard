@@ -76,11 +76,11 @@ public class GameManager : MonoBehaviour {
                 addedMonster.Add(DBMonsters[randomInt]);
 
                 // On instantie le monstre dans la fenêtre d'équipe du joueur
-                //GameObject newMonsterTeamLayout = Instantiate(GO_MonsterTeamLayout);
-                //newMonsterTeamLayout.name = "MonsterTeamLayout";
-                //newMonsterTeamLayout.transform.SetParent(GO_TeamArea.transform);
-                //newMonsterTeamLayout.GetComponent<MonsterLayoutTeamDisplay>().monsterLinked = newMonster;
-                //newMonster.GetComponent<MonsterDisplay>().monsterLayoutTeamLinked = newMonsterTeamLayout;
+                GameObject newMonsterTeamLayout = Instantiate(GO_MonsterTeamLayout);
+                newMonsterTeamLayout.name = "MonsterTeamLayout";
+                newMonsterTeamLayout.transform.SetParent(GO_TeamArea.GetComponent<TeamLayoutDisplay>().layoutArea.transform);
+                newMonsterTeamLayout.GetComponent<MonsterLayoutTeamDisplay>().monsterLinked = newMonster;
+                newMonster.GetComponent<MonsterDisplay>().monsterLayoutTeamLinked = newMonsterTeamLayout;
             }
         }
 
@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour {
         GO_MonsterInvoked = monstersGOList[0];
         GO_MonsterInvokedOppo = monstersGOListOppo[0];
 
-        //GO_TeamArea.transform.parent.gameObject.SetActive(true);
+        GO_TeamArea.SetActive(true);
     }
 
     // Update is called once per frame
@@ -119,10 +119,10 @@ public class GameManager : MonoBehaviour {
         if (init) {
             instantiateEquipment(GO_MonsterInvoked);
             instantiateEquipment(GO_MonsterInvokedOppo);
-            //foreach (Transform child in GO_TeamArea.transform) {
-            //    child.gameObject.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
-            //}
-            //GO_TeamArea.transform.parent.gameObject.SetActive(false);
+            foreach (Transform child in GO_TeamArea.GetComponent<TeamLayoutDisplay>().layoutArea.transform) {
+                child.gameObject.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
+            }
+            GO_TeamArea.SetActive(false);
             refreshDeckText();
             refreshGraveText();
             init = false;
@@ -131,8 +131,6 @@ public class GameManager : MonoBehaviour {
 
     // On instantie l'équipement d'un monstre
     public void instantiateEquipment(GameObject monster) {
-        //GO_EquipmentArea.GetComponent<HorizontalLayoutGroup>().enabled = true;
-        //GO_EquipmentAreaOppo.GetComponent<HorizontalLayoutGroup>().enabled = true;
         int i = 0;
         foreach (Equipment equipment in monster.GetComponent<MonsterDisplay>().equipmentList) {
             GameObject newEquipment = Instantiate(GO_Equipment);
@@ -289,25 +287,16 @@ public class GameManager : MonoBehaviour {
 
     // On actualise les infos des monstres dans la fenêtre d'équipe du joueur
     public void refreshTeamAreaLayout() {
-        foreach (Transform child in GO_TeamArea.transform) {
+        GameObject layoutTeam = GO_TeamArea.GetComponent<TeamLayoutDisplay>().layoutArea;
+        foreach (Transform child in layoutTeam.transform) {
             int indexChild = child.GetSiblingIndex();
             MonsterLayoutTeamDisplay monsterLayoutTeamDisplay = child.gameObject.GetComponent<MonsterLayoutTeamDisplay>();
             MonsterDisplay monsterDisplay = monsterLayoutTeamDisplay.monsterLinked.GetComponent<MonsterDisplay>();
             monsterLayoutTeamDisplay.refreshMonsterUI();
-
-            GameObject buttonSwap = GO_TeamArea.transform.parent.Find("LayoutSelection").GetChild(indexChild).GetComponentInChildren<Button>().gameObject;
-            if (monstersGOList[indexChild] == GO_MonsterInvoked || monsterDisplay.healthAvailable <= 0) {
-                buttonSwap.GetComponent<Button>().interactable = false;
-                if (monsterDisplay.healthAvailable <= 0) {
-                    buttonSwap.GetComponentInChildren<TMP_Text>().text = "K.O.";
-                } else {
-                    buttonSwap.GetComponentInChildren<TMP_Text>().text = "In battle";
-                }
-            } else {
-                buttonSwap.GetComponent<Button>().interactable = true;
-                buttonSwap.GetComponentInChildren<TMP_Text>().text = "Swap";
-            }
         }
+
+        layoutTeam.GetComponent<GridLayoutGroup>().enabled = false;
+        layoutTeam.GetComponent<GridLayoutGroup>().enabled = true;
     }
 
     // On active une carte
@@ -565,8 +554,12 @@ public class GameManager : MonoBehaviour {
 
         // On actualise le deck et le cimetière
         refreshDeckText();
-        refreshGrave();
+        //refreshGrave();
         refreshGraveText();
+        refreshTeamAreaLayout();
+
+        // On ferme la fenêtre d'équipe
+        GO_TeamArea.SetActive(false);
     }
 
     public void swapMonsterOppo(int indexMonster) {

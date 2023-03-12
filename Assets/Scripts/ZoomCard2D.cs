@@ -41,7 +41,6 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (gameManager.dragged) return;
 
         // Si on ne déplace pas de carte
-        //if (!GameObject.Find("GameManager").GetComponent<GameManager>().dragged) {
         if (!gameManager.dragged) { 
             // Si la souris est sur une carte de la main
             if (GetComponent<CardDisplay>().status == Status.Hand) {
@@ -53,7 +52,6 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
                 float height = gameObject.GetComponent<RectTransform>().rect.size.y;
                 // On calcule la nouvelle position de la carte zoomé pour quelle s'affiche entièrement a l'écran
-                //float positionY = localPosition.y + marginBottom + height * (scaleZoom - 1) / 2 + height - transform.parent.GetComponent<RectTransform>().rect.height;
                 float positionY = localPosition.y + (height * scaleZoom - transform.parent.GetComponent<RectTransform>().rect.height) / 2 + marginBottom;
                 transform.localPosition = new Vector3(localPosition.x, positionY, localPosition.z - 2f);
                 pointerIsEnter = true;

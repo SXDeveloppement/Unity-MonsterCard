@@ -124,7 +124,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
     void Update()
     {
         if (init) {
-            //StartCoroutine(refreshUI());
             if (gameObject.transform.GetSiblingIndex() != 0) {
                 gameObject.SetActive(false);
             }
@@ -139,42 +138,42 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         if (healthAvailable != healthAvailableTemp) {
             healthAvailableTemp = healthAvailable;
             refreshHealthPoint();
-            //if (!ownedByOppo)
-                //monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
         }
         if (manaAvailable != manaAvailableTemp || manaMax != manaMaxTemp || buffMana != buffManaTemp) {
             manaMaxTemp = manaMax;
             manaAvailableTemp = manaAvailable;
             refreshManaPoint();
-            //if (!ownedByOppo)
-                //monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();            
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
         }
         if (powerEquiped != powerEquipedTemp || buffPower != buffPowerTemp) {
             powerEquipedTemp = powerEquiped;
             buffPowerTemp = buffPower;
             refreshPower();
-            //if (!ownedByOppo)
-                //monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
-            //if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
-            //    StartCoroutine(gameManager.refreshAllDamageText());
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
+            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+                StartCoroutine(gameManager.refreshAllDamageText());
         }
         if (guardEquiped != guardEquipedTemp || buffGuard != buffGuardTemp) {
             guardEquipedTemp = guardEquiped;
             buffGuardTemp = buffGuard;
             refreshGuard();
-            //if (!ownedByOppo)
-            //    monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
-            //if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
-            //    StartCoroutine(gameManager.refreshAllDamageText());
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
+            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+                StartCoroutine(gameManager.refreshAllDamageText());
         }
         if (speedEquiped != speedEquipedTemp || buffSpeed != buffSpeedTemp) {
             speedEquipedTemp = speedEquiped;
             buffSpeedTemp = buffSpeed;
             refreshSpeed();
-            //if (!ownedByOppo)
-            //    monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
-            //if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
-            //    StartCoroutine(gameManager.refreshAllDamageText());
+            if (!ownedByOppo)
+                monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
+            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+                StartCoroutine(gameManager.refreshAllDamageText());
         }
     }
 
@@ -236,58 +235,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         return isPutOnBoard;
     }
 
-    void IDropHandler.OnDrop(PointerEventData eventData) {
-        if (gameManager.dragged) {
-            GameObject cardPlayed = eventData.pointerDrag;
-            GameObject target = gameObject;
-
-            // Si la carte est un sbire et qu'elle est sur le terrain face visible
-            if (cardPlayed.GetComponent<CardDisplay>().card.type == Type.Sbire 
-            && cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible
-            && cardPlayed.GetComponent<CardDisplay>().monsterOwnThis != gameObject) {
-                bool sbireHaveTaunt = false;
-                foreach (CardDisplay cardDisplay in gameManager.GO_CounterAttackAreaOppo.GetComponentsInChildren<CardDisplay>()) {
-                    if (cardDisplay.card.type == Type.Sbire) {
-                        foreach (SbirePassifEffect sbirePassifEffect in cardDisplay.card.sbirePassifEffects) {
-                            if (sbirePassifEffect == SbirePassifEffect.Tank) {
-                                sbireHaveTaunt = true;
-                                break;
-                            }
-                        }
-
-                        if (sbireHaveTaunt) break;
-                    }
-                }
-
-                if (!sbireHaveTaunt) {
-                    gameManager.dragged = false;
-                    cardPlayed.GetComponent<SbireDisplay>().sbireHasAttacked = true;
-                    takeDamage(cardPlayed.GetComponent<SbireDisplay>().sbirePowerAvailable);
-                } else {
-                    Debug.Log("ERR : Bad target, one sbire or more have Taunt");
-                }
-            } else { 
-                // On vérifie les conditions de ciblage pour pouvoir activer la carte
-                bool targetCondition = false;
-                TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-                foreach (TargetType targetType in cardPlayedTargetType) {
-                    if (!ownedByOppo && targetType == TargetType.PlayerMonster
-                        || ownedByOppo && targetType == TargetType.OpponantMonster) {
-                        targetCondition = true;
-                        break;
-                    }
-                }
-
-                // On active la carte si les conditions de ciblages sont respectées
-                if (targetCondition) {
-                    gameManager.activeCardOnTarget(cardPlayed, target);
-                } else {
-                    Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
-                }
-            }
-        }
-    }
-
     // Modifie l'affichage pour le monstre de l'adversaire
     public void ownerOppo() {
         ownedByOppo = true;
@@ -296,8 +243,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         powerText.gameObject.transform.localScale = flipX;
         guardText.gameObject.transform.localScale = flipX;
         speedText.gameObject.transform.localScale = flipX;
-        //GO_LifeBar.transform.Find("Text").localScale = flipX;
-        //GO_ManaBar.transform.Find("Text").localScale = flipX;
         healthText.gameObject.transform.localScale = flipX;
         manaText.gameObject.transform.localScale = flipX;
     }
@@ -348,6 +293,8 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             }
         }
 
+        newGOBuffDebuff.transform.localScale = new Vector3(0.5f, 0.5f, 1);
+
         return newGOBuffDebuff;
     }
 
@@ -378,7 +325,7 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             buffDebuff.applyRemove(false, false);
         }
 
-        //StartCoroutine(gameManager.refreshAllDamageText());
+        StartCoroutine(gameManager.refreshAllDamageText());
     }
 
     // Réorganise la liste des buff/debuff
@@ -451,7 +398,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         healthText.text = getHealthBarString();
 
         // On modifie la taille de la barre
-        //GO_LifeBar.transform.Find("HealthBar").transform.localScale = getHealthBarScale();
         GO_LifeBar.transform.Find("HealthBar").transform.localPosition = getHealthBarLocalPosition();
     }
     public string getHealthBarString() {
@@ -472,7 +418,6 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
         manaText.text = getManaBarString();
 
         // On modifie la taille de la barre
-        //GO_ManaBar.transform.Find("ManaBar").transform.localScale = getManaBarScale();
         GO_ManaBar.transform.Find("ManaBar").transform.localPosition = getManaBarLocalPosition();
     }
     public string getManaBarString() {

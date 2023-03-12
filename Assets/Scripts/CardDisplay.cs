@@ -255,21 +255,21 @@ public class CardDisplay : MonoBehaviour, IDropHandler {
 
     // On met a jour la description de la carte avec les dégâts qui seront réellement infligés au monstre adverse
     public void refreshDescriptionDamage() {
-        //string pattern = @"\%D\d+";
-        //Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+        string pattern = @"\%D\d+";
+        Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
 
-        //string output = null;
-        //foreach (int baseDamage in getBaseDamage()) {
-        //    int trueDamage = gameManager.calculateDamage(gameManager.GO_MonsterInvokedOppo, card.elementalAffinity, baseDamage);
-        //    if (output != null) {
-        //        output = regex.Replace(output, trueDamage.ToString(), 1);
-        //    } else {
-        //        output = regex.Replace(cardDescriptionCached, trueDamage.ToString(), 1);
-        //    }
-        //}
-        //if (output != null) {
-        //    descriptionText.text = output;
-        //}
+        string output = null;
+        foreach (int baseDamage in getBaseDamage()) {
+            int trueDamage = gameManager.calculateDamage(gameManager.GO_MonsterInvokedOppo, card.elementalAffinity, baseDamage);
+            if (output != null) {
+                output = regex.Replace(output, trueDamage.ToString(), 1);
+            } else {
+                output = regex.Replace(cardDescriptionCached, trueDamage.ToString(), 1);
+            }
+        }
+        if (output != null) {
+            descriptionText.text = output;
+        }
 
     }
 

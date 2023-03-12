@@ -84,31 +84,4 @@ public class EquipmentDisplay : MonoBehaviour
         Destroy(cardOnSlot);
         cardOnSlot = null;
     }
-
-    //void IDropHandler.OnDrop(PointerEventData eventData) {
-    //    if (gameManager.dragged) {
-    //        GameObject cardPlayed = eventData.pointerDrag;
-    //        GameObject targetSlot = eventData.pointerCurrentRaycast.gameObject;
-
-    //        // On vérifie que la cible soit bien un emplacement d'equipement
-    //        // Si l'emplacement n'est pas déjà enchanté et que la carte est dans la main ou dans un emplacement de contre attaque
-    //        if (targetSlot == gameObject && targetSlot.transform.GetComponentInChildren<CardDisplay>() == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
-    //            // On vérifie les conditions de ciblage pour pouvoir placer la carte
-    //            bool targetCondition = false;
-    //            TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-    //            foreach (TargetType cardTargetType in cardPlayedTargetType) {
-    //                if (cardTargetType == TargetType.PlayerEquipment && !ownedByOppo) {
-    //                    gameManager.tryToPutOnBoard(cardPlayed, gameObject, true);
-    //                    targetCondition = true;
-    //                    break;
-    //                }
-    //            }
-
-    //            // On place la carte si les conditions de ciblages sont respectées
-    //            if (!targetCondition) {
-    //                Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + ownedByOppo.ToString());
-    //            }
-    //        }
-    //    }
-    //}
 }

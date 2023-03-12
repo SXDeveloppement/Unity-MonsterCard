@@ -64,8 +64,7 @@ public class SbireDisplay : MonoBehaviour
         && GetComponent<CardDisplay>().status == Status.SlotVisible
         && GetComponent<CardDisplay>().card.type == Type.Sbire
         ) {
-            //gameManager.inGrave(gameObject);
-            Debug.Log("Sbire go in graveyard");
+            gameManager.inGrave(gameObject);
         }
     }
 

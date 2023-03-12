@@ -239,50 +239,13 @@ public class GameManager : MonoBehaviour {
         dragged = false;
 
         if (cardDisplay.monsterOwnThis == GO_MonsterInvoked) {
-            //refreshGrave();
             refreshGraveText();
         }
-    }
-
-    // On refresh les cartes du cimetière
-    public void refreshGrave() {
-        //// On detruit les cartes actuel du cimetière
-        //foreach (Transform child in GO_GravePlayerList.transform) {
-        //    Destroy(child.gameObject);
-        //}
-
-        //// On instantie les cartes dans le cimetière
-        //foreach (Card nextCard in GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList) {
-        //    GameObject newCard = Instantiate(GO_Card);
-        //    newCard.gameObject.transform.SetParent(GO_GravePlayerList.transform);
-        //    newCard.GetComponent<CardDisplay>().card = nextCard;
-        //    newCard.name = newCard.GetComponent<CardDisplay>().card.name;
-        //    newCard.GetComponent<CardDisplay>().status = Status.Graveyard;
-        //}
     }
 
     // Actualise le nombre de carte dans le cimetière
     public void refreshGraveText() {
         GO_GraveText.gameObject.GetComponent<TMP_Text>().SetText(GO_MonsterInvoked.GetComponent<MonsterDisplay>().graveList.Count.ToString());
-    }
-
-    // Affiche ou cache la cible
-    public void showHide(GameObject target) {
-        if (target.activeSelf) {
-            target.SetActive(false);
-        } else {
-            target.SetActive(true);
-
-            // On reset la scrollbar
-            if (target.GetComponentInChildren<Scrollbar>() != null) {
-                target.GetComponentInChildren<Scrollbar>().value = 1;
-            }
-
-            // On actualise les infos des monstres dans la fenêtre d'équipe du joueur
-            //if (GO_TeamArea.transform.IsChildOf(target.transform)) {
-            //    refreshTeamAreaLayout();
-            //}
-        }
     }
 
     // On actualise les infos des monstres dans la fenêtre d'équipe du joueur
@@ -334,7 +297,9 @@ public class GameManager : MonoBehaviour {
                 // On affiche un message d'erreur
                 Debug.Log("ERR : no mana available");
             }
-        } else { // Carte face caché, pas besoin de dépenser de mana
+        }
+        // Carte face caché, pas besoin de dépenser de mana
+        else { 
             cardPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
             return true;
         }
@@ -554,7 +519,6 @@ public class GameManager : MonoBehaviour {
 
         // On actualise le deck et le cimetière
         refreshDeckText();
-        //refreshGrave();
         refreshGraveText();
         refreshTeamAreaLayout();
 
@@ -682,7 +646,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // On actualise les dégâts affichés sur les cartes
-        //StartCoroutine(refreshAllDamageText());
+        StartCoroutine(refreshAllDamageText());
     }
 
     // DEBUG Affiche le prochain monstre

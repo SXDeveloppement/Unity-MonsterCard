@@ -139,7 +139,6 @@ public class Draggable2D : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
         if (hit.collider != null) {
             GameObject dropZone = hit.collider.gameObject;
-            Debug.Log(dropZone.name);
             // Contre attaque
             if (dropZone.GetComponent<SlotDisplay>() != null) {
                 dropZoneValid = dropZone.GetComponent<SlotDisplay>().onDrop(gameObject);
@@ -155,7 +154,6 @@ public class Draggable2D : MonoBehaviour
             // Monster
             else if (dropZone.GetComponent<MonsterDisplay>() != null) {
                 dropZoneValid = dropZone.GetComponent<MonsterDisplay>().onDrop(gameObject);
-                Debug.Log("Drop on monster");
             }
             // Card
             else if (dropZone.GetComponent<CardDisplay>() != null) {
@@ -176,20 +174,4 @@ public class Draggable2D : MonoBehaviour
         isDragged = false;
         isHalfDragged = false;
     }
-
-    //void IEndDragHandler.OnEndDrag(PointerEventData eventData) {
-    //    Debug.Log("DragEnd");
-    //    if (GetComponent<CardDisplay>().status == Status.Hand) {
-    //        gameManager.dragged = false;
-    //        eventData.pointerDrag.GetComponent<ZoomCard>().changeWithPlaceholder();
-    //        transform.localScale = startScale;
-    //    } else if (GetComponent<CardDisplay>().status == Status.SlotVisible
-    //    && (
-    //    GetComponent<CardDisplay>().card.type == Type.Sbire
-    //    || GetComponent<CardDisplay>().card.type == Type.Echo
-    //    )) {
-    //        gameManager.dragged = false;
-    //        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-    //    }
-    //}
 }

@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: Sbire05
+  m_Name: Aura02
   m_EditorClassIdentifier: 
-  name: Sbire05
-  description: Tank
-  artwork: {fileID: 21300000, guid: dc4e853232d91d443a79c12e3d5a4e0e, type: 3}
+  name: Aura02
+  description: When you draw one or more card, deal 5 raw damage to monster opponant
+  artwork: {fileID: 21300000, guid: ca6cd6811ef9a5b4199aab62014bcaca, type: 3}
   manaCost: 1
   priority: 1
-  elementalAffinity: 0
-  type: 5
-  targetType: 08000000
+  elementalAffinity: 5
+  type: 2
+  targetType: 05000000
   from: 0
-  effects: []
-  sbirePowerPoint: 5
-  sbireHealthPoint: 20
-  sbirePassifEffects: 03000000
+  effects:
+  - {fileID: 11400000, guid: 27715477ada964d4e8d59d7d38130e1f, type: 2}
+  sbirePowerPoint: -1
+  sbireHealthPoint: -1
+  sbirePassifEffects: 

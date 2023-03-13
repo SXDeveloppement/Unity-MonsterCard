@@ -9,6 +9,11 @@ public class DestroyAura : CardEffect
         GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         //target.GetComponent<CardDisplay>().destroyAura();
-        gameManager.inGrave(target);
+        //gameManager.inGrave(target);
+        target.GetComponent<CardDisplay>().disableCard();
+    }
+
+    public override void DisableEffect() {
+        throw new System.NotImplementedException();
     }
 }

@@ -49,7 +49,7 @@ public class EquipmentDisplay : MonoBehaviour
 
     public bool onDrop(GameObject cardPlayed) {
         bool isPutOnBoard = false;
-        if (gameManager.dragged) {
+        if (GameManager.dragged) {
             GameObject targetSlot = this.gameObject;
             Debug.Log("Drop Equipment");
 

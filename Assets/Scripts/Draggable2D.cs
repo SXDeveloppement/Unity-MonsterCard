@@ -22,7 +22,7 @@ public class Draggable2D : MonoBehaviour
     public bool isDragged = false; // Est glissé pour les cartes de la main
     public bool isDraggedTemp;
     public bool isHalfDragged = false; // Est a moitié glissé pour les cartes du terrain
-
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -46,8 +46,8 @@ public class Draggable2D : MonoBehaviour
 
 
     private void OnMouseDown() {
-        if (GetComponent<CardDisplay>().status == Status.Hand && !GetComponent<CardDisplay>().ownedByOppo && !gameManager.dragged) {
-            gameManager.dragged = true;
+        if (GetComponent<CardDisplay>().status == Status.Hand && !GetComponent<CardDisplay>().ownedByOppo && !GameManager.dragged) {
+            GameManager.dragged = true;
             isDragged = true;
 
             position = transform.position;
@@ -59,29 +59,29 @@ public class Draggable2D : MonoBehaviour
             this.transform.SetParent(this.transform.parent.parent);
         }
         // Si c'est un sbire sur le terrain et qu'il n'a pas attaqué pendant le tour
-        else if (!gameManager.dragged 
+        else if (!GameManager.dragged
             && GetComponent<CardDisplay>().status == Status.SlotVisible 
             && GetComponent<CardDisplay>().card.type == Type.Sbire
             && !GetComponent<SbireDisplay>().sbireHasAttacked 
             && !GetComponent<CardDisplay>().ownedByOppo) {
             isHalfDragged = true;
-            gameManager.dragged = true;
+            GameManager.dragged = true;
             Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
             transform.localPosition = Vector3.zero;
             transform.localScale = Vector3.one;
         }
         // Si ce n'est pas une carte de contre attaque face caché sur le terrain
-        else if (!gameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotHidden && GetComponent<CardDisplay>().card.type != Type.CounterAttack) {
-            gameManager.dragged = true;
+        else if (!GameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotHidden && GetComponent<CardDisplay>().card.type != Type.CounterAttack) {
+            GameManager.dragged = true;
             isHalfDragged = true;
-            Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
+            Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
         }
         // Si c'est une carte "Echo" sur le terrain qui n'a pas été posé ce tour ci
-        else if (!gameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo
+        else if (!GameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo
         && !GetComponent<CardDisplay>().putOnBoardThisTurn && !GetComponent<CardDisplay>().ownedByOppo) {
-            gameManager.dragged = true;
+            GameManager.dragged = true;
             isHalfDragged = true;
-            Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
+            Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
         }
 
     }
@@ -136,6 +136,50 @@ public class Draggable2D : MonoBehaviour
                 transform.localScale = new Vector3(underZoom, underZoom, underZoom);
             }
         }
+
+
+        // Changement du curseur en fonction des cibles valident pour jouer la carte qui est sur le terrain
+        if (GetComponent<CardDisplay>().status == Status.SlotHidden || GetComponent<CardDisplay>().status == Status.SlotVisible) {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+
+            if (hit.collider != null) {
+                bool targetAvailable = false;
+                // Si c'est une carte face caché qui n'est pas une contre attaque
+                if (GetComponent<CardDisplay>().status == Status.SlotHidden && GetComponent<CardDisplay>().card.type != Type.CounterAttack) {
+
+                }
+                // Si c'est une carte sbire face visible
+                else if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Sbire) {
+                    //*****************
+                    // Prendre en compte les possibles sbire avec le taunt
+                    //*****************
+
+                    if (hit.collider.GetComponent<CardDisplay>() != null) {
+                        CardDisplay cardDisplay = hit.collider.GetComponent<CardDisplay>();
+                        if (cardDisplay.card.type == Type.Sbire && cardDisplay.ownedByOppo) {
+                            targetAvailable = true;
+                        }
+                    } else if (hit.collider.GetComponent<MonsterDisplay>() != null) {
+                        MonsterDisplay monsterDisplay = hit.collider.GetComponent<MonsterDisplay>();
+                        if (monsterDisplay.ownedByOppo) {
+                            targetAvailable = true;
+                        }
+                    }
+                }
+                // Si c'est une carte echo face visible
+                else if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo) {
+
+                }
+
+                if (targetAvailable) {
+                    Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
+                } else {
+                    Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
+                }
+            }
+        }
+
     }
 
     private void OnMouseUp() {
@@ -179,7 +223,7 @@ public class Draggable2D : MonoBehaviour
         
 
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-        gameManager.dragged = false;
+        GameManager.dragged = false;
 
         if (!dropZoneValid && isHalfDragged) {
             ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerExitHandler);

@@ -81,7 +81,7 @@ public class CardDisplay : MonoBehaviour
     public bool onDrop(GameObject cardPlayed) {
         bool isPutOnBoard = false;
 
-        if (gameManager.dragged) {
+        if (GameManager.dragged) {
             GameObject target = gameObject;
 
             // Ciblage d'une aura
@@ -217,6 +217,17 @@ public class CardDisplay : MonoBehaviour
     public void activeCard(GameObject target) {
         card.activeEffect(target);
         gameObject.GetComponent<ZoomCard2D>().destroyPlaceholder();
+
+        // Si c'est une carte de Type.Spell ou Type.Echo
+        if (card.type == Type.Spell || card.type == Type.Echo) {
+            Debug.Log("In Grave");
+            gameManager.inGrave(gameObject);
+        }
+    }
+
+    // On desactive les effets de la carte (aura, enchantement)
+    public void disableCard() {
+        card.disableEffect();
         gameManager.inGrave(gameObject);
     }
 
@@ -277,14 +288,12 @@ public class CardDisplay : MonoBehaviour
         // Si c'est une carte sbire
         if (card.type == Type.Sbire) {
             int sbireBasePower = card.sbirePowerPoint;
-            Debug.Log(sbireBasePower);
             int outputSbireDamage;
             if (!ownedByOppo) {
                 outputSbireDamage = gameManager.calculateDamage(gameManager.GO_MonsterInvokedOppo, card.elementalAffinity, sbireBasePower);
             } else {
                 outputSbireDamage = gameManager.calculateDamage(gameManager.GO_MonsterInvoked, card.elementalAffinity, sbireBasePower);
             }
-            Debug.Log(outputSbireDamage);
             GetComponent<SbireDisplay>().sbirePowerAvailable = outputSbireDamage;
         }
         // Si c'est un sort

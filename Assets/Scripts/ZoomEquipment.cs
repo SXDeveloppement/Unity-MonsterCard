@@ -27,7 +27,7 @@ public class ZoomEquipment : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     }
 
     public void OnPointerEnter(PointerEventData eventData) {
-        if (gameManager.dragged) return;
+        if (GameManager.dragged) return;
 
         cachedScale = transform.localScale;
         transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
@@ -37,7 +37,7 @@ public class ZoomEquipment : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     }
 
     public void OnPointerExit(PointerEventData eventData) {
-        if (gameManager.dragged) return;
+        if (GameManager.dragged) return;
         if (!pointerIsEnter) return;
 
         transform.localScale = cachedScale;

@@ -15,4 +15,8 @@ public class DirectDamageEffect : CardEffect
         else if (target.GetComponent<CardDisplay>() != null)
             target.GetComponent<SbireDisplay>().takeDamage(calculateDamage);
     }
+
+    public override void DisableEffect() {
+        throw new System.NotImplementedException();
+    }
 }

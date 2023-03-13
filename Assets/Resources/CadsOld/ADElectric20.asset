@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: Buff01
+  m_Name: ADElectric20
   m_EditorClassIdentifier: 
-  name: Buff01
-  description: Your monster gain 200 power for 2 turns
-  artwork: {fileID: 21300000, guid: 0e94ebf8f174af24dad980c9549039ba, type: 3}
-  manaCost: 1
+  name: ADElectric20
+  description: Deal %D20 electric damages to target opponant unit
+  artwork: {fileID: 21300000, guid: 5a74c7b6ea7456d40abc501a45981adf, type: 3}
+  manaCost: 2
   priority: 1
-  elementalAffinity: 6
+  elementalAffinity: 2
   type: 0
-  targetType: 000000000100000009000000
+  targetType: 01000000090000000b000000
   from: 0
   effects:
-  - {fileID: 11400000, guid: a31c218b99562fd40a346381c2c6769b, type: 2}
+  - {fileID: 11400000, guid: dd4f070f6e9dd98439b5eb8ca19db54a, type: 2}
   sbirePowerPoint: -1
   sbireHealthPoint: -1
+  sbirePassifEffects: 

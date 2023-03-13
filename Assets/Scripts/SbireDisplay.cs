@@ -13,7 +13,7 @@ public class SbireDisplay : MonoBehaviour
     public TMP_Text sbirePowerPoint;
     public GameObject attackAura;
 
-    public bool sbireHasAttacked = false;
+    public bool sbireHasAttacked = true;
     public bool sbireHasAttackedTemp = false;
 
     public int sbireHealthMax;
@@ -47,6 +47,7 @@ public class SbireDisplay : MonoBehaviour
         if (sbireHasAttacked != sbireHasAttackedTemp) {
             sbireHasAttackedTemp = sbireHasAttacked;
             attackAura.SetActive(!sbireHasAttacked);
+            Debug.Log("aura attack " + !sbireHasAttacked);
         }
 
         // On actualise la vie du sbire quand elle est modifié
@@ -82,11 +83,13 @@ public class SbireDisplay : MonoBehaviour
         }
 
         sbireHasAttacked = !haveHaste;
+        sbireHasAttackedTemp = !sbireHasAttacked;
     }
 
     // Lors d'un nouveau tour
     public void newTurn() {
         sbireHasAttacked = false;
+        sbireHasAttackedTemp = !sbireHasAttacked;
     }
 
     // Prendre des dégâts ou soin (si amountDamage < 0)

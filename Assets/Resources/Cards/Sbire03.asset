@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: ADElectric20
+  m_Name: Sbire03
   m_EditorClassIdentifier: 
-  name: ADElectric20
-  description: Deal %D20 electric damages to target opponant unit
-  artwork: {fileID: 21300000, guid: 5a74c7b6ea7456d40abc501a45981adf, type: 3}
-  manaCost: 2
+  name: Sbire03
+  description: Pierce
+  artwork: {fileID: 21300000, guid: af86f6a035ff41c45b49cf40a276a9c8, type: 3}
+  manaCost: 1
   priority: 1
-  elementalAffinity: 2
-  type: 0
-  targetType: 0100000009000000
+  elementalAffinity: 0
+  type: 5
+  targetType: 08000000
   from: 0
-  effects:
-  - {fileID: 11400000, guid: dd4f070f6e9dd98439b5eb8ca19db54a, type: 2}
-  sbirePowerPoint: -1
-  sbireHealthPoint: -1
+  effects: []
+  sbirePowerPoint: 3
+  sbireHealthPoint: 20
+  sbirePassifEffects: 01000000

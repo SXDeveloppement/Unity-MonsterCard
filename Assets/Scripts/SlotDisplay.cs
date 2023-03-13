@@ -27,7 +27,7 @@ public class SlotDisplay : MonoBehaviour
 
     public bool onDrop(GameObject cardPlayed) {
         bool isPutOnBoard = false;
-        if (gameManager.dragged) {
+        if (GameManager.dragged) {
             GameObject targetSlot = this.gameObject;
 
             // Si l'emplacement est vide et que la carte est dans la main

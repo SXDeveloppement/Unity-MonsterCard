@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using TMPro;
 using Random = System.Random;
 
 public class GameManager : MonoBehaviour {
-    public bool dragged; // TRUE si on drag&drop une carte
+    public static bool dragged; // TRUE si on drag&drop une carte
 
     public GameObject GO_Card; // Prefab
     public GameObject GO_Hand;
@@ -37,6 +38,7 @@ public class GameManager : MonoBehaviour {
     public GameObject GO_DebuffAreaOppo;
 
     public Texture2D cursorTargetTexture; // Icon cursor lors d'un ciblage
+    public Texture2D cursorNoTargetTexture; // Icon cursor lorsque la cible n'est pas valide
 
     Dictionary<ElementalAffinity, float> fireDico;
     Dictionary<ElementalAffinity, float> waterDico;
@@ -190,12 +192,12 @@ public class GameManager : MonoBehaviour {
 
         // On passe les sbires sur le terrain en position repos
         foreach (SbireDisplay sbireDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<SbireDisplay>()) {
-            if (sbireDisplay.name != null) {
+            if (sbireDisplay.sbireHealthAvailable > 0) {
                 sbireDisplay.newTurn();
             }
         }
         foreach (SbireDisplay sbireDisplay in GO_CounterAttackAreaOppo.transform.GetComponentsInChildren<SbireDisplay>()) {
-            if (sbireDisplay.name != null) {
+            if (sbireDisplay.sbireHealthAvailable > 0) {
                 sbireDisplay.newTurn();
             }
         }
@@ -213,6 +215,8 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    // Event OnDraw
+    public static event Action OnDraw;
     // Ajoute X carte dans la main
     public void draw(int drawAmount) {
         if (GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count > 0) {
@@ -229,6 +233,9 @@ public class GameManager : MonoBehaviour {
             }
             refreshDeckText();
             GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
+
+            // On active les listeners
+            OnDraw?.Invoke();
         } else {
             Debug.Log("ERR : no card in deck");
         }
@@ -703,12 +710,12 @@ public class GameManager : MonoBehaviour {
             if (slot.transform.GetChild(1).childCount > 0)
                 Destroy(slot.transform.GetChild(1).GetChild(0).gameObject);
 
-            GameObject newSbire = Instantiate(GO_Card);
+            GameObject newSbire = Instantiate(GO_Card, slot.transform.GetChild(1));
             newSbire.GetComponent<CardDisplay>().card = sbireList[i];
             newSbire.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo;
             newSbire.GetComponent<CardDisplay>().ownedByOppo = true;
             newSbire.GetComponent<CardDisplay>().status = Status.SlotVisible;
-            newSbire.transform.SetParent(slot.transform.GetChild(1));
+            newSbire.GetComponent<SbireDisplay>().invokeSbire();
             newSbire.transform.localPosition = Vector3.zero;
             newSbire.transform.localScale = Vector3.one;
 

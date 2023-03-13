@@ -38,10 +38,10 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     // Quand le curseur entre sur la carte
     public void OnPointerEnter(PointerEventData eventData) {
-        if (gameManager.dragged) return;
+        if (GameManager.dragged) return;
 
         // Si on ne déplace pas de carte
-        if (!gameManager.dragged) { 
+        if (!GameManager.dragged) { 
             // Si la souris est sur une carte de la main
             if (GetComponent<CardDisplay>().status == Status.Hand) {
                 siblingIndex = transform.GetSiblingIndex();
@@ -83,7 +83,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     // Quand le curseur quitte la carte
     public void OnPointerExit(PointerEventData eventData) {
-        if (gameManager.dragged || !pointerIsEnter) return;
+        if (GameManager.dragged || !pointerIsEnter) return;
 
         if (GetComponent<CardDisplay>().status == Status.Hand) {
             transform.localScale = cachedScale;
@@ -134,7 +134,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     // Réinitialise la carte
     public void reinitCard() {
-        GameObject.FindAnyObjectByType<GameManager>().dragged = false;
+        GameManager.dragged = false;
         GetComponent<BoxCollider2D>().enabled = true;
         destroyPlaceholder();
     }

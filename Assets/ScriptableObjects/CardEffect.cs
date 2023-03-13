@@ -5,4 +5,6 @@ using UnityEngine;
 public abstract class CardEffect : ScriptableObject
 {
     public abstract void ExecuteEffect(GameObject target, Card card);
+
+    public abstract void DisableEffect();
 }

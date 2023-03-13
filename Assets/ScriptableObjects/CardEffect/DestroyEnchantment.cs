@@ -12,6 +12,11 @@ public class DestroyEnchantment : CardEffect
         int index = target.transform.parent.parent.GetSiblingIndex();
         target.GetComponent<CardDisplay>().monsterOwnThis.GetComponent<MonsterDisplay>().cardEnchantments[index] = ScriptableObject.CreateInstance<Card>();
 
-        gameManager.inGrave(target);
+        //gameManager.inGrave(target);
+        target.GetComponent<CardDisplay>().disableCard();
+    }
+
+    public override void DisableEffect() {
+        throw new System.NotImplementedException();
     }
 }

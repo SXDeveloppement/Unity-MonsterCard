@@ -12,11 +12,15 @@ public class BuffEffect : CardEffect
     public override void ExecuteEffect(GameObject target, Card card) {
         GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
-        //target.GetComponent<MonsterDisplay>().addBuffDebuff(buffDebuffType, amount, turnAmount);
-        if (amount < 0) {
-            gameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().addBuffDebuff(buffDebuffType, amount, turnAmount);
-        } else {
-            gameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>().addBuffDebuff(buffDebuffType, amount, turnAmount);
-        }
+        target.GetComponent<MonsterDisplay>().addBuffDebuff(buffDebuffType, amount, turnAmount);
+        //if (amount < 0) {
+        //    gameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().addBuffDebuff(buffDebuffType, amount, turnAmount);
+        //} else {
+        //    gameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>().addBuffDebuff(buffDebuffType, amount, turnAmount);
+        //}
+    }
+
+    public override void DisableEffect() {
+        throw new System.NotImplementedException();
     }
 }

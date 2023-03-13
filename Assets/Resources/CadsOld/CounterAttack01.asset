@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: Sbire01
+  m_Name: CounterAttack01
   m_EditorClassIdentifier: 
-  name: Sbire01
-  description: 
-  artwork: {fileID: 21300000, guid: bd441d9e570ee49448ab45112ec9145a, type: 3}
-  manaCost: 1
-  priority: 1
-  elementalAffinity: 0
-  type: 5
-  targetType: 08000000
+  name: CA01
+  description: You take 0 damage next time
+  artwork: {fileID: -1119638910, guid: 16fe21a5621dbda49873eaff9cda07ae, type: 3}
+  manaCost: 2
+  priority: 0
+  elementalAffinity: 6
+  type: 3
+  targetType: 09000000
   from: 0
   effects: []
-  sbirePowerPoint: 2
-  sbireHealthPoint: 20
+  sbirePowerPoint: -1
+  sbireHealthPoint: -1
   sbirePassifEffects: 

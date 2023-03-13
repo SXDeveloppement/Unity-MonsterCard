@@ -12,4 +12,8 @@ public class DrawEffect : CardEffect
 
         gameManager.draw(drawAmount);
     }
+
+    public override void DisableEffect() {
+        throw new System.NotImplementedException();
+    }
 }

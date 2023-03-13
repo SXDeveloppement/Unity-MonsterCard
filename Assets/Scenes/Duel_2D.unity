@@ -1820,7 +1820,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1a04831fbebe4d42bb6d96fef2651a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dragged: 0
   GO_Card: {fileID: 5121741634216006951, guid: 16af0cff1e63c564aa951c916ec6ab33, type: 3}
   GO_Hand: {fileID: 1741655269}
   GO_DeckText: {fileID: 1560489055}
@@ -1848,6 +1847,7 @@ MonoBehaviour:
   GO_BuffAreaOppo: {fileID: 1596762365}
   GO_DebuffAreaOppo: {fileID: 971082071}
   cursorTargetTexture: {fileID: 2800000, guid: b6d1411a41bee4f4cae017dc3d63236d, type: 3}
+  cursorNoTargetTexture: {fileID: 2800000, guid: 6879a9b3c5334af44a11dbe53234930d, type: 3}
   sbireList:
   - {fileID: 11400000, guid: 5687885d266297e4a90e73b52d8e3a43, type: 2}
   - {fileID: 11400000, guid: b75e6436c6711674ea21e418816a2827, type: 2}

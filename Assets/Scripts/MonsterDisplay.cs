@@ -180,7 +180,7 @@ public class MonsterDisplay : MonoBehaviour
     public bool onDrop(GameObject cardPlayed) {
         bool isPutOnBoard = false;
 
-        if (gameManager.dragged) {
+        if (GameManager.dragged) {
             GameObject target = gameObject;
 
             // Si la carte est un sbire et qu'elle est sur le terrain face visible
@@ -204,7 +204,7 @@ public class MonsterDisplay : MonoBehaviour
                     }
 
                     if (!sbireHaveTaunt) {
-                        gameManager.dragged = false;
+                        GameManager.dragged = false;
                         cardPlayed.GetComponent<SbireDisplay>().sbireHasAttacked = true;
                         takeDamage(cardPlayed.GetComponent<SbireDisplay>().sbirePowerAvailable);
                     } else {

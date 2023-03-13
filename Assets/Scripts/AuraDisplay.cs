@@ -27,7 +27,7 @@ public class AuraDisplay : MonoBehaviour
 
     public bool onDrop(GameObject cardPlayed) {
         bool isPutOnBoard = false;
-        if (gameManager.dragged) {
+        if (GameManager.dragged) {
             GameObject targetSlot = this.gameObject;
 
             // Si l'emplacement est vide et que la carte dans la main ou dans la zone de contre attaque
@@ -38,6 +38,7 @@ public class AuraDisplay : MonoBehaviour
                 foreach (TargetType cardTargetType in cardPlayedTargetType) {
                     if (cardTargetType == TargetType.PlayerAura && !ownedByOppo) {
                         isPutOnBoard = gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true);
+                        cardPlayed.GetComponent<CardDisplay>().activeCard(gameObject);
                         targetCondition = true;
                         break;
                     }

@@ -25,4 +25,10 @@ public class Card : ScriptableObject {
             effect.ExecuteEffect(target, this);
         }
     }
+
+    public void disableEffect() {
+        foreach (var effect in effects) {
+            effect.DisableEffect();
+        }
+    }
 }

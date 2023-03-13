@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class AuraDisplay : MonoBehaviour, IDropHandler
+public class AuraDisplay : MonoBehaviour
 {
     public GameObject slotCard;
     public GameObject cardOnSlot;
@@ -29,7 +29,6 @@ public class AuraDisplay : MonoBehaviour, IDropHandler
         bool isPutOnBoard = false;
         if (gameManager.dragged) {
             GameObject targetSlot = this.gameObject;
-            Debug.Log("Drop Aura");
 
             // Si l'emplacement est vide et que la carte dans la main ou dans la zone de contre attaque
             if (cardOnSlot == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {

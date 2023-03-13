@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 
 public class Draggable2D : MonoBehaviour
 {
@@ -69,10 +70,17 @@ public class Draggable2D : MonoBehaviour
             transform.localPosition = Vector3.zero;
             transform.localScale = Vector3.one;
         }
+        // Si ce n'est pas une carte de contre attaque face caché sur le terrain
+        else if (!gameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotHidden && GetComponent<CardDisplay>().card.type != Type.CounterAttack) {
+            gameManager.dragged = true;
+            isHalfDragged = true;
+            Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
+        }
         // Si c'est une carte "Echo" sur le terrain qui n'a pas été posé ce tour ci
         else if (!gameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo
         && !GetComponent<CardDisplay>().putOnBoardThisTurn && !GetComponent<CardDisplay>().ownedByOppo) {
             gameManager.dragged = true;
+            isHalfDragged = true;
             Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
         }
 
@@ -142,7 +150,7 @@ public class Draggable2D : MonoBehaviour
             // Contre attaque
             if (dropZone.GetComponent<SlotDisplay>() != null) {
                 dropZoneValid = dropZone.GetComponent<SlotDisplay>().onDrop(gameObject);
-            } 
+            }
             // Aura
             else if (dropZone.GetComponent<AuraDisplay>() != null) {
                 dropZoneValid = dropZone.GetComponent<AuraDisplay>().onDrop(gameObject);
@@ -157,7 +165,7 @@ public class Draggable2D : MonoBehaviour
             }
             // Card
             else if (dropZone.GetComponent<CardDisplay>() != null) {
-
+                dropZoneValid = dropZone.GetComponent<CardDisplay>().onDrop(gameObject);
             }
         }
 
@@ -168,9 +176,15 @@ public class Draggable2D : MonoBehaviour
             GetComponent<ZoomCard2D>().changeWithPlaceholder();
             GetComponentInParent<HandDisplay>().childHaveChanged = true;
         }
+        
 
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
         gameManager.dragged = false;
+
+        if (!dropZoneValid && isHalfDragged) {
+            ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerExitHandler);
+        }
+
         isDragged = false;
         isHalfDragged = false;
     }

@@ -35,6 +35,8 @@ public class SbireDisplay : MonoBehaviour
             sbireFeature.SetActive(true);
             sbireHealthAvailable = card.sbireHealthPoint;
             sbirePowerAvailable = card.sbirePowerPoint;
+        } else {
+            sbireFeature.SetActive(false);
         }
     }
 
@@ -141,10 +143,10 @@ public class SbireDisplay : MonoBehaviour
         yield return null;
 
         // Phase d'attaque normal
-        if (!haveInitiative && sbireHealthAvailable > 0 && targetSbireDisplay.sbireHealthAvailable > 0) {
+        if (!haveInitiative) {
             targetSbireDisplay.takeDamage(sbirePowerAvailable, haveTrample);
         }
-        if (!targetHaveInitiative && sbireHealthAvailable > 0 && targetSbireDisplay.sbireHealthAvailable > 0) {
+        if (!targetHaveInitiative) {
             takeDamage(targetSbireDisplay.sbirePowerAvailable, haveTrample);
         }
 

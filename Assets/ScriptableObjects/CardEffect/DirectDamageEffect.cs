@@ -10,6 +10,9 @@ public class DirectDamageEffect : CardEffect
     public override void ExecuteEffect(GameObject target, Card card) {
         GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         int calculateDamage = gameManager.calculateDamage(target, card.elementalAffinity, damageAmount);
-        target.GetComponent<MonsterDisplay>().takeDamage(calculateDamage);
+        if (target.GetComponent<MonsterDisplay>() != null)
+            target.GetComponent<MonsterDisplay>().takeDamage(calculateDamage);
+        else if (target.GetComponent<CardDisplay>() != null)
+            target.GetComponent<SbireDisplay>().takeDamage(calculateDamage);
     }
 }

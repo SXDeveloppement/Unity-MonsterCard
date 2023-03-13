@@ -48,9 +48,21 @@ public class GameManager : MonoBehaviour {
 
     private bool init = true;
 
+    // DEBUG
+    public List<Card> sbireList;
+
     // Start is called before the first frame update
     void Start()
     {
+        // DEBUG on efface les prefab monstre et équipement en place
+        Destroy(GO_MonsterArea.transform.GetChild(0).gameObject);
+        Destroy(GO_MonsterAreaOppo.transform.GetChild(0).gameObject);
+        foreach (EquipmentDisplay equipment in GO_EquipmentArea.GetComponentsInChildren<EquipmentDisplay>()) {
+            Destroy(equipment.gameObject);
+        }
+        foreach (EquipmentDisplay equipment in GO_EquipmentAreaOppo.GetComponentsInChildren<EquipmentDisplay>()) {
+            Destroy(equipment.gameObject);
+        }
 
         dragged = false;
         initializeArrayAffinity();
@@ -152,6 +164,7 @@ public class GameManager : MonoBehaviour {
             if (monster.GetComponent<MonsterDisplay>().cardEnchantments[i].name != null) {
                 GameObject newCardEnchantment = Instantiate(GO_Card);
                 newCardEnchantment.GetComponent<CardDisplay>().card = monster.GetComponent<MonsterDisplay>().cardEnchantments[i];
+                newCardEnchantment.GetComponent<CardDisplay>().monsterOwnThis = monster;
                 newEquipment.GetComponent<EquipmentDisplay>().cardOnSlot = newCardEnchantment;
                 newCardEnchantment.GetComponent<CardDisplay>().putOnBoard(newEquipment, true);
             }
@@ -265,10 +278,16 @@ public class GameManager : MonoBehaviour {
     // On active une carte
     public void activeCardOnTarget(GameObject cardPlayed, GameObject target) {
         // On active la carte si son cout en mana est inférieur ou égal au mana disponible
-        if (cardPlayed.GetComponent<CardDisplay>().card.manaCost <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable) {
+        // Si ce n'est pas une carte ECHO
+        if (cardPlayed.GetComponent<CardDisplay>().card.manaCost <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable
+            && cardPlayed.GetComponent<CardDisplay>().card.type != Type.Echo) {
             cardPlayed.GetComponent<CardDisplay>().activeCard(target);
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= cardPlayed.GetComponent<CardDisplay>().card.manaCost;
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
+        } 
+        // Si c'est une carte ECHO
+        else if (cardPlayed.GetComponent<CardDisplay>().card.type == Type.Echo && cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible) {
+            cardPlayed.GetComponent<CardDisplay>().activeCard(target);
         } else {
             // On affiche un message d'erreur
             Debug.Log("ERR : no mana available");
@@ -405,6 +424,10 @@ public class GameManager : MonoBehaviour {
 
     // Calcule le plus grand coef d'affinité entre une attaque et un monstre défenseur
     private float coefAffinityMax(ElementalAffinity affinityAttack, GameObject target) {
+        if (target.GetComponent<CardDisplay>() != null)
+            if (target.GetComponent<CardDisplay>().card.type == Type.Sbire)
+                target = target.GetComponent<CardDisplay>().monsterOwnThis;
+
         float coefMax = 0;
         foreach(ElementalAffinity affinityDefenser in target.GetComponent<MonsterDisplay>().monster.elementalAffinity) {
             float coefCal = coefAffinity(affinityAttack, affinityDefenser);
@@ -650,7 +673,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // DEBUG Affiche le prochain monstre
-    public void showNextMonster() {
+    public void debug_showNextMonster() {
         if (GO_MonsterInvoked.transform.GetSiblingIndex() == monstersGOList.Count - 1) {
             swapMonster(0);
         } else {
@@ -659,7 +682,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // DEBUG Affiche le prochain monstre de l'adversaire
-    public void showNextMonsterOppo() {
+    public void debug_showNextMonsterOppo() {
         if (GO_MonsterInvokedOppo.transform.GetSiblingIndex() == monstersGOListOppo.Count - 1) {
             swapMonsterOppo(0);
         } else {
@@ -668,8 +691,28 @@ public class GameManager : MonoBehaviour {
     }
 
     // DEBUG Ajoute 10 mana au monstre actif
-    public void add10Mana() {
+    public void debug_add10Mana() {
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaMax = 10;
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
+    }
+
+    // DEBUG Ajoute 4 sbires aléatoires sur le terrain à l'oppo
+    public void debug_add4Sbire() {
+        int i = 0;
+        foreach(Transform slot in GO_CounterAttackAreaOppo.transform) {
+            if (slot.transform.GetChild(1).childCount > 0)
+                Destroy(slot.transform.GetChild(1).GetChild(0).gameObject);
+
+            GameObject newSbire = Instantiate(GO_Card);
+            newSbire.GetComponent<CardDisplay>().card = sbireList[i];
+            newSbire.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo;
+            newSbire.GetComponent<CardDisplay>().ownedByOppo = true;
+            newSbire.GetComponent<CardDisplay>().status = Status.SlotVisible;
+            newSbire.transform.SetParent(slot.transform.GetChild(1));
+            newSbire.transform.localPosition = Vector3.zero;
+            newSbire.transform.localScale = Vector3.one;
+
+            i++;
+        }
     }
 }

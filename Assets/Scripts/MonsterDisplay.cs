@@ -7,7 +7,7 @@ using TMPro;
 using Random = System.Random;
 using System.Linq;
 
-public class MonsterDisplay : MonoBehaviour, IDropHandler
+public class MonsterDisplay : MonoBehaviour
 {
     public Monster monster;
     public TMP_Text nameText;
@@ -187,7 +187,7 @@ public class MonsterDisplay : MonoBehaviour, IDropHandler
             if (cardPlayed.GetComponent<CardDisplay>().card.type == Type.Sbire
             && cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible) {
                 isPutOnBoard = true;
-                // Si la cible est différent du monstre qu'il a invoqué
+                // Si la cible est différente du monstre qu'il a invoqué
                 if (cardPlayed.GetComponent<CardDisplay>().monsterOwnThis != gameObject) {
                     bool sbireHaveTaunt = false;
                     foreach (CardDisplay cardDisplay in gameManager.GO_CounterAttackAreaOppo.GetComponentsInChildren<CardDisplay>()) {

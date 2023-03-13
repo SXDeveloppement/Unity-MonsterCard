@@ -83,10 +83,9 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     // Quand le curseur quitte la carte
     public void OnPointerExit(PointerEventData eventData) {
-        if (gameManager.dragged) return;
-        if (!pointerIsEnter) return;
+        if (gameManager.dragged || !pointerIsEnter) return;
 
-        if (GetComponent<CardDisplay>().status == Status.Hand && !gameManager.dragged) {
+        if (GetComponent<CardDisplay>().status == Status.Hand) {
             transform.localScale = cachedScale;
             transform.localPosition = localPosition;
             changeWithPlaceholder();

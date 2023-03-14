@@ -39,7 +39,9 @@ public class GameManager : MonoBehaviour {
 
     public Texture2D cursorTargetTexture; // Icon cursor lors d'un ciblage
     public Texture2D cursorNoTargetTexture; // Icon cursor lorsque la cible n'est pas valide
+    public GameObject ArrowEmitter; // Fleche de ciblage dynamique
 
+    #region Dictionary Elemental Affinity
     Dictionary<ElementalAffinity, float> fireDico;
     Dictionary<ElementalAffinity, float> waterDico;
     Dictionary<ElementalAffinity, float> electricDico;
@@ -47,6 +49,7 @@ public class GameManager : MonoBehaviour {
     Dictionary<ElementalAffinity, float> combatDico;
     Dictionary<ElementalAffinity, float> mentalDico;
     Dictionary<ElementalAffinity, float> neutralDico;
+    #endregion
 
     private bool init = true;
 

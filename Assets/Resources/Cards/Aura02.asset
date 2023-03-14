@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Aura02
   m_EditorClassIdentifier: 
   name: Aura02
-  description: When you draw one or more card, deal 5 raw damage to monster opponant
+  description: When you draw one or more card, deal 5 raw damage to opponant monster
   artwork: {fileID: 21300000, guid: ca6cd6811ef9a5b4199aab62014bcaca, type: 3}
   manaCost: 1
   priority: 1
   elementalAffinity: 5
   type: 2
-  targetType: 05000000
+  targetType: 0500000009000000
   from: 0
   effects:
   - {fileID: 11400000, guid: 27715477ada964d4e8d59d7d38130e1f, type: 2}

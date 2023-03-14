@@ -18,6 +18,7 @@ public class Draggable2D : MonoBehaviour
 
     Vector3 position;
     GameObject GO_Hand;
+    bool outsideHand = false;
 
     public bool isDragged = false; // Est glissé pour les cartes de la main
     public bool isDraggedTemp;
@@ -46,6 +47,7 @@ public class Draggable2D : MonoBehaviour
 
 
     private void OnMouseDown() {
+        GameObject arrowEmitter = gameManager.ArrowEmitter;
         if (GetComponent<CardDisplay>().status == Status.Hand && !GetComponent<CardDisplay>().ownedByOppo && !GameManager.dragged) {
             GameManager.dragged = true;
             isDragged = true;
@@ -66,24 +68,29 @@ public class Draggable2D : MonoBehaviour
             && !GetComponent<CardDisplay>().ownedByOppo) {
             isHalfDragged = true;
             GameManager.dragged = true;
-            Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
             transform.localPosition = Vector3.zero;
             transform.localScale = Vector3.one;
+            arrowEmitter.SetActive(true);
+            arrowEmitter.transform.position = new Vector3(transform.position.x, transform.position.y, -3);
+            Cursor.visible = false;
         }
         // Si ce n'est pas une carte de contre attaque face caché sur le terrain
         else if (!GameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotHidden && GetComponent<CardDisplay>().card.type != Type.CounterAttack) {
             GameManager.dragged = true;
             isHalfDragged = true;
-            Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
+            arrowEmitter.SetActive(true);
+            arrowEmitter.transform.position = new Vector3(transform.position.x, transform.position.y, -3);
+            Cursor.visible = false;
         }
         // Si c'est une carte "Echo" sur le terrain qui n'a pas été posé ce tour ci
         else if (!GameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo
         && !GetComponent<CardDisplay>().putOnBoardThisTurn && !GetComponent<CardDisplay>().ownedByOppo) {
             GameManager.dragged = true;
             isHalfDragged = true;
-            Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
+            arrowEmitter.SetActive(true);
+            arrowEmitter.transform.position = new Vector3(transform.position.x, transform.position.y, -3);
+            Cursor.visible = false;
         }
-
     }
 
     private void OnMouseDrag() {
@@ -94,10 +101,7 @@ public class Draggable2D : MonoBehaviour
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             this.transform.position = new Vector3(mousePosition.x, mousePosition.y, position.z - 0.2f);
 
-            int indexPlaceHolder = placeHolder.transform.GetSiblingIndex();
-            int parentPlaceHolderChildCount = GO_Hand.transform.childCount;
-            float layoutSpacing = GO_Hand.GetComponent<HorizontalLayoutGroup>().spacing;
-
+            // Réorganisation des cartes dans la main
             if (mousePosition.y < (GO_Hand.transform.position.y + GO_Hand.GetComponent<RectTransform>().rect.height / 2)) {
                 placeHolder.SetActive(true);
                 for (int i = 0; i < GO_Hand.transform.childCount; i++) {
@@ -131,17 +135,19 @@ public class Draggable2D : MonoBehaviour
                 if (transform.localScale.x < startScale.x) {
                     transform.localScale = startScale;
                 }
-            } else {
+            } 
+            // Quand on déplace la carte en dehors de la main
+            else {
                 placeHolder.SetActive(false);
                 transform.localScale = new Vector3(underZoom, underZoom, underZoom);
             }
         }
-
-
         // Changement du curseur en fonction des cibles valident pour jouer la carte qui est sur le terrain
-        if (GetComponent<CardDisplay>().status == Status.SlotHidden || GetComponent<CardDisplay>().status == Status.SlotVisible) {
+        else if (GetComponent<CardDisplay>().status == Status.SlotHidden || GetComponent<CardDisplay>().status == Status.SlotVisible) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+
+            GameObject arrowEmitter = gameManager.ArrowEmitter;
 
             if (hit.collider != null) {
                 bool targetAvailable = false;
@@ -179,12 +185,12 @@ public class Draggable2D : MonoBehaviour
                 }
 
                 if (targetAvailable) {
-                    Cursor.SetCursor(gameManager.cursorTargetTexture, Vector2.zero, CursorMode.Auto);
+                    arrowEmitter.GetComponent<BezierArrow>().changeColor(true);
                 } else {
-                    Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
+                    arrowEmitter.GetComponent<BezierArrow>().changeColor(false);
                 }
             } else {
-                Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
+                arrowEmitter.GetComponent<BezierArrow>().changeColor(false);
             }
         }
 
@@ -237,6 +243,7 @@ public class Draggable2D : MonoBehaviour
 
         isDragged = false;
         isHalfDragged = false;
-        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        gameManager.ArrowEmitter.SetActive(false);
+        Cursor.visible = true;
     }
 }

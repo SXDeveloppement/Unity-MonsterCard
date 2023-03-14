@@ -30,29 +30,20 @@ public class AuraDisplay : MonoBehaviour
         if (GameManager.dragged) {
             GameObject targetSlot = this.gameObject;
 
-            // Si l'emplacement est vide et que la carte dans la main ou dans la zone de contre attaque
+            // Si l'emplacement est vide et que la carte est dans la main ou dans la zone de contre attaque
             if (cardOnSlot == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
                 // On vérifie les conditions de ciblage pour pouvoir placer la carte
-                bool targetCondition = false;
-                TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-                foreach (TargetType cardTargetType in cardPlayedTargetType) {
-                    if (cardTargetType == TargetType.PlayerAura && !ownedByOppo) {
-                        isPutOnBoard = gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true);
+                if (cardPlayed.GetComponent<CardDisplay>().targetIsAllowed(targetSlot)) {
+                    if (gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true)) {
+                        cardOnSlot = cardPlayed;
                         cardPlayed.GetComponent<CardDisplay>().activeCard(gameObject);
-                        targetCondition = true;
-                        break;
+                        isPutOnBoard = true;
                     }
-                }
-
-                // On place la carte si les conditions de ciblages sont respectées
-                if (!targetCondition) {
+                } else {
                     Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + ownedByOppo.ToString());
                 }
             }
         }
-
-        if (isPutOnBoard)
-            cardOnSlot = cardPlayed;
 
         return isPutOnBoard;
     }

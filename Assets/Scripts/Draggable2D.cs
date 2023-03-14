@@ -145,31 +145,37 @@ public class Draggable2D : MonoBehaviour
 
             if (hit.collider != null) {
                 bool targetAvailable = false;
-                // Si c'est une carte face caché qui n'est pas une contre attaque
-                if (GetComponent<CardDisplay>().status == Status.SlotHidden && GetComponent<CardDisplay>().card.type != Type.CounterAttack) {
-
-                }
+                
                 // Si c'est une carte sbire face visible
-                else if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Sbire) {
-                    //*****************
-                    // Prendre en compte les possibles sbire avec le taunt
-                    //*****************
+                if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Sbire) {
+                    // On regarde si l'adversaire possède un sbire avec "Tank"
+                    bool sbireHaveTaunt = false;
+                    foreach (CardDisplay cardDisplay in gameManager.GO_CounterAttackAreaOppo.GetComponentsInChildren<CardDisplay>()) {
+                        if (cardDisplay.card.type == Type.Sbire) {
+                            sbireHaveTaunt = cardDisplay.GetComponent<SbireDisplay>().haveTank();
+                            if (sbireHaveTaunt)
+                                break;
+                        }
+                    }
 
+                    // Si la cible est un sbire controlé par l'adversaire
                     if (hit.collider.GetComponent<CardDisplay>() != null) {
                         CardDisplay cardDisplay = hit.collider.GetComponent<CardDisplay>();
-                        if (cardDisplay.card.type == Type.Sbire && cardDisplay.ownedByOppo) {
+
+                        // Si la cible est un sbire avec "Tank" ou qu'il n'y a aucun sbire avec "Tank"
+                        if (!sbireHaveTaunt || cardDisplay.GetComponent<SbireDisplay>().haveTank()) {
                             targetAvailable = true;
                         }
-                    } else if (hit.collider.GetComponent<MonsterDisplay>() != null) {
+                    } 
+                    // Si la cible est un monstre controlé par l'adversaire et qu'il n'y a pas de sbire avec "Tank"
+                    else if (hit.collider.GetComponent<MonsterDisplay>() != null) {
                         MonsterDisplay monsterDisplay = hit.collider.GetComponent<MonsterDisplay>();
-                        if (monsterDisplay.ownedByOppo) {
+                        if (monsterDisplay.ownedByOppo && !sbireHaveTaunt) {
                             targetAvailable = true;
                         }
                     }
-                }
-                // Si c'est une carte echo face visible
-                else if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo) {
-
+                } else {
+                    targetAvailable = GetComponent<CardDisplay>().targetIsAllowed(hit.collider.gameObject);
                 }
 
                 if (targetAvailable) {
@@ -177,6 +183,8 @@ public class Draggable2D : MonoBehaviour
                 } else {
                     Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
                 }
+            } else {
+                Cursor.SetCursor(gameManager.cursorNoTargetTexture, Vector2.zero, CursorMode.Auto);
             }
         }
 
@@ -213,23 +221,22 @@ public class Draggable2D : MonoBehaviour
             }
         }
 
-        // Si on drop sur aucune dropZone valide
+        GameManager.dragged = false;
+
+        // Si on drop une carte de la main sur aucune dropZone valide
         if (!dropZoneValid && !isHalfDragged) {
             transform.localScale = startScale;
             this.transform.SetParent(GO_Hand.transform);
             GetComponent<ZoomCard2D>().changeWithPlaceholder();
             GetComponentInParent<HandDisplay>().childHaveChanged = true;
         }
-        
-
-        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-        GameManager.dragged = false;
-
-        if (!dropZoneValid && isHalfDragged) {
+        // Si on drop une carte du terrain sur aucune dropZone valide
+        else if (!dropZoneValid && isHalfDragged) {
             ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerExitHandler);
         }
 
         isDragged = false;
         isHalfDragged = false;
+        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 }

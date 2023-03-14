@@ -47,7 +47,6 @@ public class SbireDisplay : MonoBehaviour
         if (sbireHasAttacked != sbireHasAttackedTemp) {
             sbireHasAttackedTemp = sbireHasAttacked;
             attackAura.SetActive(!sbireHasAttacked);
-            Debug.Log("aura attack " + !sbireHasAttacked);
         }
 
         // On actualise la vie du sbire quand elle est modifié
@@ -69,6 +68,15 @@ public class SbireDisplay : MonoBehaviour
         ) {
             gameManager.inGrave(gameObject);
         }
+    }
+
+    // Le sbire meurt
+    public void sbireDies() {
+        // On enlève le GO de la carte dans SlotDisplay de l'emplacement
+        gameObject.transform.parent.parent.GetComponent<SlotDisplay>().cardOnSlot = null;
+
+        // On le met au cimetière
+        gameManager.inGrave(gameObject);
     }
 
     // Lors de l'invocation du sbire
@@ -106,6 +114,17 @@ public class SbireDisplay : MonoBehaviour
         }else if (sbireHealthAvailable > sbireHealthMax) {
             sbireHealthAvailable = sbireHealthMax;
         }
+    }
+
+    // Renvoie TRUE si le sbire a le "Tank"
+    public bool haveTank() {
+        foreach (SbirePassifEffect sbirePassifEffect in GetComponent<CardDisplay>().card.sbirePassifEffects) {
+            if (sbirePassifEffect == SbirePassifEffect.Tank) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Combat contre un autre sbire

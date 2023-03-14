@@ -5,6 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Card", menuName = "ScriptableObjects/Card")]
 public class Card : ScriptableObject {
     public new string name;
+    [TextArea(3,4)]
     public string description;
     public Sprite artwork;
     public int manaCost;

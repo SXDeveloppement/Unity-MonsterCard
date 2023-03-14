@@ -52,6 +52,8 @@ public class SlotDisplay : MonoBehaviour
                 if (!targetCondition) {
                     Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + ownedByOppo.ToString());
                 }
+            } else {
+                Debug.Log("ERR : Slot not empty OR card not in hand");
             }
         }
 

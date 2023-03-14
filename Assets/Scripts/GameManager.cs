@@ -301,6 +301,86 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    // renvoi le type de la cible
+    public static TargetType typeTarget(GameObject target) {
+        // C'est une carte
+        if (target.GetComponent<CardDisplay>() != null) {
+            CardDisplay targetCardDisplay = target.GetComponent<CardDisplay>();
+
+            if (targetCardDisplay.card != null) {
+                // De sbire
+                if (targetCardDisplay.card.type == Type.Sbire) {
+                    // Que le joueur controle
+                    if (!targetCardDisplay.ownedByOppo)
+                        return TargetType.PlayerCardSbire;
+                    // Que l'opposant controle
+                    else
+                        return TargetType.OpponantCardSbire;
+                }
+                // D'aura
+                else if (targetCardDisplay.card.type == Type.Aura) {
+                    // Que le joueur controle
+                    if (!targetCardDisplay.ownedByOppo)
+                        return TargetType.PlayerCardAura;
+                    // Que l'opposant controle
+                    else
+                        return TargetType.OpponantCardAura;
+                }
+                // D'enchantement
+                else if (targetCardDisplay.card.type == Type.Enchantment) {
+                    // Que le joueur controle
+                    if (!targetCardDisplay.ownedByOppo)
+                        return TargetType.PlayerCardEnchantment;
+                    // Que l'opposant controle
+                    else
+                        return TargetType.OpponantCardEnchantment;
+                }
+            }
+        }
+        // C'est un monstre
+        else if (target.GetComponent<MonsterDisplay>() != null) {
+            MonsterDisplay targetMonsterDisplay = target.GetComponent<MonsterDisplay>();
+
+            // Que le joueur controle
+            if (!targetMonsterDisplay.ownedByOppo) {
+                return TargetType.PlayerMonster;
+            }
+            // Que l'opposant controle
+            else {
+                return TargetType.OpponantMonster;
+            }
+        }
+        // C'est un équipement
+        else if (target.GetComponent<EquipmentDisplay>() != null) {
+            EquipmentDisplay targetEquipmentDisplay = target.GetComponent<EquipmentDisplay>();
+
+            // Que le joueur controle
+            if (!targetEquipmentDisplay.ownedByOppo) {
+                return TargetType.PlayerEquipment;
+            }
+        }
+        // C'est un emplacement d'aura
+        else if (target.GetComponent<AuraDisplay>() != null) {
+            AuraDisplay targetAuraDisplay = target.GetComponent<AuraDisplay>();
+
+            // Que le joueur controle
+            if (!targetAuraDisplay.ownedByOppo) {
+                return TargetType.PlayerAura;
+            }
+        }
+        // C'est un emplacement de contre attaque
+        else if (target.GetComponent<SlotDisplay>() != null) {
+            SlotDisplay targetSlotDisplay = target.GetComponent<SlotDisplay>();
+
+            // Que le joueur controle
+            if (!targetSlotDisplay.ownedByOppo) {
+                return TargetType.SlotVisible;
+            }
+        }
+
+        return new TargetType();
+    }
+
     // On place la carte sur le terrain
     public bool tryToPutOnBoard(GameObject cardPlayed, GameObject target, bool isVisible) {
         // Carte face visible, on doit dépenser du mana

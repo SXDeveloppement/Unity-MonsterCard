@@ -84,149 +84,111 @@ public class CardDisplay : MonoBehaviour
         if (GameManager.dragged) {
             GameObject target = gameObject;
 
-            // Ciblage d'une aura
-            if (card.type == Type.Aura
-            && status == Status.AuraSlot
-            && (
-                cardPlayed.GetComponent<CardDisplay>().status == Status.Hand
-                || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden
-                || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible // Carte echo
-            )) {
-                // On vérifie les conditions de ciblage pour pouvoir activer la carte
-                bool targetCondition = false;
-                TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-                bool ownedByOppo = monsterOwnThis.GetComponent<MonsterDisplay>().ownedByOppo;
-                foreach (TargetType cardTargetType in cardPlayedTargetType) {
-                    if (cardTargetType == TargetType.OpponantCardAura && ownedByOppo
-                        || cardTargetType == TargetType.PlayerCardAura && !ownedByOppo
-                        ) {
-                        targetCondition = true;
-                        break;
-                    }
-                }
-                // On active la carte si les conditions de ciblages sont respectées
-                if (targetCondition) {
+            if (cardPlayed.GetComponent<CardDisplay>().targetIsAllowed(target)) {
+                // Ciblage d'une aura ou d'un enchantement
+                if (card.type == Type.Aura || card.type == Type.Enchantment) {
                     gameManager.activeCardOnTarget(cardPlayed, target);
-                } else {
-                    Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
                 }
-            }
-            // Ciblage d'un enchantement
-            else if (card.type == Type.Enchantment
-            && status == Status.EnchantmentSlot
-            && (
-                cardPlayed.GetComponent<CardDisplay>().status == Status.Hand
-                || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden
-                || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible // Carte echo
-            )) {
-                // On vérifie les conditions de ciblage pour pouvoir activer la carte
-                bool targetCondition = false;
-                TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-                bool ownedByOppo = monsterOwnThis.GetComponent<MonsterDisplay>().ownedByOppo;
-                foreach (TargetType cardTargetType in cardPlayedTargetType) {
-                    if (cardTargetType == TargetType.OpponantCardEnchantment && ownedByOppo
-                        || cardTargetType == TargetType.PlayerCardEnchantment && !ownedByOppo
-                        ) {
-                        targetCondition = true;
-                        break;
+                // Ciblage d'un sbire
+                else if (card.type == Type.Sbire) {
+                    // Par un spell
+                    if (cardPlayed.GetComponent<CardDisplay>().card.type != Type.Sbire) {
+                        gameManager.activeCardOnTarget(cardPlayed, target);
                     }
-                }
-                // On active la carte si les conditions de ciblages sont respectées
-                if (targetCondition) {
-                    gameManager.activeCardOnTarget(cardPlayed, target);
-                } else {
-                    Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
-                }
-            }
-            // Ciblage d'un sbire par un spell
-            else if (card.type == Type.Sbire
-            && status == Status.SlotVisible
-            && gameObject.GetComponent<SbireDisplay>().sbireHealthAvailable > 0
-            && cardPlayed.GetComponent<CardDisplay>().card.type != Type.Sbire
-            && (
-                cardPlayed.GetComponent<CardDisplay>().status == Status.Hand
-                || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden
-                || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible // Carte echo
-            )) {
-                bool targetCondition = false;
-                bool ownedByOppo = GetComponent<CardDisplay>().monsterOwnThis.GetComponent<MonsterDisplay>().ownedByOppo;
-                TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-                foreach (TargetType cardTargetType in cardPlayedTargetType) {
-                    if (cardTargetType == TargetType.PlayerCardSbire && !ownedByOppo
-                        || cardTargetType == TargetType.OpponantCardSbire && ownedByOppo) {
-                        targetCondition = true;
-                        break;
-                    }
-                }
-                // On active la carte si les conditions de ciblages sont respectées
-                if (targetCondition) {
-                    gameManager.activeCardOnTarget(cardPlayed, target);
-                } else {
-                    Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
-                }
-                
-            }
-            // Ciblage d'un sbire par un autre sbire
-            else if (card.type == Type.Sbire
-            && status == Status.SlotVisible
-            && gameObject.GetComponent<SbireDisplay>().sbireHealthAvailable > 0
-            && cardPlayed.GetComponent<CardDisplay>().card.type == Type.Sbire
-            && cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible
-            && cardPlayed.GetComponent<SbireDisplay>().sbireHealthAvailable > 0
-            && (
-                !ownedByOppo == cardPlayed.GetComponent<CardDisplay>().ownedByOppo
-                || ownedByOppo == !cardPlayed.GetComponent<CardDisplay>().ownedByOppo
-            )) {
-                isPutOnBoard = true;
-                bool sbireHaveTaunt = false;
-                foreach (CardDisplay cardDisplay in gameManager.GO_CounterAttackAreaOppo.GetComponentsInChildren<CardDisplay>()) {
-                    if (cardDisplay.card.type == Type.Sbire) {
-                        foreach (SbirePassifEffect sbirePassifEffect in cardDisplay.card.sbirePassifEffects) {
-                            if (sbirePassifEffect == SbirePassifEffect.Tank) {
-                                sbireHaveTaunt = true;
-                                break;
+                    // Par un autre sbire
+                    else {
+                        isPutOnBoard = true;
+                        bool sbireHaveTaunt = false;
+                        foreach (CardDisplay cardDisplay in gameManager.GO_CounterAttackAreaOppo.GetComponentsInChildren<CardDisplay>()) {
+                            if (cardDisplay.card.type == Type.Sbire) {
+                                sbireHaveTaunt = cardDisplay.GetComponent<SbireDisplay>().haveTank();
+                                if (sbireHaveTaunt)
+                                    break;
                             }
                         }
 
-                        if (sbireHaveTaunt) break;
+                        if (!sbireHaveTaunt || GetComponent<SbireDisplay>().haveTank()) {
+                            SbireDisplay sbireDisplay = cardPlayed.GetComponent<SbireDisplay>();
+                            SbireDisplay targetSbireDisplay = target.GetComponent<SbireDisplay>();
+                            StartCoroutine(sbireDisplay.fightVersus(targetSbireDisplay));
+                        } else {
+                            Debug.Log("ERR : Bad target, one sbire or more have Taunt");
+                        }
                     }
                 }
-
-                bool haveTaunt = false;
-                foreach (SbirePassifEffect sbirePassifEffect in card.sbirePassifEffects) {
-                    if (sbirePassifEffect == SbirePassifEffect.Tank) {
-                        haveTaunt = true;
-                        break;
-                    }
-                }
-
-                if (!sbireHaveTaunt || haveTaunt) {
-                    SbireDisplay sbireDisplay = cardPlayed.GetComponent<SbireDisplay>();
-                    SbireDisplay targetSbireDisplay = target.GetComponent<SbireDisplay>();
-                    StartCoroutine(sbireDisplay.fightVersus(targetSbireDisplay));
-                } else {
-                    Debug.Log("ERR : Bad target, one sbire or more have Taunt");
-                }
+            } else {
+                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
             }
         }
 
         return isPutOnBoard;
     }
 
+    // Vérifie les conditions de ciblages
+    public bool targetIsAllowed(GameObject target) {
+        // Dans la main
+        if (status == Status.Hand) {
+            if (loopTargetAllowed(target))
+                return true;
+        }
+        // Dans un emplacement de contre attaque
+        else if (status == Status.SlotHidden || status == Status.SlotVisible) {
+            // Que la cible n'est pas un autre emplacement de contre attaque
+            if (target.GetComponent<SlotDisplay>() == null) {
+                if (loopTargetAllowed(target))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Boucle de vérification de ciblage
+    private bool loopTargetAllowed(GameObject target) {
+        foreach (TargetType targetType in card.targetType) {
+            TargetType targetType2 = targetType;
+            if (targetType2 == TargetType.SlotHidden)
+                targetType2 = TargetType.SlotVisible;
+
+            if (targetType2 == GameManager.typeTarget(target))
+                return true;
+            // Si c'est un sbire sur le terrain qui attaque un autre sbire
+            else if (status == Status.SlotVisible && card.type == Type.Sbire && GameManager.typeTarget(target) == TargetType.OpponantCardSbire)
+                return true;
+            // Si c'est un sbire sur le terrain qui attaque un monstre
+            else if (status == Status.SlotVisible && card.type == Type.Sbire && GameManager.typeTarget(target) == TargetType.OpponantMonster)
+                return true;
+        }
+        return false;
+    }
+
     // On active les effets de la carte
     public void activeCard(GameObject target) {
+        // Si la carte est dans un emplacement de contre attaque, on enlève le GO de la carte dans SlotDisplay de l'emplacement
+        if (gameObject.transform.parent.parent.GetComponent<SlotDisplay>() != null) {
+            gameObject.transform.parent.parent.GetComponent<SlotDisplay>().cardOnSlot = null;
+        }
+
         card.activeEffect(target);
         gameObject.GetComponent<ZoomCard2D>().destroyPlaceholder();
 
         // Si c'est une carte de Type.Spell ou Type.Echo
         if (card.type == Type.Spell || card.type == Type.Echo) {
-            Debug.Log("In Grave");
             gameManager.inGrave(gameObject);
         }
     }
 
     // On desactive les effets de la carte (aura, enchantement)
     public void disableCard() {
+        // Si la carte est dans un emplacement d'aura, on enlève le GO de la carte dans SlotDisplay de l'emplacement
+        if (gameObject.transform.parent.parent.GetComponent<AuraDisplay>() != null) {
+            gameObject.transform.parent.parent.GetComponent<AuraDisplay>().cardOnSlot = null;
+        }
+        // Si la carte est dans un emplacement d'aura, on enlève le GO de la carte dans SlotDisplay de l'emplacement
+        else if (gameObject.transform.parent.parent.GetComponentInChildren<EquipmentDisplay>() != null) {
+            gameObject.transform.parent.parent.GetComponentInChildren<EquipmentDisplay>().cardOnSlot = null;
+        }
+
         card.disableEffect();
         gameManager.inGrave(gameObject);
     }
@@ -241,6 +203,11 @@ public class CardDisplay : MonoBehaviour
             hiddenCard = true;
         }
 
+        // Si la carte est dans un emplacement de contre attaque, on enlève le GO de la carte dans SlotDisplay de l'emplacement
+        if (gameObject.transform.parent.parent.GetComponent<SlotDisplay>() != null) {
+            gameObject.transform.parent.parent.GetComponent<SlotDisplay>().cardOnSlot = null;
+        }
+
         if (target.GetComponent<SlotDisplay>() != null) {
             if (hiddenCard) {
                 status = Status.SlotHidden;
@@ -251,6 +218,7 @@ public class CardDisplay : MonoBehaviour
             transform.localPosition = Vector3.zero;
             target.GetComponent<SlotDisplay>().cardOnSlot = this.gameObject;
         } else if (target.GetComponent<AuraDisplay>() != null) {
+            
             status = Status.AuraSlot;
             transform.SetParent(target.GetComponent<AuraDisplay>().slotCard.transform);
             transform.localPosition = Vector3.zero;

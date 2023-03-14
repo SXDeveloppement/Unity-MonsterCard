@@ -51,30 +51,21 @@ public class EquipmentDisplay : MonoBehaviour
         bool isPutOnBoard = false;
         if (GameManager.dragged) {
             GameObject targetSlot = this.gameObject;
-            Debug.Log("Drop Equipment");
 
             // Si l'emplacement est vide et que la carte dans la main ou dans la zone de contre attaque
             if (cardOnSlot == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
                 // On vérifie les conditions de ciblage pour pouvoir placer la carte
-                bool targetCondition = false;
-                TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;
-                foreach (TargetType cardTargetType in cardPlayedTargetType) {
-                    if (cardTargetType == TargetType.PlayerEquipment && !ownedByOppo) {
-                        isPutOnBoard = gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true);
-                        targetCondition = true;
-                        break;
-                    }                   
-                }
-
-                // On place la carte si les conditions de ciblages sont respectées
-                if (!targetCondition) {
+                if (cardPlayed.GetComponent<CardDisplay>().targetIsAllowed(targetSlot)) {
+                    if (gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true)) {
+                        cardOnSlot = cardPlayed;
+                        cardPlayed.GetComponent<CardDisplay>().activeCard(gameObject);
+                        isPutOnBoard = true;
+                    }
+                } else {
                     Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + ownedByOppo.ToString());
                 }
             }
         }
-
-        if (isPutOnBoard)
-            cardOnSlot = cardPlayed;
 
         return isPutOnBoard;
     }

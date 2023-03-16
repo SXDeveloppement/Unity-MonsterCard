@@ -44,9 +44,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: New Layer 1
+  - name: BoardLayer
     uniqueID: 2404068975
     locked: 0
-  - name: New Layer 2
+  - name: TeamLayoutLayer
     uniqueID: 3208145737
+    locked: 0
+  - name: GraveyardLayer
+    uniqueID: 2333385463
     locked: 0

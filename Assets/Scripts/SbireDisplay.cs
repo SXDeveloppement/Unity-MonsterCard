@@ -30,7 +30,7 @@ public class SbireDisplay : MonoBehaviour
         gameManager = GameObject.FindAnyObjectByType<GameManager>();
 
         Card card = GetComponent<CardDisplay>().card;
-        if (card.type == Type.Sbire && card.sbireHealthPoint > 0) {
+        if (card.type == CardType.Sbire && card.sbireHealthPoint > 0) {
             sbireHealthMax = card.sbireHealthPoint;
             sbireFeature.SetActive(true);
             sbireHealthAvailable = card.sbireHealthPoint;
@@ -63,8 +63,8 @@ public class SbireDisplay : MonoBehaviour
 
         // On met le sbire au cimetière si il n'a plus de vie
         if (sbireHealthAvailable <= 0 
-        && GetComponent<CardDisplay>().status == Status.SlotVisible
-        && GetComponent<CardDisplay>().card.type == Type.Sbire
+        && GetComponent<CardDisplay>().status == CardStatus.SlotVisible
+        && GetComponent<CardDisplay>().card.type == CardType.Sbire
         ) {
             gameManager.inGrave(gameObject);
         }

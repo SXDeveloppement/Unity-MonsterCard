@@ -44,11 +44,9 @@ public class Draggable2D : MonoBehaviour
         }
     }
 
-
-
     private void OnMouseDown() {
         GameObject arrowEmitter = gameManager.ArrowEmitter;
-        if (GetComponent<CardDisplay>().status == Status.Hand && !GetComponent<CardDisplay>().ownedByOppo && !GameManager.dragged) {
+        if (GetComponent<CardDisplay>().status == CardStatus.Hand && !GetComponent<CardDisplay>().ownedByOppo && !GameManager.dragged) {
             GameManager.dragged = true;
             isDragged = true;
 
@@ -62,8 +60,8 @@ public class Draggable2D : MonoBehaviour
         }
         // Si c'est un sbire sur le terrain et qu'il n'a pas attaqué pendant le tour
         else if (!GameManager.dragged
-            && GetComponent<CardDisplay>().status == Status.SlotVisible 
-            && GetComponent<CardDisplay>().card.type == Type.Sbire
+            && GetComponent<CardDisplay>().status == CardStatus.SlotVisible 
+            && GetComponent<CardDisplay>().card.type == CardType.Sbire
             && !GetComponent<SbireDisplay>().sbireHasAttacked 
             && !GetComponent<CardDisplay>().ownedByOppo) {
             isHalfDragged = true;
@@ -75,7 +73,7 @@ public class Draggable2D : MonoBehaviour
             Cursor.visible = false;
         }
         // Si ce n'est pas une carte de contre attaque face caché sur le terrain
-        else if (!GameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotHidden && GetComponent<CardDisplay>().card.type != Type.CounterAttack) {
+        else if (!GameManager.dragged && GetComponent<CardDisplay>().status == CardStatus.SlotHidden && GetComponent<CardDisplay>().card.type != CardType.CounterAttack) {
             GameManager.dragged = true;
             isHalfDragged = true;
             arrowEmitter.SetActive(true);
@@ -83,7 +81,7 @@ public class Draggable2D : MonoBehaviour
             Cursor.visible = false;
         }
         // Si c'est une carte "Echo" sur le terrain qui n'a pas été posé ce tour ci
-        else if (!GameManager.dragged && GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Echo
+        else if (!GameManager.dragged && GetComponent<CardDisplay>().status == CardStatus.SlotVisible && GetComponent<CardDisplay>().card.type == CardType.Echo
         && !GetComponent<CardDisplay>().putOnBoardThisTurn && !GetComponent<CardDisplay>().ownedByOppo) {
             GameManager.dragged = true;
             isHalfDragged = true;
@@ -97,7 +95,7 @@ public class Draggable2D : MonoBehaviour
         if (!isDragged && !isHalfDragged) return;
 
         // Si c'est une carte de la main
-        if (GetComponent<CardDisplay>().status == Status.Hand) {
+        if (GetComponent<CardDisplay>().status == CardStatus.Hand) {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             this.transform.position = new Vector3(mousePosition.x, mousePosition.y, position.z - 0.2f);
 
@@ -143,7 +141,7 @@ public class Draggable2D : MonoBehaviour
             }
         }
         // Changement du curseur en fonction des cibles valident pour jouer la carte qui est sur le terrain
-        else if (GetComponent<CardDisplay>().status == Status.SlotHidden || GetComponent<CardDisplay>().status == Status.SlotVisible) {
+        else if (GetComponent<CardDisplay>().status == CardStatus.SlotHidden || GetComponent<CardDisplay>().status == CardStatus.SlotVisible) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
 
@@ -153,11 +151,11 @@ public class Draggable2D : MonoBehaviour
                 bool targetAvailable = false;
                 
                 // Si c'est une carte sbire face visible
-                if (GetComponent<CardDisplay>().status == Status.SlotVisible && GetComponent<CardDisplay>().card.type == Type.Sbire) {
+                if (GetComponent<CardDisplay>().status == CardStatus.SlotVisible && GetComponent<CardDisplay>().card.type == CardType.Sbire) {
                     // On regarde si l'adversaire possède un sbire avec "Tank"
                     bool sbireHaveTaunt = false;
                     foreach (CardDisplay cardDisplay in gameManager.GO_CounterAttackAreaOppo.GetComponentsInChildren<CardDisplay>()) {
-                        if (cardDisplay.card.type == Type.Sbire) {
+                        if (cardDisplay.card.type == CardType.Sbire) {
                             sbireHaveTaunt = cardDisplay.GetComponent<SbireDisplay>().haveTank();
                             if (sbireHaveTaunt)
                                 break;

@@ -1059,7 +1059,6 @@ MonoBehaviour:
   buffAmountText: {fileID: 299004889261000312}
   debuffAmountText: {fileID: 7094985268491153667}
   timeText: {fileID: 4479811797548270843}
-  activeAmountText: {fileID: 0}
 --- !u!1 &8830929569004229260
 GameObject:
   m_ObjectHideFlags: 0

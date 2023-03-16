@@ -17,6 +17,7 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
     public GameObject affinityLayout;
     public GameObject buttonSwap;
     public SpriteRenderer illustrationAbility;
+    public AbilityLayoutTeamDisplay abilityDisplay;
 
 
     // Start is called before the first frame update
@@ -51,7 +52,7 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
         GameManager gameManager = GameObject.FindObjectOfType<GameManager>();
         // On modifie le bouton de changement de monstre en fonction des états du monstre sur le terrain
         //// Déjà sur le terrain
-        if (monsterDisplay.gameObject == gameManager.GO_MonsterInvoked) {
+        if (monsterDisplay.gameObject == GameManager.GO_MonsterInvoked) {
             refreshButtonSwap(false, "In battle");
         }
         //// KO
@@ -60,6 +61,12 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
         } else {
             refreshButtonSwap(true, "Swap");
         }
+
+        // On actualise l'affichage de la capacité
+        abilityDisplay.ability = monsterDisplay.abilityDisplay.ability;
+        abilityDisplay.cooldown = monsterDisplay.abilityDisplay.cooldown;
+        abilityDisplay.manaCostModif = monsterDisplay.abilityDisplay.manaCostModif;
+        abilityDisplay.refreshDisplayAbility();
     }
 
     // On actualise le bouton de changement de monstre

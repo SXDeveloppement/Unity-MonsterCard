@@ -43,7 +43,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         // Si on ne déplace pas de carte
         if (!GameManager.dragged) { 
             // Si la souris est sur une carte de la main
-            if (GetComponent<CardDisplay>().status == Status.Hand) {
+            if (GetComponent<CardDisplay>().status == CardStatus.Hand) {
                 siblingIndex = transform.GetSiblingIndex();
                 localPosition = transform.localPosition;
                 transform.localScale = new Vector3(scaleZoom, scaleZoom, scaleZoom);
@@ -57,7 +57,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 pointerIsEnter = true;
             }
             // Si la souris est sur une carte du terrain
-            else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
+            else if (GetComponent<CardDisplay>().status != CardStatus.Hand && GetComponent<CardDisplay>().status != CardStatus.Graveyard) {
                 transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
                 localPosition = transform.localPosition;
                 transform.localPosition = new Vector3(localPosition.x, localPosition.y, localPosition.z - 2f);
@@ -70,7 +70,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 }
 
                 // Si c'est une carte d'enchantement, on affiche l'equipement
-                if (GetComponent<CardDisplay>().status == Status.EnchantmentSlot) {
+                if (GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot) {
                     equipment = transform.parent.parent.Find("Equipment").GetChild(0).gameObject;
                     equipment.transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
                     float positionX = equipment.GetComponent<RectTransform>().rect.width * equipment.transform.localScale.x;
@@ -85,12 +85,12 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerExit(PointerEventData eventData) {
         if (GameManager.dragged || !pointerIsEnter) return;
 
-        if (GetComponent<CardDisplay>().status == Status.Hand) {
+        if (GetComponent<CardDisplay>().status == CardStatus.Hand) {
             transform.localScale = cachedScale;
             transform.localPosition = localPosition;
             changeWithPlaceholder();
             pointerIsEnter = false;
-        } else if (GetComponent<CardDisplay>().status != Status.Hand && GetComponent<CardDisplay>().status != Status.Graveyard) {
+        } else if (GetComponent<CardDisplay>().status != CardStatus.Hand && GetComponent<CardDisplay>().status != CardStatus.Graveyard) {
             transform.localScale = cachedScale;
             transform.localPosition = localPosition;
 
@@ -102,7 +102,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             }
 
             // Si c'est une carte d'enchantement, on affiche l'equipement
-            if (GetComponent<CardDisplay>().status == Status.EnchantmentSlot) {
+            if (GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot) {
                 equipment.transform.localScale = cachedScale;
                 equipment.transform.localPosition = localPosition;
             }

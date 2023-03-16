@@ -21,6 +21,7 @@ public class MonsterDisplay : MonoBehaviour
     public Image artworkImage;
     public SpriteRenderer illustration;
     public GameObject GO_Affinity;
+    public AbilityDisplay abilityDisplay; // La capacité du monstre
 
     public GameObject monsterLayoutTeamLinked; // GO du monstre affiché dans la fenêtre de l'équipe
     public int healthAvailable;
@@ -92,6 +93,11 @@ public class MonsterDisplay : MonoBehaviour
             equipmentList.Add(DBEquipment[rand.Next(DBEquipment.Length)]);
         }
 
+        // Choisi une capacité aléatoire
+        Ability[] DBAbility = Resources.LoadAll<Ability>("Abilities");
+        Random rand2 = new Random();
+        abilityDisplay.ability = DBAbility[rand2.Next(DBAbility.Length)];
+
         // Calcule power, guard et speed avec équipement
         calculeStatsEquiped();
 
@@ -154,7 +160,7 @@ public class MonsterDisplay : MonoBehaviour
             refreshPower();
             if (!ownedByOppo)
                 monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
-            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+            if (gameObject == GameManager.GO_MonsterInvoked || gameObject == GameManager.GO_MonsterInvokedOppo)
                 StartCoroutine(gameManager.refreshAllDamageText());
         }
         if (guardEquiped != guardEquipedTemp || buffGuard != buffGuardTemp) {
@@ -163,7 +169,7 @@ public class MonsterDisplay : MonoBehaviour
             refreshGuard();
             if (!ownedByOppo)
                 monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
-            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+            if (gameObject == GameManager.GO_MonsterInvoked || gameObject == GameManager.GO_MonsterInvokedOppo)
                 StartCoroutine(gameManager.refreshAllDamageText());
         }
         if (speedEquiped != speedEquipedTemp || buffSpeed != buffSpeedTemp) {
@@ -172,7 +178,7 @@ public class MonsterDisplay : MonoBehaviour
             refreshSpeed();
             if (!ownedByOppo)
                 monsterLayoutTeamLinked.GetComponent<MonsterLayoutTeamDisplay>().refreshMonsterUI();
-            if (gameObject == gameManager.GO_MonsterInvoked || gameObject == gameManager.GO_MonsterInvokedOppo)
+            if (gameObject == GameManager.GO_MonsterInvoked || gameObject == GameManager.GO_MonsterInvokedOppo)
                 StartCoroutine(gameManager.refreshAllDamageText());
         }
     }
@@ -185,11 +191,11 @@ public class MonsterDisplay : MonoBehaviour
 
             if (cardPlayed.GetComponent<CardDisplay>().targetIsAllowed(target)) {
                 // Si la carte est un sbire et qu'elle est sur le terrain face visible
-                if (cardPlayed.GetComponent<CardDisplay>().card.type == Type.Sbire) {
+                if (cardPlayed.GetComponent<CardDisplay>().card.type == CardType.Sbire) {
                 
                     bool sbireHaveTaunt = false;
                     foreach (CardDisplay cardDisplay in gameManager.GO_CounterAttackAreaOppo.GetComponentsInChildren<CardDisplay>()) {
-                        if (cardDisplay.card.type == Type.Sbire) {
+                        if (cardDisplay.card.type == CardType.Sbire) {
                             sbireHaveTaunt = cardDisplay.GetComponent<SbireDisplay>().haveTank();
                             if (sbireHaveTaunt)
                                 break;
@@ -225,6 +231,11 @@ public class MonsterDisplay : MonoBehaviour
         speedText.gameObject.transform.localScale = flipX;
         healthText.gameObject.transform.localScale = flipX;
         manaText.gameObject.transform.localScale = flipX;
+
+        // On text et illustration de la capacité
+        abilityDisplay.textCooldown.gameObject.transform.localScale = flipX;
+        abilityDisplay.textManaCost.gameObject.transform.localScale = flipX;
+        abilityDisplay.illustration.gameObject.transform.localScale = flipX;
     }
 
     // Réinitiliation du mana
@@ -259,7 +270,7 @@ public class MonsterDisplay : MonoBehaviour
         newBuffDebuff.amount = amount;
         newBuffDebuff.turn = turnAmount;
 
-        if (gameObject == gameManager.GO_MonsterInvoked) {
+        if (gameObject == GameManager.GO_MonsterInvoked) {
             if (amount >= 0) {
                 newGOBuffDebuff.transform.SetParent(gameManager.GO_BuffArea.transform);
             } else {

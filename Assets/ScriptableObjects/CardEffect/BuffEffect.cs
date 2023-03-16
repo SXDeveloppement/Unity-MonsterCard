@@ -9,7 +9,7 @@ public class BuffEffect : CardEffect
     public int amount;
     public int turnAmount;
 
-    public override void ExecuteEffect(GameObject target, Card card) {
+    public override void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity) {
         GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         target.GetComponent<MonsterDisplay>().addBuffDebuff(buffDebuffType, amount, turnAmount);

@@ -7,7 +7,7 @@ public class DrawEffect : CardEffect
 {
     public int drawAmount;
 
-    public override void ExecuteEffect(GameObject target, Card card) {
+    public override void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity) {
         GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         gameManager.draw(drawAmount);

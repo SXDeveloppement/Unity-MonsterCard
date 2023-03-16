@@ -53,7 +53,7 @@ public class EquipmentDisplay : MonoBehaviour
             GameObject targetSlot = this.gameObject;
 
             // Si l'emplacement est vide et que la carte dans la main ou dans la zone de contre attaque
-            if (cardOnSlot == null && (cardPlayed.GetComponent<CardDisplay>().status == Status.Hand || cardPlayed.GetComponent<CardDisplay>().status == Status.SlotHidden)) {
+            if (cardOnSlot == null && (cardPlayed.GetComponent<CardDisplay>().status == CardStatus.Hand || cardPlayed.GetComponent<CardDisplay>().status == CardStatus.SlotHidden)) {
                 // On vérifie les conditions de ciblage pour pouvoir placer la carte
                 if (cardPlayed.GetComponent<CardDisplay>().targetIsAllowed(targetSlot)) {
                     if (gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true)) {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,10 +18,10 @@ public class GameManager : MonoBehaviour {
     public GameObject GO_GravePlayerList;
     public GameObject GO_Monster; // Prefab
     public GameObject GO_MonsterArea;
-    public GameObject GO_MonsterInvoked;
+    public static GameObject GO_MonsterInvoked;
     public List<GameObject> monstersGOList; // Liste des GO de tous les monstres
     public GameObject GO_MonsterAreaOppo;
-    public GameObject GO_MonsterInvokedOppo;
+    public static GameObject GO_MonsterInvokedOppo;
     public List<GameObject> monstersGOListOppo; // Liste des GO de tous les monstres de l'adversaire
     public GameObject GO_MonsterTeamLayout;
     public GameObject GO_TeamArea;
@@ -42,13 +43,13 @@ public class GameManager : MonoBehaviour {
     public GameObject ArrowEmitter; // Fleche de ciblage dynamique
 
     #region Dictionary Elemental Affinity
-    Dictionary<ElementalAffinity, float> fireDico;
-    Dictionary<ElementalAffinity, float> waterDico;
-    Dictionary<ElementalAffinity, float> electricDico;
-    Dictionary<ElementalAffinity, float> earthDico;
-    Dictionary<ElementalAffinity, float> combatDico;
-    Dictionary<ElementalAffinity, float> mentalDico;
-    Dictionary<ElementalAffinity, float> neutralDico;
+    static Dictionary<ElementalAffinity, float> fireDico;
+    static Dictionary<ElementalAffinity, float> waterDico;
+    static Dictionary<ElementalAffinity, float> electricDico;
+    static Dictionary<ElementalAffinity, float> earthDico;
+    static Dictionary<ElementalAffinity, float> combatDico;
+    static Dictionary<ElementalAffinity, float> mentalDico;
+    static Dictionary<ElementalAffinity, float> neutralDico;
     #endregion
 
     private bool init = true;
@@ -230,7 +231,7 @@ public class GameManager : MonoBehaviour {
                 int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
                 newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
                 newCard.name = newCard.GetComponent<CardDisplay>().card.name;
-                newCard.GetComponent<CardDisplay>().status = Status.Hand;
+                newCard.GetComponent<CardDisplay>().status = CardStatus.Hand;
                 newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked;
                 GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
             }
@@ -290,13 +291,13 @@ public class GameManager : MonoBehaviour {
         // On active la carte si son cout en mana est inférieur ou égal au mana disponible
         // Si ce n'est pas une carte ECHO
         if (cardPlayed.GetComponent<CardDisplay>().card.manaCost <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable
-            && cardPlayed.GetComponent<CardDisplay>().card.type != Type.Echo) {
+            && cardPlayed.GetComponent<CardDisplay>().card.type != CardType.Echo) {
             cardPlayed.GetComponent<CardDisplay>().activeCard(target);
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= cardPlayed.GetComponent<CardDisplay>().card.manaCost;
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
         } 
         // Si c'est une carte ECHO
-        else if (cardPlayed.GetComponent<CardDisplay>().card.type == Type.Echo && cardPlayed.GetComponent<CardDisplay>().status == Status.SlotVisible) {
+        else if (cardPlayed.GetComponent<CardDisplay>().card.type == CardType.Echo && cardPlayed.GetComponent<CardDisplay>().status == CardStatus.SlotVisible) {
             cardPlayed.GetComponent<CardDisplay>().activeCard(target);
         } else {
             // On affiche un message d'erreur
@@ -304,7 +305,9 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    // renvoi le type de la cible
+    /// <summary>
+    /// Renvoi le type de la cible
+    /// </summary>
     public static TargetType typeTarget(GameObject target) {
         // C'est une carte
         if (target.GetComponent<CardDisplay>() != null) {
@@ -312,7 +315,7 @@ public class GameManager : MonoBehaviour {
 
             if (targetCardDisplay.card != null) {
                 // De sbire
-                if (targetCardDisplay.card.type == Type.Sbire) {
+                if (targetCardDisplay.card.type == CardType.Sbire) {
                     // Que le joueur controle
                     if (!targetCardDisplay.ownedByOppo)
                         return TargetType.PlayerCardSbire;
@@ -321,7 +324,7 @@ public class GameManager : MonoBehaviour {
                         return TargetType.OpponantCardSbire;
                 }
                 // D'aura
-                else if (targetCardDisplay.card.type == Type.Aura) {
+                else if (targetCardDisplay.card.type == CardType.Aura) {
                     // Que le joueur controle
                     if (!targetCardDisplay.ownedByOppo)
                         return TargetType.PlayerCardAura;
@@ -330,7 +333,7 @@ public class GameManager : MonoBehaviour {
                         return TargetType.OpponantCardAura;
                 }
                 // D'enchantement
-                else if (targetCardDisplay.card.type == Type.Enchantment) {
+                else if (targetCardDisplay.card.type == CardType.Enchantment) {
                     // Que le joueur controle
                     if (!targetCardDisplay.ownedByOppo)
                         return TargetType.PlayerCardEnchantment;
@@ -417,7 +420,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // Initialisation du tableau d'affinité
-    void initializeArrayAffinity() {
+    static void initializeArrayAffinity() {
         fireDico = new Dictionary<ElementalAffinity, float>() {
             {ElementalAffinity.Fire, 1 },
             {ElementalAffinity.Water, 0.5f },
@@ -490,7 +493,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // Calcule du coef entre deux affinité
-    private float coefAffinity(ElementalAffinity affinityAttack, ElementalAffinity affinityDefenser) {
+    private static float coefAffinity(ElementalAffinity affinityAttack, ElementalAffinity affinityDefenser) {
         switch (affinityAttack) {
             case ElementalAffinity.Fire:
                 return fireDico[affinityDefenser];
@@ -513,9 +516,9 @@ public class GameManager : MonoBehaviour {
     }
 
     // Calcule le plus grand coef d'affinité entre une attaque et un monstre défenseur
-    private float coefAffinityMax(ElementalAffinity affinityAttack, GameObject target) {
+    private static float coefAffinityMax(ElementalAffinity affinityAttack, GameObject target) {
         if (target.GetComponent<CardDisplay>() != null)
-            if (target.GetComponent<CardDisplay>().card.type == Type.Sbire)
+            if (target.GetComponent<CardDisplay>().card.type == CardType.Sbire)
                 target = target.GetComponent<CardDisplay>().monsterOwnThis;
 
         float coefMax = 0;
@@ -530,7 +533,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // On calcule les dégats réel
-    public int calculateDamage(GameObject target, ElementalAffinity attackAffinity, int amountDamage) {
+    public static int calculateDamage(GameObject target, ElementalAffinity attackAffinity, int amountDamage) {
         GameObject attacker;
         GameObject defenser;
         if (target == GO_MonsterInvoked) {
@@ -577,6 +580,19 @@ public class GameManager : MonoBehaviour {
         return Mathf.RoundToInt(resultDamage);
     }
 
+    // Renvoi les dégats de base de l'attaque
+    public static List<int> getBaseDamage(string text) {
+        string pattern = @"\%D(\d+)";
+        List<int> intList = new List<int>();
+
+        MatchCollection m = Regex.Matches(text, pattern, RegexOptions.IgnoreCase);
+        foreach (Match m2 in m) {
+            intList.Add(int.Parse(m2.Groups[1].Value));
+        }
+
+        return intList;
+    }
+
     // Change le monstre actif
     public void swapMonster(int indexMonster) {
         GameObject nextMonster = monstersGOList[indexMonster];
@@ -610,10 +626,8 @@ public class GameManager : MonoBehaviour {
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().removeAllBuffDebuff();
 
-        // On desactive tous les GO des monstres
-        foreach (Transform child in GO_MonsterArea.transform) {
-            child.gameObject.SetActive(false);
-        }
+        // On desactive le GO du précédent monstre
+        GO_MonsterInvoked.SetActive(false);
 
         // On change de monstre actif
         nextMonster.SetActive(true);
@@ -797,7 +811,7 @@ public class GameManager : MonoBehaviour {
             newSbire.GetComponent<CardDisplay>().card = sbireList[i];
             newSbire.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo;
             newSbire.GetComponent<CardDisplay>().ownedByOppo = true;
-            newSbire.GetComponent<CardDisplay>().status = Status.SlotVisible;
+            newSbire.GetComponent<CardDisplay>().status = CardStatus.SlotVisible;
             newSbire.GetComponent<SbireDisplay>().invokeSbire();
             newSbire.transform.localPosition = Vector3.zero;
             newSbire.transform.localScale = Vector3.one;

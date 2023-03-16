@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Destroy Enchantment", menuName = "ScriptableObjects/Effects/Destroy enchantment")]
 public class DestroyEnchantment : CardEffect
 {
-    public override void ExecuteEffect(GameObject target, Card card) {
+    public override void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity) {
         GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         // On efface l'enchantement de la liste d'enchantement du monstre

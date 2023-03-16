@@ -2,27 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Card", menuName = "ScriptableObjects/Card")]
-public class Card : ScriptableObject {
+[CreateAssetMenu(fileName = "New Ability", menuName = "ScriptableObjects/Ability")]
+public class Ability : ScriptableObject
+{
     public new string name;
-    [TextArea(3,4)]
+    [TextArea(3, 4)]
     public string description;
-    public Sprite artwork;
+    public Sprite illustration;
+    public AbilityType abilityType;
     public int manaCost;
-    public int priority;
+    public int activationPerTurn;
+    public int cooldown;
     public ElementalAffinity elementalAffinity;
-    public CardType type;
     public TargetType[] targetType;
-    public IsFrom from;
+
     public CardEffect[] effects;
 
-    public int sbirePowerPoint = -1;
-    public int sbireHealthPoint = -1;
-    public SbirePassifEffect[] sbirePassifEffects;
-
-
     public void activeEffect(GameObject target) {
-        foreach(var effect in effects) {
+        foreach (var effect in effects) {
             effect.ExecuteEffect(target, elementalAffinity);
         }
     }

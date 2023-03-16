@@ -1,4 +1,4 @@
-public enum Status {
+public enum CardStatus {
     Unreal, Hand, Graveyard, SlotVisible, SlotHidden, AuraSlot, EnchantmentSlot
 }
 
@@ -6,11 +6,11 @@ public enum ElementalAffinity {
     Fire, Water, Electric, Earth, Combat, Mental, Neutral
 }
 
-public enum Type {
+public enum CardType {
     Spell, Enchantment, Aura, CounterAttack, Echo, Sbire
 }
 
-public enum From {
+public enum IsFrom {
     Monster, Equipment1, Equipment2, Equipment3, Equipment4
 }
 
@@ -22,7 +22,16 @@ public enum BuffDebuffType {
     Power, Guard, Speed, Mana, DamageRaw, DamagePercent
 }
 
-// quickness = célérité / pierce = piétinement / Domination = Initiative / Tank = provocation de HS
+/// <summary>
+/// Global = bonus toujours actif / Trigger = qui se déclenche lors d'une action spécifique / Active = que le joueur doit activer
+/// </summary>
+public enum AbilityType {
+    Global, Trigger, Active
+}
+
+/// <summary>
+/// quickness = célérité / pierce = piétinement / Domination = Initiative / Tank = provocation de HS
+/// </summary>
 public enum SbirePassifEffect {
     Quickness, Pierce, Domination, Tank
 }

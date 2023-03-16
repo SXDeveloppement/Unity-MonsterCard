@@ -31,7 +31,7 @@ public class SlotDisplay : MonoBehaviour
             GameObject targetSlot = this.gameObject;
 
             // Si l'emplacement est vide et que la carte est dans la main
-            if (cardOnSlot == null && cardPlayed.GetComponent<CardDisplay>().status == Status.Hand) {
+            if (cardOnSlot == null && cardPlayed.GetComponent<CardDisplay>().status == CardStatus.Hand) {
                 // On vérifie les conditions de ciblage pour pouvoir placer la carte
                 bool targetCondition = false;
                 TargetType[] cardPlayedTargetType = cardPlayed.GetComponent<CardDisplay>().card.targetType;

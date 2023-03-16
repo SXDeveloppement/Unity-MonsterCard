@@ -50,9 +50,9 @@ public class GraveyardDisplay : MonoBehaviour, IScrollHandler
 
         GameObject monster;
         if (ownedByOppo) {
-            monster = gameManager.GO_MonsterInvokedOppo;
+            monster = GameManager.GO_MonsterInvokedOppo;
         } else {
-            monster = gameManager.GO_MonsterInvoked;
+            monster = GameManager.GO_MonsterInvoked;
         }
         int countCardInGrave = monster.GetComponent<MonsterDisplay>().graveList.Count;
         maxPage = countCardInGrave / cardPerPage;
@@ -77,7 +77,7 @@ public class GraveyardDisplay : MonoBehaviour, IScrollHandler
                 newCardInGrave.transform.SetParent(layoutArea.transform);
                 newCardInGrave.transform.localScale = new Vector3(1.5f, 1.5f, 1);
                 newCardInGrave.transform.localPosition = Vector3.zero;
-                newCardInGrave.GetComponent<CardDisplay>().status = Status.Graveyard;
+                newCardInGrave.GetComponent<CardDisplay>().status = CardStatus.Graveyard;
             }
 
         scrollbar.GetComponent<ScrollBarDisplay>().initScrollbar(maxPage, page);

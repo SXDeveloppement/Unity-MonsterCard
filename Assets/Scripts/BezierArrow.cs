@@ -43,7 +43,8 @@ public class BezierArrow : MonoBehaviour
     /// <summary>
     /// The factor to determine the position of control point P1, P2
     /// </summary>
-    private readonly List<Vector2> controlPointFactors = new List<Vector2> { new Vector2(-0.3f, 0.8f), new Vector2(0.1f, 1.4f) };
+    //private readonly List<Vector2> controlPointFactors = new List<Vector2> { new Vector2(-0.3f, 0.8f), new Vector2(0.1f, 1.4f) };
+    private readonly List<Vector2> controlPointFactors = new List<Vector2> { new Vector2(0f, 0.8f), new Vector2(0.2f, 1.4f) };
     #endregion
 
     #region Private Methods

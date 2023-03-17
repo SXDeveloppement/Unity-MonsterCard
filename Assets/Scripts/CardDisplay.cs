@@ -78,7 +78,7 @@ public class CardDisplay : MonoBehaviour
     }
 
     // Action lors d'une activation qui cible cette carte
-    public bool onDrop(GameObject cardPlayed) {
+    public bool OnDrop(GameObject cardPlayed) {
         bool isPutOnBoard = false;
 
         if (GameManager.dragged) {
@@ -124,7 +124,32 @@ public class CardDisplay : MonoBehaviour
         return isPutOnBoard;
     }
 
-    // Vérifie les conditions de ciblages
+    /// <summary>
+    /// Lorsque que l'on active une capacité qui cible cette carte
+    /// </summary>
+    /// <param name="abilityDisplay"></param>
+    public bool OnDropAbility(AbilityDisplay abilityDisplay) {
+        bool abilityIsDown = false;
+
+        if (GameManager.dragged) {
+            GameObject target = gameObject;
+
+            if (abilityDisplay.loopTargetAllowed(target)) {
+                gameManager.activeAbilityOnTarget(abilityDisplay, target);
+                abilityIsDown = true;
+            } else {
+                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
+            }
+        }
+
+        return abilityIsDown;
+    }
+
+    /// <summary>
+    /// Vérifie les conditions de ciblages
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns>Boolean</returns>
     public bool targetIsAllowed(GameObject target) {
         // Dans la main
         if (status == CardStatus.Hand) {
@@ -149,7 +174,7 @@ public class CardDisplay : MonoBehaviour
             TargetType targetType2 = targetType;
             if (targetType2 == TargetType.SlotHidden)
                 targetType2 = TargetType.SlotVisible;
-
+            
             if (targetType2 == GameManager.typeTarget(target))
                 return true;
             // Si c'est un sbire sur le terrain qui attaque un autre sbire

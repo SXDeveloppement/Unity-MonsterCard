@@ -217,11 +217,11 @@ public class Draggable2D : MonoBehaviour
             }
             // Monster
             else if (dropZone.GetComponent<MonsterDisplay>() != null) {
-                dropZoneValid = dropZone.GetComponent<MonsterDisplay>().onDrop(gameObject);
+                dropZoneValid = dropZone.GetComponent<MonsterDisplay>().OnDrop(gameObject);
             }
             // Card
             else if (dropZone.GetComponent<CardDisplay>() != null) {
-                dropZoneValid = dropZone.GetComponent<CardDisplay>().onDrop(gameObject);
+                dropZoneValid = dropZone.GetComponent<CardDisplay>().OnDrop(gameObject);
             }
         }
 

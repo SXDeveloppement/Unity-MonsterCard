@@ -15,7 +15,7 @@ public enum IsFrom {
 }
 
 public enum TargetType {
-    PlayerMonster, OpponantMonster, PlayerEquipment, PlayerCardEnchantment, OpponantCardEnchantment, PlayerAura, PlayerCardAura, OpponantCardAura, SlotVisible, SlotHidden, PlayerCardSbire, OpponantCardSbire
+    PlayerMonster, OpponantMonster, PlayerEquipment, PlayerCardEnchantment, OpponantCardEnchantment, PlayerAura, PlayerCardAura, OpponantCardAura, SlotVisible, SlotHidden, PlayerCardSbire, OpponantCardSbire, OpponantEquipment, Null
 }
 
 public enum BuffDebuffType {

@@ -183,7 +183,7 @@ public class MonsterDisplay : MonoBehaviour
         }
     }
 
-    public bool onDrop(GameObject cardPlayed) {
+    public bool OnDrop(GameObject cardPlayed) {
         bool isPutOnBoard = false;
 
         if (GameManager.dragged) {
@@ -221,6 +221,27 @@ public class MonsterDisplay : MonoBehaviour
         return isPutOnBoard;
     }
 
+    /// <summary>
+    /// Lorsque que l'on active une capacité qui cible ce monstre
+    /// </summary>
+    /// <param name="abilityDisplay"></param>
+    public bool OnDropAbility(AbilityDisplay abilityDisplay) {
+        bool abilityIsDown = false;
+
+        if (GameManager.dragged) {
+            GameObject target = gameObject;
+
+            if (abilityDisplay.loopTargetAllowed(target)) {
+                gameManager.activeAbilityOnTarget(abilityDisplay, target);
+                abilityIsDown = true;
+            } else {
+                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
+            }
+        }
+
+        return abilityIsDown;
+    }
+
     // Modifie l'affichage pour le monstre de l'adversaire
     public void ownerOppo() {
         ownedByOppo = true;
@@ -249,8 +270,10 @@ public class MonsterDisplay : MonoBehaviour
         if (manaMax > 10) {
             manaMax = 10;
         }
-
         resetMana();
+
+        // On réduit le cooldown de la capacité de 1
+        abilityDisplay.newTurn();
     }
 
     // Prendre des dégâts

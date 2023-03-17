@@ -14,28 +14,20 @@ public class AbilityDisplay : MonoBehaviour
     public GameObject GO_Disable;
     public GameObject GO_DisableManaCost;
 
-    public int cooldown; // Temps de rechargement de la capacité
-    private int cooldownTemp;
+    public int cooldown = 0; // Temps de rechargement de la capacité
+    public int cooldownTemp;
     public int manaCostModif = 0; // Modificateur du cout en mana
-    private int manaCostModifTemp;
-    private bool activationLimited; // TRUE si les utilisations par tour sont limitées
-    private int remainingActivation; // Nombre d'activation restante pour le tour
-    private int remainingActivationTemp;
+    public int manaCostModifTemp;
+    public bool activationLimited; // TRUE si les utilisations par tour sont limitées
+    public int remainingActivation; // Nombre d'activation restante pour le tour
+    public int remainingActivationTemp;
+
+    private bool init = true;
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         illustration.sprite = ability.illustration;
         textTooltip.text = ability.description;
-        cooldown = ability.cooldown;
-        remainingActivation = ability.activationPerTurn;
-
-        // Il n'y a pas de limite d'utilisation si le nombre d'utilisation par tour et le cooldown sont inférieur ou égal a 0
-        if (ability.activationPerTurn > 0 && cooldown > 0) {
-            activationLimited = true;
-        } else {
-            activationLimited = false;
-        }
 
         // On affiche le sprite du cout en mana
         if (ability.manaCost >= 0) {
@@ -46,6 +38,17 @@ public class AbilityDisplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Initialisation
+        if (init) {
+            init = false;
+            remainingActivation = ability.activationPerTurn;
+            if (ability.activationPerTurn > 0 && ability.cooldown > 0) {
+                activationLimited = true;
+            } else {
+                activationLimited = false;
+            }
+        }
+
         if (cooldown != cooldownTemp || manaCostModif != manaCostModifTemp) {
             cooldownTemp = cooldown;
             manaCostModifTemp = manaCostModif;
@@ -57,6 +60,11 @@ public class AbilityDisplay : MonoBehaviour
         if (activationLimited && remainingActivation <= 0) {
             disableForXTurn(ability.cooldown);
         }
+    }
+
+    // Renvoi le cout réel de la capacité
+    public int GetManaCost() {
+        return ability.manaCost + manaCostModif;
     }
 
     /// <summary>
@@ -72,6 +80,9 @@ public class AbilityDisplay : MonoBehaviour
             if (ability.manaCost >= 0) {
                 GO_DisableManaCost.SetActive(true);
             }
+        } else {
+            GO_Disable.SetActive(false);
+            GO_DisableManaCost.SetActive(false);
         }
     }
 
@@ -116,5 +127,18 @@ public class AbilityDisplay : MonoBehaviour
             if (activationLimited)
                 remainingActivation--;
         }
+    }
+
+    // Boucle de vérification de ciblage
+    public bool loopTargetAllowed(GameObject target) {
+        foreach (TargetType targetType in ability.targetType) {
+            TargetType targetType2 = targetType;
+            if (targetType2 == TargetType.SlotHidden)
+                targetType2 = TargetType.SlotVisible;
+
+            if (targetType2 == GameManager.typeTarget(target))
+                return true;
+        }
+        return false;
     }
 }

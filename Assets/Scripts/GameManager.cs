@@ -286,6 +286,19 @@ public class GameManager : MonoBehaviour {
         layoutTeam.GetComponent<GridLayoutGroup>().enabled = true;
     }
 
+    // On active une capacité
+    public void activeAbilityOnTarget(AbilityDisplay abilityDisplay, GameObject target) {
+        // On active la capacité si son cout en mana est inférieur ou égal au mana disponible
+        if (abilityDisplay.GetManaCost() <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable) {
+            abilityDisplay.activeAbility(target);
+            GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= abilityDisplay.GetManaCost();
+            GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
+        } else {
+            // On affiche un message d'erreur
+            Debug.Log("ERR : no mana available");
+        }
+    }
+
     // On active une carte
     public void activeCardOnTarget(GameObject cardPlayed, GameObject target) {
         // On active la carte si son cout en mana est inférieur ou égal au mana disponible
@@ -363,6 +376,8 @@ public class GameManager : MonoBehaviour {
             // Que le joueur controle
             if (!targetEquipmentDisplay.ownedByOppo) {
                 return TargetType.PlayerEquipment;
+            } else {
+                return TargetType.OpponantEquipment;
             }
         }
         // C'est un emplacement d'aura
@@ -384,7 +399,7 @@ public class GameManager : MonoBehaviour {
             }
         }
 
-        return new TargetType();
+        return TargetType.Null;
     }
 
     // On place la carte sur le terrain

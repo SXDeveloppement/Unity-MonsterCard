@@ -21,17 +21,30 @@ public class DraggableAbility : MonoBehaviour
     }
 
     private void OnMouseDown() {
-        isDragged = true;
+        if (GetComponent<AbilityDisplay>().cooldown <= 0) {
+            GameManager.dragged = true;
+            isDragged = true;
 
-        GameObject arrowEmitter = FindAnyObjectByType<GameManager>().ArrowEmitter;
-        arrowEmitter.SetActive(true);
-        arrowEmitter.transform.position = new Vector3(transform.position.x, transform.position.y, -3);
-        Cursor.visible = false;
+            GameObject arrowEmitter = FindAnyObjectByType<GameManager>().ArrowEmitter;
+            arrowEmitter.SetActive(true);
+            arrowEmitter.transform.position = new Vector3(transform.position.x, transform.position.y, -3);
+            Cursor.visible = false;
+        }
     }
 
     private void OnMouseDrag() {
         if (!isDragged) return;
 
+        GameObject arrowEmitter = FindAnyObjectByType<GameManager>().ArrowEmitter;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+
+        // On change la couleur de la fleche de ciblage
+        if (hit.collider != null) {
+            arrowEmitter.GetComponent<BezierArrow>().changeColor(GetComponent<AbilityDisplay>().loopTargetAllowed(hit.collider.gameObject));
+        } else {
+            arrowEmitter.GetComponent<BezierArrow>().changeColor(false);
+        }
     }
 
     private void OnMouseUp() {
@@ -43,27 +56,26 @@ public class DraggableAbility : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
         if (hit.collider != null) {
             GameObject dropZone = hit.collider.gameObject;
-            Debug.Log(dropZone.name);
-            //// Contre attaque
-            //if (dropZone.GetComponent<SlotDisplay>() != null) {
-            //    dropZoneValid = dropZone.GetComponent<SlotDisplay>().onDrop(gameObject);
-            //}
-            //// Aura
-            //else if (dropZone.GetComponent<AuraDisplay>() != null) {
-            //    dropZoneValid = dropZone.GetComponent<AuraDisplay>().onDrop(gameObject);
-            //}
-            //// Enchantement
-            //else if (dropZone.GetComponent<EquipmentDisplay>() != null) {
-            //    dropZoneValid = dropZone.GetComponent<EquipmentDisplay>().onDrop(gameObject);
-            //}
-            //// Monster
-            //else if (dropZone.GetComponent<MonsterDisplay>() != null) {
-            //    dropZoneValid = dropZone.GetComponent<MonsterDisplay>().onDrop(gameObject);
-            //}
-            //// Card
-            //else if (dropZone.GetComponent<CardDisplay>() != null) {
-            //    dropZoneValid = dropZone.GetComponent<CardDisplay>().onDrop(gameObject);
-            //}
+            // Contre attaque
+            if (dropZone.GetComponent<SlotDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<SlotDisplay>().onDrop(gameObject);
+            }
+            // Aura
+            else if (dropZone.GetComponent<AuraDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<AuraDisplay>().onDrop(gameObject);
+            }
+            // Enchantement
+            else if (dropZone.GetComponent<EquipmentDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<EquipmentDisplay>().onDrop(gameObject);
+            }
+            // Monster
+            else if (dropZone.GetComponent<MonsterDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<MonsterDisplay>().OnDropAbility(GetComponent<AbilityDisplay>());
+            }
+            // Card
+            else if (dropZone.GetComponent<CardDisplay>() != null) {
+                dropZoneValid = dropZone.GetComponent<CardDisplay>().OnDropAbility(GetComponent<AbilityDisplay>());
+            }
         }
 
         GameManager.dragged = false;

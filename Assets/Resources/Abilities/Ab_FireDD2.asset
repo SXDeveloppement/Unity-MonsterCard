@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Ab_FireDD2
   m_EditorClassIdentifier: 
   name: Ab_FireDD2
-  description: Deal %D2 fire to an ally or opponant unit
+  description: Deal %D2 fire damage to an ally or opponant unit
   illustration: {fileID: 21300000, guid: db9b5b1eb244406458adf222c9ba1c9c, type: 3}
   abilityType: 2
   manaCost: 2

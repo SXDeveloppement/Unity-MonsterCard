@@ -18,7 +18,7 @@ MonoBehaviour:
   abilityType: 2
   manaCost: 2
   activationPerTurn: 2
-  cooldown: 0
+  cooldown: 1
   elementalAffinity: 0
   targetType: 000000000a000000010000000b000000
   effects:

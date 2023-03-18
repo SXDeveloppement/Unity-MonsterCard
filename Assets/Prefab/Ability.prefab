@@ -843,6 +843,7 @@ GameObject:
   - component: {fileID: 8840449299966011410}
   - component: {fileID: 8107562700462746260}
   - component: {fileID: 6295330064395822418}
+  - component: {fileID: 1920085305627081151}
   m_Layer: 0
   m_Name: Ability
   m_TagString: Untagged
@@ -923,12 +924,18 @@ MonoBehaviour:
   illustration: {fileID: 4940472651217390506}
   textManaCost: {fileID: 6386617812042619333}
   textCooldown: {fileID: 7854100405810593434}
-  textTooltip: {fileID: 0}
+  textTooltip: {fileID: 6791626424039854830}
   GO_ManaCost: {fileID: 3284804827439293253}
   GO_Disable: {fileID: 989064061725897534}
   GO_DisableManaCost: {fileID: 7915892785217126761}
+  GO_Tooltip: {fileID: 6864496900945683184}
   cooldown: 0
+  cooldownTemp: 0
   manaCostModif: 0
+  manaCostModifTemp: 0
+  activationLimited: 0
+  remainingActivation: 0
+  remainingActivationTemp: 0
 --- !u!114 &6295330064395822418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -942,6 +949,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDragged: 0
+--- !u!114 &1920085305627081151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5592614804835655905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 456819ad96103a848a5c0be4fc092998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5747096736666284283
 GameObject:
   m_ObjectHideFlags: 0

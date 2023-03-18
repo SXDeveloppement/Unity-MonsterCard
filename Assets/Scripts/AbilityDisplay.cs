@@ -13,6 +13,7 @@ public class AbilityDisplay : MonoBehaviour
     public GameObject GO_ManaCost;
     public GameObject GO_Disable;
     public GameObject GO_DisableManaCost;
+    public GameObject GO_Tooltip;
 
     public int cooldown = 0; // Temps de rechargement de la capacité
     public int cooldownTemp;

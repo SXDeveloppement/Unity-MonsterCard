@@ -253,10 +253,11 @@ public class MonsterDisplay : MonoBehaviour
         healthText.gameObject.transform.localScale = flipX;
         manaText.gameObject.transform.localScale = flipX;
 
-        // On text et illustration de la capacité
+        // text et illustration de la capacité
         abilityDisplay.textCooldown.gameObject.transform.localScale = flipX;
         abilityDisplay.textManaCost.gameObject.transform.localScale = flipX;
         abilityDisplay.illustration.gameObject.transform.localScale = flipX;
+        abilityDisplay.textTooltip.gameObject.transform.localScale = flipX;
     }
 
     // Réinitiliation du mana

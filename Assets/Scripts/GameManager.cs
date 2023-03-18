@@ -178,7 +178,8 @@ public class GameManager : MonoBehaviour {
             i++;
         }
     }
-
+    // Event OnEndTurn
+    public static event Action OnEndTurn;
     // Termine le tour en cours
     public void endTurn() {
         // On retire un tour au buff / debuff
@@ -186,9 +187,14 @@ public class GameManager : MonoBehaviour {
         buffDebuffAddTurnOppo(-1);
         refreshBuffDebuff();
 
+        // On active les listeners
+        OnEndTurn?.Invoke();
+
         newTurn();
     }
 
+    // Event OnNewTurn
+    public static event Action OnNewTurn;
     // Commende un nouveau tour
     public void newTurn() {
         //draw(1);
@@ -217,6 +223,9 @@ public class GameManager : MonoBehaviour {
                 cardDisplay.putOnBoardThisTurn = false;
             }
         }
+
+        // On active les listeners
+        OnNewTurn?.Invoke();
     }
 
     // Event OnDraw
@@ -707,7 +716,7 @@ public class GameManager : MonoBehaviour {
         // De l'adversaire
     }
 
-    // Actualisation des dégâts affichés sur les cartes
+    // Actualisation des dégâts affichés sur les cartes et capacités
     public IEnumerator refreshAllDamageText() {
         yield return null;
         //// Cartes du joueur
@@ -755,6 +764,12 @@ public class GameManager : MonoBehaviour {
                 cardDisplay.refreshDescriptionDamage();
             }
         }
+
+        // Capacité du joueur
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().abilityDisplay.refreshDisplayAbility();
+
+        // Capacité de l'adversaire
+        GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().abilityDisplay.refreshDisplayAbility();
     }
 
     // On modifie les tours restant pour les buff / debuff du monstre du joueur

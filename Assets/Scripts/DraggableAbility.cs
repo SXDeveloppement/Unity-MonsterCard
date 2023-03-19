@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
 
-public class DraggableAbility : MonoBehaviour
+public class DraggableAbility : MonoBehaviour, IPointerClickHandler
 {
     public bool isDragged = false;
 
@@ -20,8 +20,14 @@ public class DraggableAbility : MonoBehaviour
 
     }
 
+    public void OnPointerClick(PointerEventData eventData) {
+        if (GetComponent<AbilityDisplay>().ability.targetType.Length <= 0 && GetComponent<AbilityDisplay>().cooldown <= 0) {
+            GameManager.activeAbilityOnTarget(GetComponent<AbilityDisplay>(), GameManager.GO_MonsterInvoked);
+        }
+    }
+
     private void OnMouseDown() {
-        if (GetComponent<AbilityDisplay>().cooldown <= 0) {
+        if (GetComponent<AbilityDisplay>().cooldown <= 0 && !GetComponent<AbilityDisplay>().monsterOwnThis.ownedByOppo && GetComponent<AbilityDisplay>().ability.targetType.Length > 0) {
             GameManager.dragged = true;
             isDragged = true;
 

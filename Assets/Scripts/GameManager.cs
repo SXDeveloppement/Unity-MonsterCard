@@ -56,6 +56,7 @@ public class GameManager : MonoBehaviour {
 
     // DEBUG
     public List<Card> sbireList;
+    public List<Card> auraList;
 
     // Start is called before the first frame update
     void Start()
@@ -76,13 +77,14 @@ public class GameManager : MonoBehaviour {
         Monster[] DBMonsters = Resources.LoadAll<Monster>("Monsters");
         // Création de l'équipe de 4 monstres avec des monstres aléatoires de la DB
         List<Monster> addedMonster = new List<Monster>();
+        int i = 0;
         while (monstersGOList.Count < 4) {
             Random rand = new Random();
             int randomInt = rand.Next(DBMonsters.Length);
             if (!addedMonster.Contains(DBMonsters[randomInt])) {
                 // Instantie le monstre
                 GameObject newMonster = Instantiate(GO_Monster);
-                newMonster.name = "Monster";
+                newMonster.name = "Monster_" + i;
                 newMonster.GetComponent<MonsterDisplay>().monster = DBMonsters[randomInt];
                 newMonster.transform.SetParent(GO_MonsterArea.transform);
                 newMonster.transform.localPosition = Vector3.zero;
@@ -94,24 +96,25 @@ public class GameManager : MonoBehaviour {
                 addedMonster.Add(DBMonsters[randomInt]);
 
                 // On instantie le monstre dans la fenêtre d'équipe du joueur
-                GameObject newMonsterTeamLayout = Instantiate(GO_MonsterTeamLayout);
+                GameObject newMonsterTeamLayout = Instantiate(GO_MonsterTeamLayout, GO_TeamArea.GetComponent<TeamLayoutDisplay>().layoutArea.transform);
                 newMonsterTeamLayout.name = "MonsterTeamLayout";
-                newMonsterTeamLayout.transform.SetParent(GO_TeamArea.GetComponent<TeamLayoutDisplay>().layoutArea.transform);
                 newMonsterTeamLayout.GetComponent<MonsterLayoutTeamDisplay>().monsterLinked = newMonster;
                 newMonster.GetComponent<MonsterDisplay>().monsterLayoutTeamLinked = newMonsterTeamLayout;
             }
+            i++;
         }
 
 
         // Création de l'équipe de 4 monstre pour l'adversaire
         addedMonster = new List<Monster>();
+        int j = 0;
         while (monstersGOListOppo.Count < 4) {
             Random rand2 = new Random();
             int randomInt2 = rand2.Next(DBMonsters.Length);
             if (!addedMonster.Contains(DBMonsters[randomInt2])) {
                 // Instantie le monstre
                 GameObject newMonsterOppo = Instantiate(GO_Monster);
-                newMonsterOppo.name = "MonsterOppo";
+                newMonsterOppo.name = "MonsterOppo_" + j;
                 newMonsterOppo.GetComponent<MonsterDisplay>().monster = DBMonsters[randomInt2];
                 newMonsterOppo.transform.SetParent(GO_MonsterAreaOppo.transform);
                 newMonsterOppo.transform.localPosition = Vector3.zero;
@@ -123,6 +126,7 @@ public class GameManager : MonoBehaviour {
 
                 addedMonster.Add(DBMonsters[randomInt2]);
             }
+            j++;
         }
 
         GO_MonsterInvoked = monstersGOList[0];
@@ -157,12 +161,11 @@ public class GameManager : MonoBehaviour {
             if (monster == GO_MonsterInvoked) {
                 GameObject slotEquipment = GO_EquipmentArea.transform.GetChild(i).GetChild(0).gameObject;
                 newEquipment.transform.SetParent(slotEquipment.transform);
-                newEquipment.GetComponent<EquipmentDisplay>().ownedByOppo = false;
             } else {
                 GameObject slotEquipment = GO_EquipmentAreaOppo.transform.GetChild(i).GetChild(0).gameObject;
                 newEquipment.transform.SetParent(slotEquipment.transform);
-                newEquipment.GetComponent<EquipmentDisplay>().ownedByOppo = true;
             }
+            newEquipment.GetComponent<EquipmentDisplay>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
             newEquipment.transform.localScale = Vector3.one;
             newEquipment.transform.localPosition = Vector3.zero;
 
@@ -170,7 +173,7 @@ public class GameManager : MonoBehaviour {
             if (monster.GetComponent<MonsterDisplay>().cardEnchantments[i].name != null) {
                 GameObject newCardEnchantment = Instantiate(GO_Card);
                 newCardEnchantment.GetComponent<CardDisplay>().card = monster.GetComponent<MonsterDisplay>().cardEnchantments[i];
-                newCardEnchantment.GetComponent<CardDisplay>().monsterOwnThis = monster;
+                newCardEnchantment.GetComponent<CardDisplay>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
                 newEquipment.GetComponent<EquipmentDisplay>().cardOnSlot = newCardEnchantment;
                 newCardEnchantment.GetComponent<CardDisplay>().putOnBoard(newEquipment, true);
             }
@@ -229,7 +232,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // Event OnDraw
-    public static event Action OnDraw;
+    public static event Action<MonsterDisplay> OnDraw;
     // Ajoute X carte dans la main
     public void draw(int drawAmount) {
         if (GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count > 0) {
@@ -241,19 +244,52 @@ public class GameManager : MonoBehaviour {
                 newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
                 newCard.name = newCard.GetComponent<CardDisplay>().card.name;
                 newCard.GetComponent<CardDisplay>().status = CardStatus.Hand;
-                newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked;
+                newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked.GetComponent<MonsterDisplay>();
                 GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
             }
             refreshDeckText();
             GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
 
             // On active les listeners
-            OnDraw?.Invoke();
+            OnDraw?.Invoke(GO_MonsterInvoked.GetComponent<MonsterDisplay>());
         } else {
             Debug.Log("ERR : no card in deck");
         }
     }
-    
+
+    // Event OnDrawOppo
+    public static event Action<MonsterDisplay> OnDrawOppo;
+    // Ajoute X carte dans la main
+    public void drawOppo(int drawAmount) {
+        Debug.Log("Draw oppo");
+        if (GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().deckList.Count > 0) {
+            for (int i = 0; i < drawAmount; i++) {
+                if (GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().deckList.Count > 0) {
+                    //******************
+                    // Carte a ajouté dans la main de l'adversaire
+                    //*******************
+
+                    //GameObject newCard = Instantiate(GO_Card);
+                    //newCard.gameObject.transform.SetParent(GO_Hand.gameObject.transform);
+                    //Random rand = new Random();
+                    //int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
+                    //newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
+                    //newCard.name = newCard.GetComponent<CardDisplay>().card.name;
+                    //newCard.GetComponent<CardDisplay>().status = CardStatus.Hand;
+                    //newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked.GetComponent<MonsterDisplay>();
+                    //GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
+                }
+            }
+            //refreshDeckText();
+            //GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
+
+            // On active les listeners
+            OnDrawOppo?.Invoke(GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
+        } else {
+            Debug.Log("ERR : no card in opponant deck");
+        }
+    }
+
     // Actualise le nombre de carte restant dans le deck
     public void refreshDeckText() {
         GO_DeckText.gameObject.GetComponent<TMP_Text>().SetText(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count.ToString());
@@ -262,7 +298,7 @@ public class GameManager : MonoBehaviour {
     // Envoi une carte au cimetière
     public void inGrave(GameObject activedCard) {
         CardDisplay cardDisplay = activedCard.GetComponent<CardDisplay>();
-        MonsterDisplay monsterDisplay = cardDisplay.monsterOwnThis.GetComponent<MonsterDisplay>();
+        MonsterDisplay monsterDisplay = cardDisplay.monsterOwnThis;
         monsterDisplay.graveList.Add(cardDisplay.card);
 
         // On classe la liste des carte du cimetière par ordre alpha sur le nom de la carte
@@ -271,7 +307,7 @@ public class GameManager : MonoBehaviour {
         Destroy(activedCard);
         dragged = false;
 
-        if (cardDisplay.monsterOwnThis == GO_MonsterInvoked) {
+        if (cardDisplay.monsterOwnThis == GO_MonsterInvoked.GetComponent<MonsterDisplay>()) {
             refreshGraveText();
         }
     }
@@ -296,7 +332,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // On active une capacité
-    public void activeAbilityOnTarget(AbilityDisplay abilityDisplay, GameObject target) {
+    public static void activeAbilityOnTarget(AbilityDisplay abilityDisplay, GameObject target) {
         // On active la capacité si son cout en mana est inférieur ou égal au mana disponible
         if (abilityDisplay.GetManaCost() <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable) {
             abilityDisplay.activeAbility(target);
@@ -339,7 +375,7 @@ public class GameManager : MonoBehaviour {
                 // De sbire
                 if (targetCardDisplay.card.type == CardType.Sbire) {
                     // Que le joueur controle
-                    if (!targetCardDisplay.ownedByOppo)
+                    if (!targetCardDisplay.monsterOwnThis.ownedByOppo)
                         return TargetType.PlayerCardSbire;
                     // Que l'opposant controle
                     else
@@ -348,7 +384,7 @@ public class GameManager : MonoBehaviour {
                 // D'aura
                 else if (targetCardDisplay.card.type == CardType.Aura) {
                     // Que le joueur controle
-                    if (!targetCardDisplay.ownedByOppo)
+                    if (!targetCardDisplay.monsterOwnThis.ownedByOppo)
                         return TargetType.PlayerCardAura;
                     // Que l'opposant controle
                     else
@@ -357,7 +393,7 @@ public class GameManager : MonoBehaviour {
                 // D'enchantement
                 else if (targetCardDisplay.card.type == CardType.Enchantment) {
                     // Que le joueur controle
-                    if (!targetCardDisplay.ownedByOppo)
+                    if (!targetCardDisplay.monsterOwnThis.ownedByOppo)
                         return TargetType.PlayerCardEnchantment;
                     // Que l'opposant controle
                     else
@@ -383,7 +419,7 @@ public class GameManager : MonoBehaviour {
             EquipmentDisplay targetEquipmentDisplay = target.GetComponent<EquipmentDisplay>();
 
             // Que le joueur controle
-            if (!targetEquipmentDisplay.ownedByOppo) {
+            if (!targetEquipmentDisplay.monsterOwnThis.ownedByOppo) {
                 return TargetType.PlayerEquipment;
             } else {
                 return TargetType.OpponantEquipment;
@@ -543,7 +579,7 @@ public class GameManager : MonoBehaviour {
     private static float coefAffinityMax(ElementalAffinity affinityAttack, GameObject target) {
         if (target.GetComponent<CardDisplay>() != null)
             if (target.GetComponent<CardDisplay>().card.type == CardType.Sbire)
-                target = target.GetComponent<CardDisplay>().monsterOwnThis;
+                target = target.GetComponent<CardDisplay>().monsterOwnThis.gameObject;
 
         float coefMax = 0;
         foreach(ElementalAffinity affinityDefenser in target.GetComponent<MonsterDisplay>().monster.elementalAffinity) {
@@ -557,30 +593,21 @@ public class GameManager : MonoBehaviour {
     }
 
     // On calcule les dégats réel
-    public static int calculateDamage(GameObject target, ElementalAffinity attackAffinity, int amountDamage) {
-        GameObject attacker;
-        GameObject defenser;
-        if (target == GO_MonsterInvoked) {
-            attacker = GO_MonsterInvokedOppo;
-            defenser = GO_MonsterInvoked;
-        } else {
-            attacker = GO_MonsterInvoked;
-            defenser = GO_MonsterInvokedOppo;
-        }
-
-        int power = attacker.GetComponent<MonsterDisplay>().powerEquiped + attacker.GetComponent<MonsterDisplay>().buffPower;
-        int guard = defenser.GetComponent<MonsterDisplay>().guardEquiped + defenser.GetComponent<MonsterDisplay>().buffGuard;
-        int speedAttacker = attacker.GetComponent<MonsterDisplay>().speedEquiped + attacker.GetComponent<MonsterDisplay>().buffSpeed;
-        int speedDefenser = defenser.GetComponent<MonsterDisplay>().speedEquiped + defenser.GetComponent<MonsterDisplay>().buffSpeed;
+    public static int calculateDamage(MonsterDisplay defenser, ElementalAffinity attackAffinity, int amountDamage, MonsterDisplay attacker) {
+        
+        int power = attacker.powerEquiped + attacker.buffPower;
+        int guard = defenser.guardEquiped + defenser.buffGuard;
+        int speedAttacker = attacker.speedEquiped + attacker.buffSpeed;
+        int speedDefenser = defenser.speedEquiped + defenser.buffSpeed;
         float diffPowerGuard = 0;
         // On vérifie si le power > guard
         if (power > guard) {
-            diffPowerGuard = (float) (power - guard) / 100;
+            diffPowerGuard = (float)(power - guard) / 100;
         }
 
         // On calcule le bonus d'affinité du monstre attaquant (+25% de dégâts si l'attaquant posséde la même affinité que l'attaque)
         float bonusAffinity = 1;
-        foreach(ElementalAffinity affinity in attacker.GetComponent<MonsterDisplay>().monster.elementalAffinity) {
+        foreach(ElementalAffinity affinity in attacker.monster.elementalAffinity) {
             if (affinity == attackAffinity) {
                 bonusAffinity = 1.25f;
                 break;
@@ -588,7 +615,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // On calcule le coef d'affinité max
-        float affinityCoef = coefAffinityMax(attackAffinity, target);
+        float affinityCoef = coefAffinityMax(attackAffinity, defenser.gameObject);
 
         // Calcule des dégâts avant les multiplicateurs
         float resultDamage = amountDamage * (1 + Mathf.Log(1 + diffPowerGuard) * 2 / 3);
@@ -604,12 +631,23 @@ public class GameManager : MonoBehaviour {
         return Mathf.RoundToInt(resultDamage);
     }
 
-    // Renvoi les dégats de base de l'attaque
-    public static List<int> getBaseDamage(string text) {
+    /// <summary>
+    /// Renvoi les dégats de base de l'attaque
+    /// </summary>
+    /// <param name="text">String a parser</param>
+    /// <param name="ally">TRUE si on cherche les dégâts de base contre une unité alliée</param>
+    /// <returns></returns>
+    public static List<int> getBaseDamage(string text, bool ally = false) {
         string pattern = @"\%D(\d+)";
+        string patternAlly = @"\%DA(\d+)";
         List<int> intList = new List<int>();
 
-        MatchCollection m = Regex.Matches(text, pattern, RegexOptions.IgnoreCase);
+        MatchCollection m;
+        if (ally) {
+            m = Regex.Matches(text, patternAlly, RegexOptions.IgnoreCase);
+        } else {
+            m = Regex.Matches(text, pattern, RegexOptions.IgnoreCase);
+        }
         foreach (Match m2 in m) {
             intList.Add(int.Parse(m2.Groups[1].Value));
         }
@@ -617,6 +655,57 @@ public class GameManager : MonoBehaviour {
         return intList;
     }
 
+    /// <summary>
+    /// Renvoi le string d'entré avec le calcule des dégâts réel
+    /// </summary>
+    /// <returns></returns>
+    public static string fullDamageIntegred(string textEffect, ElementalAffinity elementalAffinity, MonsterDisplay monsterOwner) {
+        string pattern = @"\%D\d+";
+        string patternAlly = @"\%DA\d+";
+        Regex regex;
+
+        string output = null;
+        regex = new Regex(pattern, RegexOptions.IgnoreCase);
+        foreach (int baseDamage in GameManager.getBaseDamage(textEffect, false)) {
+            int trueDamage = 0;
+            // Si le Owner n'est pas le monstre adverse
+            if (GameManager.GO_MonsterInvokedOppo == monsterOwner.gameObject) {
+                trueDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>(), elementalAffinity, baseDamage, GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
+            }
+            // Si le Owner est le monstre actif du joueur
+            else if (GameManager.GO_MonsterInvoked == monsterOwner.gameObject) {
+                trueDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>(), elementalAffinity, baseDamage, GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>());
+            }
+            // Si le Owner est un monstre inactif du joueur
+            else if (GameManager.GO_MonsterInvoked != monsterOwner.gameObject && !monsterOwner.ownedByOppo) {
+                trueDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>(), elementalAffinity, baseDamage, monsterOwner);
+            }
+          
+            if (output != null) {
+                output = regex.Replace(output, trueDamage.ToString(), 1);
+            } else {
+                output = regex.Replace(textEffect, trueDamage.ToString(), 1);
+            }
+        }
+        regex = new Regex(patternAlly, RegexOptions.IgnoreCase);
+        foreach (int baseDamage in GameManager.getBaseDamage(textEffect, true)) {
+            int trueDamage;
+            trueDamage = GameManager.calculateDamage(monsterOwner, elementalAffinity, baseDamage, monsterOwner);
+            
+            if (output != null) {
+                output = regex.Replace(output, trueDamage.ToString(), 1);
+            } else {
+                output = regex.Replace(textEffect, trueDamage.ToString(), 1);
+            }
+        }
+
+        return output;
+    }
+
+    // Event avant le swap du monstre allié
+    public static event Action<MonsterDisplay> OnSwapBefore;
+    // Event après le swap du monstre allié
+    public static event Action<MonsterDisplay> OnSwapAfter;
     // Change le monstre actif
     public void swapMonster(int indexMonster) {
         GameObject nextMonster = monstersGOList[indexMonster];
@@ -653,9 +742,25 @@ public class GameManager : MonoBehaviour {
         // On desactive le GO du précédent monstre
         GO_MonsterInvoked.SetActive(false);
 
+        // On désactive les effets passifs de la capacité
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().abilityDisplay.disablePassiveAbility();
+
+        // On active les listeners avant le swap
+        OnSwapBefore?.Invoke(GO_MonsterInvoked.GetComponent<MonsterDisplay>());
+        
+        //***************************** SWAP ************************************
+
         // On change de monstre actif
         nextMonster.SetActive(true);
         GO_MonsterInvoked = nextMonster;
+
+        //***************************** SWAP ************************************
+
+        // On active les listeners après le swap
+        OnSwapAfter?.Invoke(GO_MonsterInvoked.GetComponent<MonsterDisplay>());
+
+        // On active les effets passifs de la capacité
+        GO_MonsterInvoked.GetComponent<MonsterDisplay>().abilityDisplay.activePassiveAbility();
 
         // On instantie l'équipement du nouveau monstre
         instantiateEquipment(GO_MonsterInvoked);
@@ -677,6 +782,10 @@ public class GameManager : MonoBehaviour {
         GO_TeamArea.SetActive(false);
     }
 
+    // Event avant le swap du monstre adverse
+    public static event Action<MonsterDisplay> OnSwapOppoBefore;
+    // Event après le swap du monstre adverse
+    public static event Action<MonsterDisplay> OnSwapOppoAfter;
     public void swapMonsterOppo(int indexMonster) {
         GameObject nextMonster = monstersGOListOppo[indexMonster];
 
@@ -699,9 +808,25 @@ public class GameManager : MonoBehaviour {
         // On réinitialise le mana de l'ancien monstre
         GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().resetMana();
 
+        // On désactive les effets passifs de la capacité
+        GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().abilityDisplay.disablePassiveAbility();
+
+        // On active les listeners avant le swap
+        OnSwapOppoBefore?.Invoke(GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
+
+        //***************************** SWAP ************************************
+
         // On change de monstre actif
         nextMonster.SetActive(true);
         GO_MonsterInvokedOppo = nextMonster;
+
+        //***************************** SWAP ************************************
+
+        // On active les listeners après le swap
+        OnSwapOppoAfter?.Invoke(GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
+
+        // On active les effets passifs de la capacité
+        GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().abilityDisplay.activePassiveAbility();
 
         // On réinitialise le mana du nouveau monstre
         GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().resetMana();
@@ -714,6 +839,8 @@ public class GameManager : MonoBehaviour {
 
         // On actualise le deck et le cimetière
         // De l'adversaire
+
+        refreshTeamAreaLayout();
     }
 
     // Actualisation des dégâts affichés sur les cartes et capacités
@@ -830,21 +957,57 @@ public class GameManager : MonoBehaviour {
         GO_MonsterInvoked.GetComponent<MonsterDisplay>().resetMana();
     }
 
-    // DEBUG Ajoute 4 sbires aléatoires sur le terrain à l'oppo
+    // DEBUG Ajoute 4 sbires aléatoires sur le terrain de l'oppo
     public void debug_add4Sbire() {
+        //int i = 0;
+        //foreach(Transform slot in GO_CounterAttackAreaOppo.transform) {
+        //    if (slot.transform.GetChild(1).childCount > 0)
+        //        Destroy(slot.transform.GetChild(1).GetChild(0).gameObject);
+
+        //    GameObject newSbire = Instantiate(GO_Card, slot.transform.GetChild(1));
+        //    newSbire.GetComponent<CardDisplay>().card = sbireList[i];
+        //    newSbire.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
+        //    newSbire.GetComponent<CardDisplay>().status = CardStatus.SlotVisible;
+        //    newSbire.GetComponent<SbireDisplay>().invokeSbire();
+        //    newSbire.transform.localPosition = Vector3.zero;
+        //    newSbire.transform.localScale = Vector3.one;
+
+        //    i++;
+        //}
+
         int i = 0;
-        foreach(Transform slot in GO_CounterAttackAreaOppo.transform) {
+        foreach (Card sbire in sbireList) {
+            Transform slot = GO_CounterAttackAreaOppo.transform.GetChild(i);
             if (slot.transform.GetChild(1).childCount > 0)
                 Destroy(slot.transform.GetChild(1).GetChild(0).gameObject);
 
             GameObject newSbire = Instantiate(GO_Card, slot.transform.GetChild(1));
-            newSbire.GetComponent<CardDisplay>().card = sbireList[i];
-            newSbire.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo;
-            newSbire.GetComponent<CardDisplay>().ownedByOppo = true;
+            newSbire.GetComponent<CardDisplay>().card = sbire;
+            newSbire.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
             newSbire.GetComponent<CardDisplay>().status = CardStatus.SlotVisible;
             newSbire.GetComponent<SbireDisplay>().invokeSbire();
             newSbire.transform.localPosition = Vector3.zero;
             newSbire.transform.localScale = Vector3.one;
+
+            i++;
+        }
+    }
+
+    // DEBUG Ajoute 4 auras sur le terrain de l'oppo
+    public void debug_add4Aura() {
+        int i = 0;
+        foreach (Card aura in auraList) {
+            Transform slot = GO_AuraAreaOppo.transform.GetChild(i);
+            if (slot.transform.GetChild(1).childCount > 0)
+                Destroy(slot.transform.GetChild(1).GetChild(0).gameObject);
+
+            GameObject newAura = Instantiate(GO_Card, slot.transform.GetChild(1));
+            newAura.GetComponent<CardDisplay>().card = aura;
+            newAura.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
+            newAura.GetComponent<CardDisplay>().status = CardStatus.AuraSlot;
+            newAura.GetComponent<CardDisplay>().activeCard(GO_MonsterInvokedOppo);
+            newAura.transform.localPosition = Vector3.zero;
+            newAura.transform.localScale = Vector3.one;
 
             i++;
         }

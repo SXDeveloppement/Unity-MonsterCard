@@ -23,8 +23,7 @@ public class CardDisplay : MonoBehaviour
     public bool putOnBoardThisTurn = true;
     public bool putOnBoardThisTurnTemp = true;
 
-    public GameObject monsterOwnThis; // GO du monstre qui possède cette carte
-    public bool ownedByOppo;
+    public MonsterDisplay monsterOwnThis; // GO du monstre qui possède cette carte
 
     private bool init = true;
 
@@ -117,7 +116,7 @@ public class CardDisplay : MonoBehaviour
                     }
                 }
             } else {
-                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
+                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + monsterOwnThis.ownedByOppo.ToString());
             }
         }
 
@@ -135,10 +134,10 @@ public class CardDisplay : MonoBehaviour
             GameObject target = gameObject;
 
             if (abilityDisplay.loopTargetAllowed(target)) {
-                gameManager.activeAbilityOnTarget(abilityDisplay, target);
+                GameManager.activeAbilityOnTarget(abilityDisplay, target);
                 abilityIsDown = true;
             } else {
-                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
+                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + monsterOwnThis.ownedByOppo.ToString());
             }
         }
 
@@ -195,7 +194,7 @@ public class CardDisplay : MonoBehaviour
             gameObject.transform.parent.parent.GetComponent<SlotDisplay>().cardOnSlot = null;
         }
 
-        card.activeEffect(target);
+        card.activeEffect(target, monsterOwnThis);
         gameObject.GetComponent<ZoomCard2D>().destroyPlaceholder();
 
         // Si c'est une carte de Type.Spell ou Type.Echo
@@ -215,7 +214,7 @@ public class CardDisplay : MonoBehaviour
             gameObject.transform.parent.parent.GetComponentInChildren<EquipmentDisplay>().cardOnSlot = null;
         }
 
-        card.disableEffect();
+        card.disableEffect(monsterOwnThis);
         gameManager.inGrave(gameObject);
     }
 
@@ -265,53 +264,23 @@ public class CardDisplay : MonoBehaviour
         GetComponent<ZoomCard2D>().reinitCard();
     }
 
-    //// Renvoi les dégats de base de l'attaque
-    //public List<int> getBaseDamage() {
-    //    string pattern = @"\%D(\d+)";
-    //    List<int> intList = new List<int>();
-
-    //    MatchCollection m = Regex.Matches(cardDescriptionCached, pattern, RegexOptions.IgnoreCase);
-    //    foreach (Match m2 in m) {
-    //        intList.Add(int.Parse(m2.Groups[1].Value));
-    //    }
-
-    //    return intList;
-    //}
-
     // On met a jour la description de la carte avec les dégâts qui seront réellement infligés au monstre adverse
     public void refreshDescriptionDamage() {
         // Si c'est une carte sbire
         if (card.type == CardType.Sbire) {
             int sbireBasePower = card.sbirePowerPoint;
             int outputSbireDamage;
-            if (!ownedByOppo) {
-                outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo, card.elementalAffinity, sbireBasePower);
+            if (!monsterOwnThis.ownedByOppo) {
+                outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>(), card.elementalAffinity, sbireBasePower, GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>());
             } else {
-                outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvoked, card.elementalAffinity, sbireBasePower);
+                outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>(), card.elementalAffinity, sbireBasePower, GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
             }
             GetComponent<SbireDisplay>().sbirePowerAvailable = outputSbireDamage;
         }
         // Si c'est un sort
         else {
-            string pattern = @"\%D\d+";
-            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
-
-            string output = null;
-            foreach (int baseDamage in GameManager.getBaseDamage(cardDescriptionCached)) {
-                int trueDamage;
-                if (!ownedByOppo) {
-                    trueDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo, card.elementalAffinity, baseDamage);
-                } else {
-                    trueDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvoked, card.elementalAffinity, baseDamage);
-                }
-                if (output != null) {
-                    output = regex.Replace(output, trueDamage.ToString(), 1);
-                } else {
-                    output = regex.Replace(cardDescriptionCached, trueDamage.ToString(), 1);
-                }
-            }
-            if (output != null) {
-                descriptionText.text = output;
+            if (GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, monsterOwnThis) != null) {
+                descriptionText.text = GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, monsterOwnThis);
             }
         }
     }

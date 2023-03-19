@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class CardEffect : ScriptableObject
 {
-    public abstract void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity);
+    public abstract void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity, MonsterDisplay attacker);
 
-    public abstract void DisableEffect();
+    public abstract void DisableEffect(MonsterDisplay monsterDisplay);
 }

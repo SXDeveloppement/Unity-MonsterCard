@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class AbilityLayoutTeamDisplay : MonoBehaviour {
+public class AbilityLayoutTeamDisplay : MonoBehaviour
+{
     public Ability ability;
     public SpriteRenderer illustration;
     public TMP_Text textManaCost;
@@ -12,6 +15,8 @@ public class AbilityLayoutTeamDisplay : MonoBehaviour {
     public GameObject GO_ManaCost;
     public GameObject GO_Disable;
     public GameObject GO_DisableManaCost;
+    public GameObject GO_Tooltip;
+    public MonsterDisplay monsterOwnThis;
 
     public int cooldown; // Temps de rechargement de la capacité
     private int cooldownTemp;
@@ -25,12 +30,7 @@ public class AbilityLayoutTeamDisplay : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if (cooldown != cooldownTemp || manaCostModif != manaCostModifTemp) {
-            cooldownTemp = cooldown;
-            manaCostModifTemp = manaCostModif;
 
-            refreshDisplayAbility();
-        }
     }
 
     /// <summary>
@@ -38,21 +38,29 @@ public class AbilityLayoutTeamDisplay : MonoBehaviour {
     /// </summary>
     public void refreshDisplayAbility() {
         illustration.sprite = ability.illustration;
-        textTooltip.text = ability.description;
-
-        // On affiche le sprite du cout en mana
-        if (ability.manaCost >= 0) {
-            GO_ManaCost.SetActive(true);
-        }
         textManaCost.text = (ability.manaCost + manaCostModif).ToString();
         textCooldown.text = cooldown.ToString();
 
+        // On active l'affichage du cooldown si il est supèrieur a 0
         if (cooldown > 0) {
             GO_Disable.SetActive(true);
+            GO_DisableManaCost.SetActive(true);
+        } else {
+            GO_Disable.SetActive(false);
+            GO_DisableManaCost.SetActive(false);
+        }
 
-            if (ability.manaCost >= 0) {
-                GO_DisableManaCost.SetActive(true);
-            }
+        // Si c'est une capacité passive, on cache le cout en mana
+        if (ability.abilityType == AbilityType.Trigger || ability.abilityType == AbilityType.Global) {
+            GO_ManaCost.SetActive(false);
+            GO_DisableManaCost.SetActive(false);
+        }
+
+        // On modifie le texte de la capacité pour afficher les dégâts réels infligés
+        if (GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis) != null) {
+            textTooltip.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis);
+        } else {
+            textTooltip.text = ability.description;
         }
     }
 }

@@ -18,15 +18,15 @@ public class Ability : ScriptableObject
 
     public CardEffect[] effects;
 
-    public void activeEffect(GameObject target) {
+    public void activeEffect(GameObject target, MonsterDisplay attacker) {
         foreach (var effect in effects) {
-            effect.ExecuteEffect(target, elementalAffinity);
+            effect.ExecuteEffect(target, elementalAffinity, attacker);
         }
     }
 
-    public void disableEffect() {
+    public void disableEffect(MonsterDisplay monsterDisplay) {
         foreach (var effect in effects) {
-            effect.DisableEffect();
+            effect.DisableEffect(monsterDisplay);
         }
     }
 }

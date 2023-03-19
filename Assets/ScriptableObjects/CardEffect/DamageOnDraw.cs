@@ -7,16 +7,24 @@ public class DamageOnDraw : CardEffect
 {
     public int damageAmount;
 
-    public override void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity) {
-        GameManager.OnDraw += dealRawDamageOnDraw;
+    public override void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity, MonsterDisplay attacker) {
+        if (!attacker.ownedByOppo)
+            GameManager.OnDraw += dealRawDamageOnDraw;
+        else
+            GameManager.OnDrawOppo += dealRawDamageOnDraw;
     }
 
-    public override void DisableEffect() {
-        GameManager.OnDraw -= dealRawDamageOnDraw;
+    public override void DisableEffect(MonsterDisplay monsterDisplay) {
+        if (!monsterDisplay.ownedByOppo)
+            GameManager.OnDraw -= dealRawDamageOnDraw;
+        else
+            GameManager.OnDrawOppo -= dealRawDamageOnDraw;
     }
 
-    public void dealRawDamageOnDraw() {
-        GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().takeDamage(damageAmount);
+    public void dealRawDamageOnDraw(MonsterDisplay monsterDisplay) {
+        if (!monsterDisplay.ownedByOppo)
+            GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().takeDamage(damageAmount);
+        else
+            GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>().takeDamage(damageAmount);
     }
 }

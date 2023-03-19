@@ -97,6 +97,11 @@ public class MonsterDisplay : MonoBehaviour
         Ability[] DBAbility = Resources.LoadAll<Ability>("Abilities");
         Random rand2 = new Random();
         abilityDisplay.ability = DBAbility[rand2.Next(DBAbility.Length)];
+        abilityDisplay.monsterOwnThis = this;
+        // On active les effets passifs de la capacité si c'est un monstre actif
+        if (gameObject == GameManager.GO_MonsterInvoked || gameObject == GameManager.GO_MonsterInvokedOppo) {
+            abilityDisplay.activePassiveAbility();
+        }
 
         // Calcule power, guard et speed avec équipement
         calculeStatsEquiped();
@@ -232,7 +237,7 @@ public class MonsterDisplay : MonoBehaviour
             GameObject target = gameObject;
 
             if (abilityDisplay.loopTargetAllowed(target)) {
-                gameManager.activeAbilityOnTarget(abilityDisplay, target);
+                GameManager.activeAbilityOnTarget(abilityDisplay, target);
                 abilityIsDown = true;
             } else {
                 Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());

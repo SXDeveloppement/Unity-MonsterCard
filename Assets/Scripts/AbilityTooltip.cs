@@ -16,10 +16,20 @@ public class AbilityTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     }
 
     public void OnPointerEnter(PointerEventData eventData) {
-        GetComponent<AbilityDisplay>().GO_Tooltip.SetActive(true);
+        // Affichage du tooltip de la capacité sur le terrain
+        if (GetComponent<AbilityDisplay>() != null)
+            GetComponent<AbilityDisplay>().GO_Tooltip.SetActive(true);
+        // Affichage du tooltip de la capacité dans le fenêtre de team
+        else
+            GetComponent<AbilityLayoutTeamDisplay>().GO_Tooltip.SetActive(true);
     }
 
     public void OnPointerExit(PointerEventData eventData) {
-        GetComponent<AbilityDisplay>().GO_Tooltip.SetActive(false);
+        // Affichage du tooltip de la capacité sur le terrain
+        if (GetComponent<AbilityDisplay>() != null)
+            GetComponent<AbilityDisplay>().GO_Tooltip.SetActive(false);
+        // Affichage du tooltip de la capacité dans le fenêtre de team
+        else
+            GetComponent<AbilityLayoutTeamDisplay>().GO_Tooltip.SetActive(false);
     }
 }

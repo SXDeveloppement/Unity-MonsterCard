@@ -66,6 +66,7 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
         abilityDisplay.ability = monsterDisplay.abilityDisplay.ability;
         abilityDisplay.cooldown = monsterDisplay.abilityDisplay.cooldown;
         abilityDisplay.manaCostModif = monsterDisplay.abilityDisplay.manaCostModif;
+        abilityDisplay.monsterOwnThis = monsterLinked.GetComponent<MonsterDisplay>();
         abilityDisplay.refreshDisplayAbility();
     }
 

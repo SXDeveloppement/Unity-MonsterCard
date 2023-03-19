@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Echo01
   m_EditorClassIdentifier: 
   name: Echo01
-  description: Deal %D8 combat damage to target opponant monster
+  description: Deal %D20 combat damage to target opponant monster
   artwork: {fileID: 21300000, guid: f2a52843f1c2b394ca646533781099c2, type: 3}
   manaCost: 4
   priority: 1

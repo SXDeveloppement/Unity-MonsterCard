@@ -46,7 +46,9 @@ public class Draggable2D : MonoBehaviour
 
     private void OnMouseDown() {
         GameObject arrowEmitter = gameManager.ArrowEmitter;
-        if (GetComponent<CardDisplay>().status == CardStatus.Hand && !GetComponent<CardDisplay>().ownedByOppo && !GameManager.dragged) {
+        if (GetComponent<CardDisplay>().status == CardStatus.Hand 
+            && !GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo 
+            && !GameManager.dragged) {
             GameManager.dragged = true;
             isDragged = true;
 
@@ -63,7 +65,7 @@ public class Draggable2D : MonoBehaviour
             && GetComponent<CardDisplay>().status == CardStatus.SlotVisible 
             && GetComponent<CardDisplay>().card.type == CardType.Sbire
             && !GetComponent<SbireDisplay>().sbireHasAttacked 
-            && !GetComponent<CardDisplay>().ownedByOppo) {
+            && !GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo) {
             isHalfDragged = true;
             GameManager.dragged = true;
             transform.localPosition = Vector3.zero;
@@ -81,8 +83,10 @@ public class Draggable2D : MonoBehaviour
             Cursor.visible = false;
         }
         // Si c'est une carte "Echo" sur le terrain qui n'a pas été posé ce tour ci
-        else if (!GameManager.dragged && GetComponent<CardDisplay>().status == CardStatus.SlotVisible && GetComponent<CardDisplay>().card.type == CardType.Echo
-        && !GetComponent<CardDisplay>().putOnBoardThisTurn && !GetComponent<CardDisplay>().ownedByOppo) {
+        else if (!GameManager.dragged && GetComponent<CardDisplay>().status == CardStatus.SlotVisible 
+            && GetComponent<CardDisplay>().card.type == CardType.Echo
+            && !GetComponent<CardDisplay>().putOnBoardThisTurn 
+            && !GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo) {
             GameManager.dragged = true;
             isHalfDragged = true;
             arrowEmitter.SetActive(true);

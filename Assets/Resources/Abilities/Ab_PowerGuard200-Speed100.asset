@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fac821c6aedb62c4d820635e81996484, type: 3}
+  m_Name: Ab_PowerGuard200-Speed100
+  m_EditorClassIdentifier: 
+  name: Ab_PowerGuard200-Speed100
+  description: Ally monster have +200 Power, +200 Guard et +100 Speed
+  illustration: {fileID: 21300000, guid: 5d2f466380c313d41a5b5775b7726379, type: 3}
+  abilityType: 0
+  manaCost: -1
+  activationPerTurn: 0
+  cooldown: 0
+  elementalAffinity: 6
+  targetType: 
+  effects:
+  - {fileID: 11400000, guid: 05128a3aab52e004eb0748af2a9e879a, type: 2}

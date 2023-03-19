@@ -14,6 +14,7 @@ public class AbilityDisplay : MonoBehaviour
     public GameObject GO_Disable;
     public GameObject GO_DisableManaCost;
     public GameObject GO_Tooltip;
+    public MonsterDisplay monsterOwnThis; // Le MonsterDisplay qui possède cette capacité
 
     public int cooldown = 0; // Temps de rechargement de la capacité
     public int cooldownTemp;
@@ -47,6 +48,10 @@ public class AbilityDisplay : MonoBehaviour
                 activationLimited = true;
             } else {
                 activationLimited = false;
+            }
+
+            if (ability.abilityType == AbilityType.Trigger || ability.abilityType == AbilityType.Global) {
+                GO_ManaCost.SetActive(false);
             }
         }
 
@@ -84,6 +89,10 @@ public class AbilityDisplay : MonoBehaviour
         } else {
             GO_Disable.SetActive(false);
             GO_DisableManaCost.SetActive(false);
+        }
+
+        if (GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis) != null) {
+            textTooltip.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis);
         }
     }
 
@@ -123,10 +132,31 @@ public class AbilityDisplay : MonoBehaviour
     /// On active les effets de la capacité
     /// </summary>
     public void activeAbility(GameObject target) {
-        if (canBeActivated()) {
-            ability.activeEffect(target);
-            if (activationLimited)
-                remainingActivation--;
+        // Si c'est une capacité a activé
+        if (ability.abilityType == AbilityType.Active) {
+            if (canBeActivated()) {
+                ability.activeEffect(target, monsterOwnThis);
+                if (activationLimited)
+                    remainingActivation--;
+            }
+        }
+    }
+
+    /// <summary>
+    /// On active les effets de la capacité passive
+    /// </summary>
+    public void activePassiveAbility() {
+        if (ability.abilityType == AbilityType.Trigger || ability.abilityType == AbilityType.Global) {
+            ability.activeEffect(monsterOwnThis.gameObject, monsterOwnThis);
+        }
+    }
+
+    /// <summary>
+    /// On désactive les effets de la capacité passive
+    /// </summary>
+    public void disablePassiveAbility() {
+        if (ability.abilityType == AbilityType.Trigger || ability.abilityType == AbilityType.Global) {
+            ability.disableEffect(monsterOwnThis);
         }
     }
 

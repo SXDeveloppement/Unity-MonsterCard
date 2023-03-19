@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Destroy Aura", menuName = "ScriptableObjects/Effects/Destroy aura")]
 public class DestroyAura : CardEffect
 {
-    public override void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity) {
+    public override void ExecuteEffect(GameObject target, ElementalAffinity elementalAffinity, MonsterDisplay attacker) {
         GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         //target.GetComponent<CardDisplay>().destroyAura();
@@ -13,7 +13,7 @@ public class DestroyAura : CardEffect
         target.GetComponent<CardDisplay>().disableCard();
     }
 
-    public override void DisableEffect() {
+    public override void DisableEffect(MonsterDisplay monsterDisplay) {
         throw new System.NotImplementedException();
     }
 }

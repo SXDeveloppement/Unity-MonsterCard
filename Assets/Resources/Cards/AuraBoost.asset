@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b480d54f6da709468dcb6f6b44ffcd0, type: 3}
-  m_Name: ADElectric20
+  m_Name: AuraBoost
   m_EditorClassIdentifier: 
-  name: ADElectric20
-  description: Deal %D20 electric damages to target opponant unit.
-  artwork: {fileID: 21300000, guid: 5a74c7b6ea7456d40abc501a45981adf, type: 3}
-  manaCost: 2
+  name: AuraBoost
+  description: Ally monster gain +200 Power +200 Guard +100 Speed
+  artwork: {fileID: 21300000, guid: 5d2f466380c313d41a5b5775b7726379, type: 3}
+  manaCost: 1
   priority: 1
-  elementalAffinity: 2
-  type: 0
-  targetType: 01000000090000000b000000
+  elementalAffinity: 6
+  type: 2
+  targetType: 05000000
   from: 0
   effects:
-  - {fileID: 11400000, guid: dd4f070f6e9dd98439b5eb8ca19db54a, type: 2}
+  - {fileID: 11400000, guid: 05128a3aab52e004eb0748af2a9e879a, type: 2}
   sbirePowerPoint: -1
   sbireHealthPoint: -1
   sbirePassifEffects: 

@@ -64,7 +64,7 @@ public class Draggable2D : MonoBehaviour
         else if (!GameManager.dragged
             && GetComponent<CardDisplay>().status == CardStatus.SlotVisible 
             && GetComponent<CardDisplay>().card.type == CardType.Sbire
-            && !GetComponent<SbireDisplay>().sbireHasAttacked 
+            && !GetComponent<SbireDisplay>().sbireIsExhausted 
             && !GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo) {
             isHalfDragged = true;
             GameManager.dragged = true;

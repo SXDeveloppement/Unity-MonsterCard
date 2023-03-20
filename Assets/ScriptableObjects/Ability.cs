@@ -14,6 +14,7 @@ public class Ability : ScriptableObject
     public int activationPerTurn;
     public int cooldown;
     public ElementalAffinity elementalAffinity;
+    public int priority = 3;
     public TargetType[] targetType;
 
     public CardEffect[] effects;

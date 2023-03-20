@@ -209,8 +209,7 @@ public class MonsterDisplay : MonoBehaviour
 
                     if (!sbireHaveTaunt) {
                         GameManager.dragged = false;
-                        cardPlayed.GetComponent<SbireDisplay>().sbireHasAttacked = true;
-                        takeDamage(cardPlayed.GetComponent<SbireDisplay>().sbirePowerAvailable);
+                        cardPlayed.GetComponent<SbireDisplay>().fightMonster(this);
                     } else {
                         Debug.Log("ERR : Bad target, one sbire or more have Taunt");
                     }

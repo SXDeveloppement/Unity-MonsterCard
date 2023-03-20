@@ -9,38 +9,49 @@ using TMPro;
 using Random = System.Random;
 
 public class GameManager : MonoBehaviour {
-    public static bool dragged; // TRUE si on drag&drop une carte
-
+    
+    #region Public Prefabs
     public GameObject GO_Card; // Prefab
+    public GameObject GO_Monster; // Prefab
+    public GameObject GO_Equipment; // Prefab
+    public GameObject GO_BuffDebuff; // Prefab
+    #endregion
+
+    #region Public Area
     public GameObject GO_Hand;
     public GameObject GO_DeckText;
     public GameObject GO_GraveText;
     public GameObject GO_GravePlayerList;
-    public GameObject GO_Monster; // Prefab
     public GameObject GO_MonsterArea;
-    public static GameObject GO_MonsterInvoked;
-    public List<GameObject> monstersGOList; // Liste des GO de tous les monstres
     public GameObject GO_MonsterAreaOppo;
-    public static GameObject GO_MonsterInvokedOppo;
-    public List<GameObject> monstersGOListOppo; // Liste des GO de tous les monstres de l'adversaire
     public GameObject GO_MonsterTeamLayout;
     public GameObject GO_TeamArea;
     public GameObject GO_CounterAttackArea;
     public GameObject GO_CounterAttackAreaOppo;
     public GameObject GO_AuraArea;
     public GameObject GO_AuraAreaOppo;
-    public GameObject GO_Equipment; // Prefab
     public GameObject GO_EquipmentArea;
     public GameObject GO_EquipmentAreaOppo;
-    public GameObject GO_BuffDebuff; // Prefab
     public GameObject GO_BuffArea;
     public GameObject GO_DebuffArea;
     public GameObject GO_BuffAreaOppo;
     public GameObject GO_DebuffAreaOppo;
+    #endregion
 
     public Texture2D cursorTargetTexture; // Icon cursor lors d'un ciblage
     public Texture2D cursorNoTargetTexture; // Icon cursor lorsque la cible n'est pas valide
     public GameObject ArrowEmitter; // Fleche de ciblage dynamique
+
+    #region Public Static
+    public static bool dragged; // TRUE si on drag&drop une carte
+    public static GameObject GO_MonsterInvoked; // Le monstre actif du joueur
+    public static GameObject GO_MonsterInvokedOppo; // Le monstre actif de l'adversaire
+    public static List<GameObject> monstersGOList; // Liste des GO de tous les monstres
+    public static List<GameObject> monstersGOListOppo; // Liste des GO de tous les monstres de l'adversaire
+    public static bool playerTakenAction = false; // Le joueur a effectué une action
+    public static bool oppoTakenAction = false; // L'adversaire a effectué une action
+    public static List<Action> listActions; // Liste des actions en attentes
+    #endregion
 
     #region Dictionary Elemental Affinity
     static Dictionary<ElementalAffinity, float> fireDico;
@@ -52,7 +63,12 @@ public class GameManager : MonoBehaviour {
     static Dictionary<ElementalAffinity, float> neutralDico;
     #endregion
 
+    #region Private variable
     private bool init = true;
+    private bool firstTurn = true; // Si c'est le premier tour
+    private int timePhase = 20; // Temps d'une phase en seconde
+    #endregion
+
 
     // DEBUG
     public List<Card> sbireList;
@@ -133,6 +149,9 @@ public class GameManager : MonoBehaviour {
         GO_MonsterInvokedOppo = monstersGOListOppo[0];
 
         GO_TeamArea.SetActive(true);
+
+        // On lance le premier tour
+        StartCoroutine(newTurn());
     }
 
     // Update is called once per frame
@@ -193,42 +212,59 @@ public class GameManager : MonoBehaviour {
         // On active les listeners
         OnEndTurn?.Invoke();
 
-        newTurn();
+        StartCoroutine(newTurn());
     }
 
     // Event OnNewTurn
     public static event Action OnNewTurn;
-    // Commende un nouveau tour
-    public void newTurn() {
-        //draw(1);
-        GO_MonsterInvoked.GetComponent<MonsterDisplay>().newTurn();
+    // Commence un nouveau tour
+    public IEnumerator newTurn() {
 
-        // On passe les sbires sur le terrain en position repos
-        foreach (SbireDisplay sbireDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<SbireDisplay>()) {
-            if (sbireDisplay.sbireHealthAvailable > 0) {
-                sbireDisplay.newTurn();
+        // Si c'est le premier tour
+        if (firstTurn) {
+            firstTurn = false;
+        } 
+        // Si ce n'est pas le premier tour
+        else {
+            //draw(1);
+            GO_MonsterInvoked.GetComponent<MonsterDisplay>().newTurn();
+
+            // On passe les sbires sur le terrain en position repos
+            foreach (SbireDisplay sbireDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<SbireDisplay>()) {
+                if (sbireDisplay.sbireHealthAvailable > 0) {
+                    sbireDisplay.newTurn();
+                }
             }
-        }
-        foreach (SbireDisplay sbireDisplay in GO_CounterAttackAreaOppo.transform.GetComponentsInChildren<SbireDisplay>()) {
-            if (sbireDisplay.sbireHealthAvailable > 0) {
-                sbireDisplay.newTurn();
+            foreach (SbireDisplay sbireDisplay in GO_CounterAttackAreaOppo.transform.GetComponentsInChildren<SbireDisplay>()) {
+                if (sbireDisplay.sbireHealthAvailable > 0) {
+                    sbireDisplay.newTurn();
+                }
             }
+
+            // On passe les cartes "Echo" du terrain en position activable
+            foreach (CardDisplay cardDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<CardDisplay>()) {
+                if (cardDisplay.name != null) {
+                    cardDisplay.putOnBoardThisTurn = false;
+                }
+            }
+            foreach (CardDisplay cardDisplay in GO_CounterAttackAreaOppo.transform.GetComponentsInChildren<CardDisplay>()) {
+                if (cardDisplay.name != null) {
+                    cardDisplay.putOnBoardThisTurn = false;
+                }
+            }
+
+            // On active les listeners
+            OnNewTurn?.Invoke();
         }
 
-        // On passe les cartes "Echo" du terrain en position activable
-        foreach (CardDisplay cardDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<CardDisplay>()) {
-            if (cardDisplay.name != null) {
-                cardDisplay.putOnBoardThisTurn = false;
-            }
-        }
-        foreach (CardDisplay cardDisplay in GO_CounterAttackAreaOppo.transform.GetComponentsInChildren<CardDisplay>()) {
-            if (cardDisplay.name != null) {
-                cardDisplay.putOnBoardThisTurn = false;
-            }
+        while (timePhase >= 0) {
+            Debug.Log("Remaining " + timePhase + "s !");
+            timePhase--;
+            yield return new WaitForSeconds(1);
         }
 
-        // On active les listeners
-        OnNewTurn?.Invoke();
+        Debug.Log("End phase");
+        
     }
 
     // Event OnDraw

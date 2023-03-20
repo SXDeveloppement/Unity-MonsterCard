@@ -13,8 +13,8 @@ public class SbireDisplay : MonoBehaviour
     public TMP_Text sbirePowerPoint;
     public GameObject attackAura;
 
-    public bool sbireHasAttacked = true;
-    public bool sbireHasAttackedTemp = false;
+    public bool sbireIsExhausted = true;
+    public bool sbireIsExhaustedTemp = false;
 
     public int sbireHealthMax;
     public int sbireHealthAvailable;
@@ -44,9 +44,9 @@ public class SbireDisplay : MonoBehaviour
     void Update()
     {
         // On affiche l'aura d'attaque si il n'a pas attaqué ce tour
-        if (sbireHasAttacked != sbireHasAttackedTemp) {
-            sbireHasAttackedTemp = sbireHasAttacked;
-            attackAura.SetActive(!sbireHasAttacked);
+        if (sbireIsExhausted != sbireIsExhaustedTemp) {
+            sbireIsExhaustedTemp = sbireIsExhausted;
+            attackAura.SetActive(!sbireIsExhausted);
         }
 
         // On actualise la vie du sbire quand elle est modifié
@@ -90,14 +90,14 @@ public class SbireDisplay : MonoBehaviour
             }
         }
 
-        sbireHasAttacked = !haveHaste;
-        sbireHasAttackedTemp = !sbireHasAttacked;
+        sbireIsExhausted = !haveHaste;
+        sbireIsExhaustedTemp = !sbireIsExhausted;
     }
 
     // Lors d'un nouveau tour
     public void newTurn() {
-        sbireHasAttacked = false;
-        sbireHasAttackedTemp = !sbireHasAttacked;
+        sbireIsExhausted = false;
+        sbireIsExhaustedTemp = !sbireIsExhausted;
     }
 
     // Prendre des dégâts ou soin (si amountDamage < 0)
@@ -172,7 +172,7 @@ public class SbireDisplay : MonoBehaviour
             takeDamage(targetSbireDisplay.sbirePowerAvailable, haveTrample);
         }
 
-        sbireHasAttacked = true;
+        sbireIsExhausted = true;
     }
 
     // On actualise la vie du sbire
@@ -183,5 +183,16 @@ public class SbireDisplay : MonoBehaviour
     // On actualise la puissance du sbire
     public void refreshPowerPoint() {
         sbirePowerPoint.text = sbirePowerAvailable.ToString();
+    }
+
+    // Combat contre un monstre
+    public IEnumerator fightMonster(MonsterDisplay targetMonster) {
+        // On passe le monstre en épuisé
+        sbireIsExhausted = true;
+
+        // On inflige au monstre un nombre de dégât égal a la puissance du sbire
+        targetMonster.takeDamage(sbirePowerAvailable);
+
+        yield return null;
     }
 }

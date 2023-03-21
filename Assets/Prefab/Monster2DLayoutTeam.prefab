@@ -3414,6 +3414,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3317279633357488865}
   - component: {fileID: 9222182310471364445}
+  - component: {fileID: -711675932759397995}
   m_Layer: 0
   m_Name: Monster2DLayoutTeam
   m_TagString: Untagged
@@ -3471,6 +3472,20 @@ MonoBehaviour:
   buttonSwap: {fileID: 5662503271051177422}
   illustrationAbility: {fileID: 7383542771478990919}
   abilityDisplay: {fileID: 3220231986457604110}
+--- !u!114 &-711675932759397995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7582068438175370699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de68298a3188aad4792f972c1846018e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ownedByOppo: 0
+  monsterOwnThis: {fileID: 0}
 --- !u!1 &7597537004652065485
 GameObject:
   m_ObjectHideFlags: 0
@@ -4076,7 +4091,7 @@ MonoBehaviour:
   GO_Disable: {fileID: 3413258144018999507}
   GO_DisableManaCost: {fileID: 5709841093621783172}
   GO_Tooltip: {fileID: 4924013690883743348}
-  ownedByOppo: 0
+  monsterOwnThis: {fileID: 0}
   cooldown: 0
   manaCostModif: 0
 --- !u!114 &3368515057443084568

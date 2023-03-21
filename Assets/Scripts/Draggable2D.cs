@@ -47,7 +47,7 @@ public class Draggable2D : MonoBehaviour
     private void OnMouseDown() {
         GameObject arrowEmitter = gameManager.ArrowEmitter;
         if (GetComponent<CardDisplay>().status == CardStatus.Hand 
-            && !GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo 
+            && !GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo 
             && !GameManager.dragged) {
             GameManager.dragged = true;
             isDragged = true;
@@ -65,7 +65,7 @@ public class Draggable2D : MonoBehaviour
             && GetComponent<CardDisplay>().status == CardStatus.SlotVisible 
             && GetComponent<CardDisplay>().card.type == CardType.Sbire
             && !GetComponent<SbireDisplay>().sbireIsExhausted 
-            && !GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo) {
+            && !GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
             isHalfDragged = true;
             GameManager.dragged = true;
             transform.localPosition = Vector3.zero;
@@ -86,7 +86,7 @@ public class Draggable2D : MonoBehaviour
         else if (!GameManager.dragged && GetComponent<CardDisplay>().status == CardStatus.SlotVisible 
             && GetComponent<CardDisplay>().card.type == CardType.Echo
             && !GetComponent<CardDisplay>().putOnBoardThisTurn 
-            && !GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo) {
+            && !GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
             GameManager.dragged = true;
             isHalfDragged = true;
             arrowEmitter.SetActive(true);

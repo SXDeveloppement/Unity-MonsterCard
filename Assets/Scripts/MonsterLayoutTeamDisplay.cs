@@ -6,7 +6,7 @@ using TMPro;
 
 public class MonsterLayoutTeamDisplay : MonoBehaviour
 {
-    public GameObject monsterLinked;
+    //public GameObject monsterLinked;
 
     public SpriteRenderer illustration;
     public TMP_Text powerText;
@@ -31,7 +31,7 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
         transform.localPosition = Vector3.zero;
         transform.localScale = new Vector3(0.35f, 0.35f, 1);
 
-        MonsterDisplay monsterDisplay = monsterLinked.GetComponent<MonsterDisplay>();
+        MonsterDisplay monsterDisplay = GetComponent<OwnedByOppo>().monsterOwnThis;
         illustration.sprite = monsterDisplay.illustration.sprite;
         powerText.text = monsterDisplay.getPowerPointString();
         guardText.text = monsterDisplay.getGuardPointString();
@@ -66,7 +66,7 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
         abilityDisplay.ability = monsterDisplay.abilityDisplay.ability;
         abilityDisplay.cooldown = monsterDisplay.abilityDisplay.cooldown;
         abilityDisplay.manaCostModif = monsterDisplay.abilityDisplay.manaCostModif;
-        abilityDisplay.monsterOwnThis = monsterLinked.GetComponent<MonsterDisplay>();
+        abilityDisplay.monsterOwnThis = GetComponent<OwnedByOppo>().monsterOwnThis;
         abilityDisplay.refreshDisplayAbility();
     }
 

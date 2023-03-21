@@ -20,15 +20,19 @@ public class DraggableAbility : MonoBehaviour, IPointerClickHandler
 
     }
 
+    // On peut activé la capacité avec un clique si elle n'a pas besoin de cible, qu'elle ne soit pas en cooldown et qu'elle ne soit pas possédée par l'adversaire
     public void OnPointerClick(PointerEventData eventData) {
-        if (GetComponent<AbilityDisplay>().ability.targetType.Length <= 0 && GetComponent<AbilityDisplay>().cooldown <= 0) {
+        if (GetComponent<AbilityDisplay>().ability.targetType.Length <= 0 
+            && GetComponent<AbilityDisplay>().cooldown <= 0
+            && !GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
             GameManager.activeAbilityOnTarget(GetComponent<AbilityDisplay>(), GameManager.GO_MonsterInvoked);
         }
     }
 
     private void OnMouseDown() {
-        if (GetComponent<AbilityDisplay>().cooldown <= 0 && !GetComponent<AbilityDisplay>().monsterOwnThis.ownedByOppo && GetComponent<AbilityDisplay>().ability.targetType.Length > 0) {
-            GameManager.dragged = true;
+        //if (GetComponent<AbilityDisplay>().cooldown <= 0 && !GetComponent<AbilityDisplay>().monsterOwnThis.ownedByOppo && GetComponent<AbilityDisplay>().ability.targetType.Length > 0) {
+        if (GetComponent<AbilityDisplay>().cooldown <= 0 && !GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo && GetComponent<AbilityDisplay>().ability.targetType.Length > 0) {
+                GameManager.dragged = true;
             isDragged = true;
 
             GameObject arrowEmitter = FindAnyObjectByType<GameManager>().ArrowEmitter;

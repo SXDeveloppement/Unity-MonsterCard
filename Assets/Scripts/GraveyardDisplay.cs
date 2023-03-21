@@ -78,7 +78,8 @@ public class GraveyardDisplay : MonoBehaviour, IScrollHandler
                 newCardInGrave.transform.localScale = new Vector3(1.5f, 1.5f, 1);
                 newCardInGrave.transform.localPosition = Vector3.zero;
                 newCardInGrave.GetComponent<CardDisplay>().status = CardStatus.Graveyard;
-                newCardInGrave.GetComponent<CardDisplay>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
+                //newCardInGrave.GetComponent<CardDisplay>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
+                newCardInGrave.GetComponent<OwnedByOppo>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
             }
 
         scrollbar.GetComponent<ScrollBarDisplay>().initScrollbar(maxPage, page);

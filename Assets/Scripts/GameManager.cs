@@ -36,21 +36,24 @@ public class GameManager : MonoBehaviour {
     public GameObject GO_DebuffArea;
     public GameObject GO_BuffAreaOppo;
     public GameObject GO_DebuffAreaOppo;
+    public TimerDisplay timerDisplay;
     #endregion
 
     public Texture2D cursorTargetTexture; // Icon cursor lors d'un ciblage
     public Texture2D cursorNoTargetTexture; // Icon cursor lorsque la cible n'est pas valide
     public GameObject ArrowEmitter; // Fleche de ciblage dynamique
+    public List<GameObject> monstersGOList; // Liste des GO de tous les monstres
+    public List<GameObject> monstersGOListOppo; // Liste des GO de tous les monstres de l'adversaire
+    public List<ActionPlayer> listActions; // Liste des actions en attentes
+    public ActionPlayer playerAction = null; // L'action du joueur
+    public ActionPlayer oppoAction = null; // L'action de l'adversaire
 
     #region Public Static
     public static bool dragged; // TRUE si on drag&drop une carte
     public static GameObject GO_MonsterInvoked; // Le monstre actif du joueur
     public static GameObject GO_MonsterInvokedOppo; // Le monstre actif de l'adversaire
-    public static List<GameObject> monstersGOList; // Liste des GO de tous les monstres
-    public static List<GameObject> monstersGOListOppo; // Liste des GO de tous les monstres de l'adversaire
     public static bool playerTakenAction = false; // Le joueur a effectué une action
     public static bool oppoTakenAction = false; // L'adversaire a effectué une action
-    public static List<Action> listActions; // Liste des actions en attentes
     #endregion
 
     #region Dictionary Elemental Affinity
@@ -66,7 +69,7 @@ public class GameManager : MonoBehaviour {
     #region Private variable
     private bool init = true;
     private bool firstTurn = true; // Si c'est le premier tour
-    private int timePhase = 20; // Temps d'une phase en seconde
+    private const int TIME_PHASE = 10; // Temps d'une phase en seconde
     #endregion
 
 
@@ -114,7 +117,7 @@ public class GameManager : MonoBehaviour {
                 // On instantie le monstre dans la fenêtre d'équipe du joueur
                 GameObject newMonsterTeamLayout = Instantiate(GO_MonsterTeamLayout, GO_TeamArea.GetComponent<TeamLayoutDisplay>().layoutArea.transform);
                 newMonsterTeamLayout.name = "MonsterTeamLayout";
-                newMonsterTeamLayout.GetComponent<MonsterLayoutTeamDisplay>().monsterLinked = newMonster;
+                newMonsterTeamLayout.GetComponent<OwnedByOppo>().monsterOwnThis = newMonster.GetComponent<MonsterDisplay>();
                 newMonster.GetComponent<MonsterDisplay>().monsterLayoutTeamLinked = newMonsterTeamLayout;
             }
             i++;
@@ -151,7 +154,7 @@ public class GameManager : MonoBehaviour {
         GO_TeamArea.SetActive(true);
 
         // On lance le premier tour
-        StartCoroutine(newTurn());
+        newTurn();
     }
 
     // Update is called once per frame
@@ -184,7 +187,7 @@ public class GameManager : MonoBehaviour {
                 GameObject slotEquipment = GO_EquipmentAreaOppo.transform.GetChild(i).GetChild(0).gameObject;
                 newEquipment.transform.SetParent(slotEquipment.transform);
             }
-            newEquipment.GetComponent<EquipmentDisplay>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
+            newEquipment.GetComponent<OwnedByOppo>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
             newEquipment.transform.localScale = Vector3.one;
             newEquipment.transform.localPosition = Vector3.zero;
 
@@ -192,7 +195,7 @@ public class GameManager : MonoBehaviour {
             if (monster.GetComponent<MonsterDisplay>().cardEnchantments[i].name != null) {
                 GameObject newCardEnchantment = Instantiate(GO_Card);
                 newCardEnchantment.GetComponent<CardDisplay>().card = monster.GetComponent<MonsterDisplay>().cardEnchantments[i];
-                newCardEnchantment.GetComponent<CardDisplay>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
+                newCardEnchantment.GetComponent<OwnedByOppo>().monsterOwnThis = monster.GetComponent<MonsterDisplay>();
                 newEquipment.GetComponent<EquipmentDisplay>().cardOnSlot = newCardEnchantment;
                 newCardEnchantment.GetComponent<CardDisplay>().putOnBoard(newEquipment, true);
             }
@@ -204,6 +207,7 @@ public class GameManager : MonoBehaviour {
     public static event Action OnEndTurn;
     // Termine le tour en cours
     public void endTurn() {
+        Debug.Log("New turn");
         // On retire un tour au buff / debuff
         buffDebuffAddTurn(-1);
         buffDebuffAddTurnOppo(-1);
@@ -212,13 +216,13 @@ public class GameManager : MonoBehaviour {
         // On active les listeners
         OnEndTurn?.Invoke();
 
-        StartCoroutine(newTurn());
+        newTurn();
     }
 
     // Event OnNewTurn
     public static event Action OnNewTurn;
     // Commence un nouveau tour
-    public IEnumerator newTurn() {
+    public void newTurn() {
 
         // Si c'est le premier tour
         if (firstTurn) {
@@ -257,14 +261,72 @@ public class GameManager : MonoBehaviour {
             OnNewTurn?.Invoke();
         }
 
-        while (timePhase >= 0) {
-            Debug.Log("Remaining " + timePhase + "s !");
-            timePhase--;
-            yield return new WaitForSeconds(1);
-        }
+        // On commence les phases d'actions
+        StartCoroutine(phaseAction());
+    }
 
-        Debug.Log("End phase");
-        
+    // Phase dans un tour
+    public IEnumerator phaseAction() {
+        // On commence une phase
+        listActions = new List<ActionPlayer>();
+        playerAction = null;
+        oppoAction = null;
+        while (true) {
+            Debug.Log("New Phase");
+            // On active l'affichage du timer
+            int timePhase = TIME_PHASE;
+            StartCoroutine(timerDisplay.startTimerAt(timePhase));
+            while (timePhase > 0) {
+                timePhase--;
+                yield return new WaitForSeconds(1);
+            }
+
+            // On fait passer les joueurs qui n'ont fait aucune action
+            if (playerAction == null) {
+                ActionPlayer skipAction = ActionPlayer.ActionPlayerCreate(GO_MonsterInvoked, GO_MonsterInvoked, true);
+                listActions.Add(skipAction);
+                playerAction = skipAction;
+            }
+            if (oppoAction == null) {
+                ActionPlayer skipAction = ActionPlayer.ActionPlayerCreate(GO_MonsterInvokedOppo, GO_MonsterInvokedOppo, true);
+                listActions.Add(skipAction);
+                oppoAction = skipAction;
+            }
+
+            // On classe listActions par ordre de priorité decroissant
+            listActions.Sort((x, y) => {
+                return y.CalculatePriority().CompareTo(x.CalculatePriority());
+            });
+            // On active les actions des joueurs
+            bool finishTurn = false;
+            bool previousActionisSkiped = false;
+            foreach (ActionPlayer actionPlayer in listActions) {
+                // Si les deux joueurs passe le tour, on lance le prochain tour
+                if (actionPlayer.skip && previousActionisSkiped) {
+                    finishTurn = true;
+                    break;
+                }
+                // Si l'action n'est pas de passer ou de changé de monstre
+                if (!actionPlayer.skip) {
+                    actionPlayer.Active();
+                }
+                // Si c'est une action de passé
+                else if (actionPlayer.skip) {
+                    previousActionisSkiped = true;
+                }
+                yield return new WaitForSeconds(1);
+            }
+
+            listActions = new List<ActionPlayer>();
+            playerAction = null;
+            oppoAction = null;
+
+            // Si les deux joueurs ont passé, on fini le tour
+            if (finishTurn) {
+                endTurn();
+                break;
+            }
+        }
     }
 
     // Event OnDraw
@@ -280,7 +342,7 @@ public class GameManager : MonoBehaviour {
                 newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
                 newCard.name = newCard.GetComponent<CardDisplay>().card.name;
                 newCard.GetComponent<CardDisplay>().status = CardStatus.Hand;
-                newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked.GetComponent<MonsterDisplay>();
+                newCard.GetComponent<OwnedByOppo>().monsterOwnThis = GO_MonsterInvoked.GetComponent<MonsterDisplay>();
                 GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
             }
             refreshDeckText();
@@ -334,7 +396,7 @@ public class GameManager : MonoBehaviour {
     // Envoi une carte au cimetière
     public void inGrave(GameObject activedCard) {
         CardDisplay cardDisplay = activedCard.GetComponent<CardDisplay>();
-        MonsterDisplay monsterDisplay = cardDisplay.monsterOwnThis;
+        MonsterDisplay monsterDisplay = cardDisplay.GetComponent<OwnedByOppo>().monsterOwnThis;
         monsterDisplay.graveList.Add(cardDisplay.card);
 
         // On classe la liste des carte du cimetière par ordre alpha sur le nom de la carte
@@ -343,7 +405,7 @@ public class GameManager : MonoBehaviour {
         Destroy(activedCard);
         dragged = false;
 
-        if (cardDisplay.monsterOwnThis == GO_MonsterInvoked.GetComponent<MonsterDisplay>()) {
+        if (cardDisplay.GetComponent<OwnedByOppo>().monsterOwnThis == GO_MonsterInvoked.GetComponent<MonsterDisplay>()) {
             refreshGraveText();
         }
     }
@@ -359,7 +421,7 @@ public class GameManager : MonoBehaviour {
         foreach (Transform child in layoutTeam.transform) {
             int indexChild = child.GetSiblingIndex();
             MonsterLayoutTeamDisplay monsterLayoutTeamDisplay = child.gameObject.GetComponent<MonsterLayoutTeamDisplay>();
-            MonsterDisplay monsterDisplay = monsterLayoutTeamDisplay.monsterLinked.GetComponent<MonsterDisplay>();
+            MonsterDisplay monsterDisplay = monsterLayoutTeamDisplay.GetComponent<OwnedByOppo>().monsterOwnThis;
             monsterLayoutTeamDisplay.refreshMonsterUI();
         }
 
@@ -386,7 +448,14 @@ public class GameManager : MonoBehaviour {
         // Si ce n'est pas une carte ECHO
         if (cardPlayed.GetComponent<CardDisplay>().card.manaCost <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable
             && cardPlayed.GetComponent<CardDisplay>().card.type != CardType.Echo) {
-            cardPlayed.GetComponent<CardDisplay>().activeCard(target);
+            ActionPlayer actionPlayer = ActionPlayer.ActionPlayerCreate(cardPlayed, target);
+            listActions.Add(actionPlayer);
+            if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+                playerAction = actionPlayer;
+            } else {
+                oppoAction = actionPlayer;
+            }
+            //cardPlayed.GetComponent<CardDisplay>().activeCard(target);
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= cardPlayed.GetComponent<CardDisplay>().card.manaCost;
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
         } 
@@ -396,6 +465,16 @@ public class GameManager : MonoBehaviour {
         } else {
             // On affiche un message d'erreur
             Debug.Log("ERR : no mana available");
+        }
+    }
+
+    // Ajoute une action a la liste d'action
+    public void addActionToList(ActionPlayer actionPlayer) {
+        listActions.Add(actionPlayer);
+        if (!actionPlayer.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+
+        } else {
+
         }
     }
 
@@ -411,7 +490,7 @@ public class GameManager : MonoBehaviour {
                 // De sbire
                 if (targetCardDisplay.card.type == CardType.Sbire) {
                     // Que le joueur controle
-                    if (!targetCardDisplay.monsterOwnThis.ownedByOppo)
+                    if (!targetCardDisplay.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo)
                         return TargetType.PlayerCardSbire;
                     // Que l'opposant controle
                     else
@@ -420,7 +499,7 @@ public class GameManager : MonoBehaviour {
                 // D'aura
                 else if (targetCardDisplay.card.type == CardType.Aura) {
                     // Que le joueur controle
-                    if (!targetCardDisplay.monsterOwnThis.ownedByOppo)
+                    if (!targetCardDisplay.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo)
                         return TargetType.PlayerCardAura;
                     // Que l'opposant controle
                     else
@@ -429,7 +508,7 @@ public class GameManager : MonoBehaviour {
                 // D'enchantement
                 else if (targetCardDisplay.card.type == CardType.Enchantment) {
                     // Que le joueur controle
-                    if (!targetCardDisplay.monsterOwnThis.ownedByOppo)
+                    if (!targetCardDisplay.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo)
                         return TargetType.PlayerCardEnchantment;
                     // Que l'opposant controle
                     else
@@ -455,7 +534,7 @@ public class GameManager : MonoBehaviour {
             EquipmentDisplay targetEquipmentDisplay = target.GetComponent<EquipmentDisplay>();
 
             // Que le joueur controle
-            if (!targetEquipmentDisplay.monsterOwnThis.ownedByOppo) {
+            if (!targetEquipmentDisplay.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
                 return TargetType.PlayerEquipment;
             } else {
                 return TargetType.OpponantEquipment;
@@ -615,7 +694,7 @@ public class GameManager : MonoBehaviour {
     private static float coefAffinityMax(ElementalAffinity affinityAttack, GameObject target) {
         if (target.GetComponent<CardDisplay>() != null)
             if (target.GetComponent<CardDisplay>().card.type == CardType.Sbire)
-                target = target.GetComponent<CardDisplay>().monsterOwnThis.gameObject;
+                target = target.GetComponent<OwnedByOppo>().monsterOwnThis.gameObject;
 
         float coefMax = 0;
         foreach(ElementalAffinity affinityDefenser in target.GetComponent<MonsterDisplay>().monster.elementalAffinity) {
@@ -995,22 +1074,6 @@ public class GameManager : MonoBehaviour {
 
     // DEBUG Ajoute 4 sbires aléatoires sur le terrain de l'oppo
     public void debug_add4Sbire() {
-        //int i = 0;
-        //foreach(Transform slot in GO_CounterAttackAreaOppo.transform) {
-        //    if (slot.transform.GetChild(1).childCount > 0)
-        //        Destroy(slot.transform.GetChild(1).GetChild(0).gameObject);
-
-        //    GameObject newSbire = Instantiate(GO_Card, slot.transform.GetChild(1));
-        //    newSbire.GetComponent<CardDisplay>().card = sbireList[i];
-        //    newSbire.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
-        //    newSbire.GetComponent<CardDisplay>().status = CardStatus.SlotVisible;
-        //    newSbire.GetComponent<SbireDisplay>().invokeSbire();
-        //    newSbire.transform.localPosition = Vector3.zero;
-        //    newSbire.transform.localScale = Vector3.one;
-
-        //    i++;
-        //}
-
         int i = 0;
         foreach (Card sbire in sbireList) {
             Transform slot = GO_CounterAttackAreaOppo.transform.GetChild(i);
@@ -1019,7 +1082,7 @@ public class GameManager : MonoBehaviour {
 
             GameObject newSbire = Instantiate(GO_Card, slot.transform.GetChild(1));
             newSbire.GetComponent<CardDisplay>().card = sbire;
-            newSbire.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
+            newSbire.GetComponent<OwnedByOppo>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
             newSbire.GetComponent<CardDisplay>().status = CardStatus.SlotVisible;
             newSbire.GetComponent<SbireDisplay>().invokeSbire();
             newSbire.transform.localPosition = Vector3.zero;
@@ -1039,7 +1102,7 @@ public class GameManager : MonoBehaviour {
 
             GameObject newAura = Instantiate(GO_Card, slot.transform.GetChild(1));
             newAura.GetComponent<CardDisplay>().card = aura;
-            newAura.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
+            newAura.GetComponent<OwnedByOppo>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
             newAura.GetComponent<CardDisplay>().status = CardStatus.AuraSlot;
             newAura.GetComponent<CardDisplay>().activeCard(GO_MonsterInvokedOppo);
             newAura.transform.localPosition = Vector3.zero;

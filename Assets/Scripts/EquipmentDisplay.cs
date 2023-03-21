@@ -17,7 +17,7 @@ public class EquipmentDisplay : MonoBehaviour
     public SpriteRenderer illustration;
 
     public int slotId;
-    public MonsterDisplay monsterOwnThis;
+    //public MonsterDisplay monsterOwnThis;
     public GameObject slotCard;
     public GameObject cardOnSlot;
 
@@ -62,7 +62,7 @@ public class EquipmentDisplay : MonoBehaviour
                         isPutOnBoard = true;
                     }
                 } else {
-                    Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + monsterOwnThis.ownedByOppo.ToString());
+                    Debug.Log("ERR : bad target [" + targetSlot.name + "] / ownByOppo = " + GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo.ToString());
                 }
             }
         }

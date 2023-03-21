@@ -97,7 +97,8 @@ public class MonsterDisplay : MonoBehaviour
         Ability[] DBAbility = Resources.LoadAll<Ability>("Abilities");
         Random rand2 = new Random();
         abilityDisplay.ability = DBAbility[rand2.Next(DBAbility.Length)];
-        abilityDisplay.monsterOwnThis = this;
+        //abilityDisplay.monsterOwnThis = this;
+        abilityDisplay.GetComponent<OwnedByOppo>().monsterOwnThis = this;
         // On active les effets passifs de la capacité si c'est un monstre actif
         if (gameObject == GameManager.GO_MonsterInvoked || gameObject == GameManager.GO_MonsterInvokedOppo) {
             abilityDisplay.activePassiveAbility();
@@ -215,6 +216,7 @@ public class MonsterDisplay : MonoBehaviour
                     }
                 
                 } else {
+                    Debug.Log("Card on monster");
                     gameManager.activeCardOnTarget(cardPlayed, target);
                 }
             } else {
@@ -384,6 +386,11 @@ public class MonsterDisplay : MonoBehaviour
             speed += equipment.speedPoint;
         }
         speedEquiped = speed;
+    }
+
+    // Renvoi le la speed total du monstre
+    public int totalSpeed() {
+        return speedEquiped + buffSpeed;
     }
 
     //*********** ACTUALISATION de l'UI ***************//

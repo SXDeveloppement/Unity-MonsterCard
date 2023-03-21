@@ -106,7 +106,8 @@ public class SbireDisplay : MonoBehaviour
 
         // Si l'attaquant a le piétinement, on inflige le surplus de dégâts au monstre adverse
         if (attackerHasTrample && sbireHealthAvailable < 0) {
-            GetComponent<CardDisplay>().monsterOwnThis.takeDamage(Mathf.Abs(sbireHealthAvailable));
+            //GetComponent<CardDisplay>().monsterOwnThis.takeDamage(Mathf.Abs(sbireHealthAvailable));
+            GetComponent<OwnedByOppo>().monsterOwnThis.takeDamage(Mathf.Abs(sbireHealthAvailable));
         }
 
         if (sbireHealthAvailable < 0) {

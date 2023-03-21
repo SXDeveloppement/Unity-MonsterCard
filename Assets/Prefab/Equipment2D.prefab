@@ -776,6 +776,7 @@ GameObject:
   - component: {fileID: 4444694765859320513}
   - component: {fileID: 9037063412618865365}
   - component: {fileID: 3573569114173754747}
+  - component: {fileID: 6018784751797422047}
   m_Layer: 0
   m_Name: Equipment2D
   m_TagString: Untagged
@@ -870,7 +871,23 @@ MonoBehaviour:
   artworkImage: {fileID: 0}
   illustration: {fileID: 1697231213418870022}
   slotId: 0
+  monsterOwnThis: {fileID: 0}
+  slotCard: {fileID: 0}
+  cardOnSlot: {fileID: 0}
+--- !u!114 &6018784751797422047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4111061924981219626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de68298a3188aad4792f972c1846018e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   ownedByOppo: 0
+  monsterOwnThis: {fileID: 0}
 --- !u!1 &4769410755870425097
 GameObject:
   m_ObjectHideFlags: 0

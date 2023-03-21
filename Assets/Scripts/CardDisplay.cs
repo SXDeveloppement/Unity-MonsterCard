@@ -23,7 +23,7 @@ public class CardDisplay : MonoBehaviour
     public bool putOnBoardThisTurn = true;
     public bool putOnBoardThisTurnTemp = true;
 
-    public MonsterDisplay monsterOwnThis; // GO du monstre qui possède cette carte
+    //public MonsterDisplay monsterOwnThis; // GO du monstre qui possède cette carte
 
     private bool init = true;
 
@@ -116,7 +116,7 @@ public class CardDisplay : MonoBehaviour
                     }
                 }
             } else {
-                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + monsterOwnThis.ownedByOppo.ToString());
+                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo.ToString());
             }
         }
 
@@ -137,7 +137,7 @@ public class CardDisplay : MonoBehaviour
                 GameManager.activeAbilityOnTarget(abilityDisplay, target);
                 abilityIsDown = true;
             } else {
-                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + monsterOwnThis.ownedByOppo.ToString());
+                Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo.ToString());
             }
         }
 
@@ -194,7 +194,7 @@ public class CardDisplay : MonoBehaviour
             gameObject.transform.parent.parent.GetComponent<SlotDisplay>().cardOnSlot = null;
         }
 
-        card.activeEffect(target, monsterOwnThis);
+        card.activeEffect(target, GetComponent<OwnedByOppo>().monsterOwnThis);
         gameObject.GetComponent<ZoomCard2D>().destroyPlaceholder();
 
         // Si c'est une carte de Type.Spell ou Type.Echo
@@ -214,7 +214,7 @@ public class CardDisplay : MonoBehaviour
             gameObject.transform.parent.parent.GetComponentInChildren<EquipmentDisplay>().cardOnSlot = null;
         }
 
-        card.disableEffect(monsterOwnThis);
+        card.disableEffect(GetComponent<OwnedByOppo>().monsterOwnThis);
         gameManager.inGrave(gameObject);
     }
 
@@ -270,7 +270,7 @@ public class CardDisplay : MonoBehaviour
         if (card.type == CardType.Sbire) {
             int sbireBasePower = card.sbirePowerPoint;
             int outputSbireDamage;
-            if (!monsterOwnThis.ownedByOppo) {
+            if (!GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
                 outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>(), card.elementalAffinity, sbireBasePower, GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>());
             } else {
                 outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>(), card.elementalAffinity, sbireBasePower, GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
@@ -279,8 +279,8 @@ public class CardDisplay : MonoBehaviour
         }
         // Si c'est un sort
         else {
-            if (GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, monsterOwnThis) != null) {
-                descriptionText.text = GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, monsterOwnThis);
+            if (GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis) != null) {
+                descriptionText.text = GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis);
             }
         }
     }

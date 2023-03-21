@@ -10,7 +10,8 @@ public class DestroyEnchantment : CardEffect
 
         // On efface l'enchantement de la liste d'enchantement du monstre
         int index = target.transform.parent.parent.GetSiblingIndex();
-        target.GetComponent<CardDisplay>().monsterOwnThis.cardEnchantments[index] = ScriptableObject.CreateInstance<Card>();
+        //target.GetComponent<CardDisplay>().monsterOwnThis.cardEnchantments[index] = ScriptableObject.CreateInstance<Card>();
+        target.GetComponent<OwnedByOppo>().monsterOwnThis.cardEnchantments[index] = ScriptableObject.CreateInstance<Card>();
 
         //gameManager.inGrave(target);
         target.GetComponent<CardDisplay>().disableCard();

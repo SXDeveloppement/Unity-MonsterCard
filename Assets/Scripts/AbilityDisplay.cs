@@ -14,7 +14,7 @@ public class AbilityDisplay : MonoBehaviour
     public GameObject GO_Disable;
     public GameObject GO_DisableManaCost;
     public GameObject GO_Tooltip;
-    public MonsterDisplay monsterOwnThis; // Le MonsterDisplay qui possède cette capacité
+    //public MonsterDisplay monsterOwnThis; // Le MonsterDisplay qui possède cette capacité
 
     public int cooldown = 0; // Temps de rechargement de la capacité
     public int cooldownTemp;
@@ -91,8 +91,12 @@ public class AbilityDisplay : MonoBehaviour
             GO_DisableManaCost.SetActive(false);
         }
 
-        if (GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis) != null) {
-            textTooltip.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis);
+        //if (GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis) != null) {
+        //    textTooltip.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis);
+        //}
+
+        if (GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis) != null) {
+            textTooltip.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis);
         }
     }
 
@@ -135,7 +139,8 @@ public class AbilityDisplay : MonoBehaviour
         // Si c'est une capacité a activé
         if (ability.abilityType == AbilityType.Active) {
             if (canBeActivated()) {
-                ability.activeEffect(target, monsterOwnThis);
+                //ability.activeEffect(target, monsterOwnThis);
+                ability.activeEffect(target, GetComponent<OwnedByOppo>().monsterOwnThis);
                 if (activationLimited)
                     remainingActivation--;
             }
@@ -147,7 +152,8 @@ public class AbilityDisplay : MonoBehaviour
     /// </summary>
     public void activePassiveAbility() {
         if (ability.abilityType == AbilityType.Trigger || ability.abilityType == AbilityType.Global) {
-            ability.activeEffect(monsterOwnThis.gameObject, monsterOwnThis);
+            //ability.activeEffect(monsterOwnThis.gameObject, monsterOwnThis);
+            ability.activeEffect(GetComponent<OwnedByOppo>().monsterOwnThis.gameObject, GetComponent<OwnedByOppo>().monsterOwnThis);
         }
     }
 
@@ -156,7 +162,8 @@ public class AbilityDisplay : MonoBehaviour
     /// </summary>
     public void disablePassiveAbility() {
         if (ability.abilityType == AbilityType.Trigger || ability.abilityType == AbilityType.Global) {
-            ability.disableEffect(monsterOwnThis);
+            //ability.disableEffect(monsterOwnThis);
+            ability.disableEffect(GetComponent<OwnedByOppo>().monsterOwnThis);
         }
     }
 

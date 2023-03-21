@@ -26,7 +26,8 @@ public class DirectDamageEffect : CardEffect
         // Si la cible est un sbire
         else if (target.GetComponent<CardDisplay>() != null) {
             // Un sbire adverse
-            if (target.GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo) {
+            //if (target.GetComponent<CardDisplay>().monsterOwnThis.ownedByOppo) {
+            if (target.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
                 calculateDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>(), elementalAffinity, damageAmount, attacker);
             }
             // Un sbire allié

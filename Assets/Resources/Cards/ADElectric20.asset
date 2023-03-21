@@ -16,7 +16,7 @@ MonoBehaviour:
   description: Deal %D20 electric damages to target opponant unit.
   artwork: {fileID: 21300000, guid: 5a74c7b6ea7456d40abc501a45981adf, type: 3}
   manaCost: 2
-  priority: 1
+  priority: 3
   elementalAffinity: 2
   type: 0
   targetType: 01000000090000000b000000

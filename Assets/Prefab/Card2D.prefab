@@ -1990,6 +1990,7 @@ GameObject:
   - component: {fileID: 7975290428659643675}
   - component: {fileID: 1542764304643558505}
   - component: {fileID: 6524763065284489721}
+  - component: {fileID: 1343247125445624162}
   m_Layer: 0
   m_Name: Card2D
   m_TagString: Untagged
@@ -2090,8 +2091,8 @@ MonoBehaviour:
   status: 0
   hiddenCard: 0
   putOnBoardThisTurn: 1
+  putOnBoardThisTurnTemp: 1
   monsterOwnThis: {fileID: 0}
-  ownedByOppo: 0
 --- !u!114 &7975290428659643675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2108,8 +2109,8 @@ MonoBehaviour:
   sbireHealthPoint: {fileID: 8120072450673912596}
   sbirePowerPoint: {fileID: 894874932651603207}
   attackAura: {fileID: 8242551026933181935}
-  sbireHasAttacked: 0
-  sbireHasAttackedTemp: 0
+  sbireIsExhausted: 1
+  sbireIsExhaustedTemp: 0
   sbireHealthMax: 0
   sbireHealthAvailable: 0
   sbireHealthAvailableTemp: 0
@@ -2148,6 +2149,20 @@ MonoBehaviour:
   isDragged: 0
   isDraggedTemp: 0
   isHalfDragged: 0
+--- !u!114 &1343247125445624162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5121741634216006951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de68298a3188aad4792f972c1846018e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ownedByOppo: 0
+  monsterOwnThis: {fileID: 0}
 --- !u!1 &5144863429508863023
 GameObject:
   m_ObjectHideFlags: 0

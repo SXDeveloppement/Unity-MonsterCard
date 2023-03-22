@@ -107,9 +107,10 @@ public class CardDisplay : MonoBehaviour
                         }
 
                         if (!sbireHaveTaunt || GetComponent<SbireDisplay>().haveTank()) {
-                            SbireDisplay sbireDisplay = cardPlayed.GetComponent<SbireDisplay>();
-                            SbireDisplay targetSbireDisplay = target.GetComponent<SbireDisplay>();
-                            StartCoroutine(sbireDisplay.fightVersus(targetSbireDisplay));
+                            //SbireDisplay sbireDisplay = cardPlayed.GetComponent<SbireDisplay>();
+                            //SbireDisplay targetSbireDisplay = target.GetComponent<SbireDisplay>();
+                            //StartCoroutine(sbireDisplay.fightVersus(targetSbireDisplay));
+                            gameManager.AddAction(cardPlayed, target);
                         } else {
                             Debug.Log("ERR : Bad target, one sbire or more have Taunt");
                         }
@@ -128,20 +129,20 @@ public class CardDisplay : MonoBehaviour
     /// </summary>
     /// <param name="abilityDisplay"></param>
     public bool OnDropAbility(AbilityDisplay abilityDisplay) {
-        bool abilityIsDown = false;
+        bool abilityIsDone = false;
 
         if (GameManager.dragged) {
             GameObject target = gameObject;
 
             if (abilityDisplay.loopTargetAllowed(target)) {
                 GameManager.activeAbilityOnTarget(abilityDisplay, target);
-                abilityIsDown = true;
+                abilityIsDone = true;
             } else {
                 Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo.ToString());
             }
         }
 
-        return abilityIsDown;
+        return abilityIsDone;
     }
 
     /// <summary>

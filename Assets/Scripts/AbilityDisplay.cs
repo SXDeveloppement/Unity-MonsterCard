@@ -139,7 +139,6 @@ public class AbilityDisplay : MonoBehaviour
         // Si c'est une capacité a activé
         if (ability.abilityType == AbilityType.Active) {
             if (canBeActivated()) {
-                //ability.activeEffect(target, monsterOwnThis);
                 ability.activeEffect(target, GetComponent<OwnedByOppo>().monsterOwnThis);
                 if (activationLimited)
                     remainingActivation--;

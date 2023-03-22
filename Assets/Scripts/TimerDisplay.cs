@@ -15,14 +15,16 @@ public class TimerDisplay : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+        //On cache le timer si timer <= 0
+        if (timer < 0 && gameObject.activeSelf) {
+            gameObject.SetActive(false);
+        }
+            
+
         if (timer != timerTemp) {
             timerTemp = timer;
             refreshTimer();
         }
-
-        //On cache le timer si timer <= 0
-        if (timer < 0)
-            gameObject.SetActive(false);
     }
 
     public void refreshTimer() {
@@ -30,9 +32,9 @@ public class TimerDisplay : MonoBehaviour {
     }
 
     public IEnumerator startTimerAt(int timeInSecond) {
-        gameObject.SetActive(true);
         timer = timeInSecond;
-        while (timer > 0) {
+        gameObject.SetActive(true);
+        while (timer >= 0) {
             timer--;
             yield return new WaitForSeconds(1);
         }

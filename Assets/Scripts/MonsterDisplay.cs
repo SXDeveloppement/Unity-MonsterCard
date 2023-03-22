@@ -210,7 +210,8 @@ public class MonsterDisplay : MonoBehaviour
 
                     if (!sbireHaveTaunt) {
                         GameManager.dragged = false;
-                        cardPlayed.GetComponent<SbireDisplay>().fightMonster(this);
+                        //cardPlayed.GetComponent<SbireDisplay>().fightMonster(this);
+                        gameManager.AddAction(cardPlayed, target);
                     } else {
                         Debug.Log("ERR : Bad target, one sbire or more have Taunt");
                     }
@@ -232,20 +233,20 @@ public class MonsterDisplay : MonoBehaviour
     /// </summary>
     /// <param name="abilityDisplay"></param>
     public bool OnDropAbility(AbilityDisplay abilityDisplay) {
-        bool abilityIsDown = false;
+        bool abilityIsDone = false;
 
         if (GameManager.dragged) {
             GameObject target = gameObject;
 
             if (abilityDisplay.loopTargetAllowed(target)) {
                 GameManager.activeAbilityOnTarget(abilityDisplay, target);
-                abilityIsDown = true;
+                abilityIsDone = true;
             } else {
                 Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
             }
         }
 
-        return abilityIsDown;
+        return abilityIsDone;
     }
 
     // Modifie l'affichage pour le monstre de l'adversaire

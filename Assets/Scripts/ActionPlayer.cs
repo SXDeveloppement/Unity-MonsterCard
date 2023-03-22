@@ -49,13 +49,118 @@ public class ActionPlayer : MonoBehaviour {
         // ---> qui cible un sbire
         // ---> qui cible une carte
 
-        // Carte qui cible un monstre
-        if (actionPlayed.GetComponent<CardDisplay>() != null) {
+        // Une Carte (non sbire du terrain)
+        if (actionPlayed.GetComponent<CardDisplay>() != null
+            && (actionPlayed.GetComponent<CardDisplay>().card.type != CardType.Sbire
+            || actionPlayed.GetComponent<CardDisplay>().status != CardStatus.SlotVisible)) {
+            // Qui cible un monstre
             if (target.GetComponent<MonsterDisplay>() != null) {
                 Debug.Log("Active " + actionPlayed.name);
                 actionPlayed.GetComponent<CardDisplay>().activeCard(target);
             }
+            // Qui cible une carte
+            else if (target.GetComponent<CardDisplay>() != null) {
+                // Une carte Sbire
+                if (target.GetComponent<CardDisplay>().card.type == CardType.Sbire) {
+                    actionPlayed.GetComponent<CardDisplay>().activeCard(target);
+                }
+                // Une carte Aura
+                else if (target.GetComponent<CardDisplay>().card.type == CardType.Aura) {
+                    actionPlayed.GetComponent<CardDisplay>().activeCard(target);
+                }
+                // Une carte Enchantement
+                else if (target.GetComponent<CardDisplay>().card.type == CardType.Enchantment) {
+                    actionPlayed.GetComponent<CardDisplay>().activeCard(target);
+                }
+                // Une carte Echo
+                else if (target.GetComponent<CardDisplay>().card.type == CardType.Echo) {
+                    actionPlayed.GetComponent<CardDisplay>().activeCard(target);
+                }
+            }
+            // Qui cible un emplacement d'aura
+            else if (target.GetComponent<AuraDisplay>() != null) {
+                // On place la carte sur le terrain
+                actionPlayed.GetComponent<CardDisplay>().putOnBoard(target, true);
+                // On lie la carte joué a l'emplacement
+                target.GetComponent<AuraDisplay>().cardOnSlot = actionPlayed;
+                // On active la carte
+                actionPlayed.GetComponent<CardDisplay>().activeCard(target);
+            }
+            // Qui cible un emplacement d'equipement
+            else if (target.GetComponent<EquipmentDisplay>() != null) {
+                // On place la carte sur le terrain
+                actionPlayed.GetComponent<CardDisplay>().putOnBoard(target, true);
+                // On stock le GO de la carte dans MonsterDisplay
+                GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>().cardEnchantments[target.GetComponent<EquipmentDisplay>().slotId] = actionPlayed.GetComponent<CardDisplay>().card;
+                actionPlayed.transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+                actionPlayed.transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
+                actionPlayed.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+                // On lie la carte joué a l'emplacement
+                target.GetComponent<EquipmentDisplay>().cardOnSlot = actionPlayed;
+                // On active la carte
+                actionPlayed.GetComponent<CardDisplay>().activeCard(target);
+            }
+            // Qui cible un emplacement de contre attaque
+            else if (target.GetComponent<SlotDisplay>() != null) {
+                // Cast la carte face visible
+                //---> Sbire
+                if (actionPlayed.GetComponent<CardDisplay>().card.type == CardType.Sbire) {
+                    // On place la carte sur le terrain
+                    actionPlayed.GetComponent<CardDisplay>().putOnBoard(target, true);
+                }
+                //---> Echo
+                else if (actionPlayed.GetComponent<CardDisplay>().card.type == CardType.Echo) {
+                    // On place la carte sur le terrain
+                    actionPlayed.GetComponent<CardDisplay>().putOnBoard(target, true);
+                }
+                // Place la carte face caché
+                //---> Spell
+                else if (actionPlayed.GetComponent<CardDisplay>().card.type == CardType.Spell) {
+                    // On place la carte sur le terrain
+                    actionPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
+                }
+                //---> Aura
+                else if (actionPlayed.GetComponent<CardDisplay>().card.type == CardType.Aura) {
+                    // On place la carte sur le terrain
+                    actionPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
+                }
+                //---> Enchantment
+                else if (actionPlayed.GetComponent<CardDisplay>().card.type == CardType.Enchantment) {
+                    // On place la carte sur le terrain
+                    actionPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
+                }
+                //---> Counter attack
+                else if (actionPlayed.GetComponent<CardDisplay>().card.type == CardType.CounterAttack) {
+                    // On place la carte sur le terrain
+                    actionPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
+                }
+            }
         }
+        // Un sbire sur le terrain
+        else if (actionPlayed.GetComponent<CardDisplay>() != null && actionPlayed.GetComponent<CardDisplay>().card.type == CardType.Sbire && actionPlayed.GetComponent<CardDisplay>().status == CardStatus.SlotVisible) {
+            // Qui cible un monstre
+            if (target.GetComponent<MonsterDisplay>() != null) {
+                StartCoroutine(actionPlayed.GetComponent<SbireDisplay>().fightMonster(target.GetComponent<MonsterDisplay>()));
+            }
+            // Qui cible une carte sbire sur le terrain
+            else if (target.GetComponent<CardDisplay>() != null && target.GetComponent<CardDisplay>().card.type == CardType.Sbire && target.GetComponent<CardDisplay>().status == CardStatus.SlotVisible) {
+                StartCoroutine(actionPlayed.GetComponent<SbireDisplay>().fightVersus(target.GetComponent<SbireDisplay>()));
+            }
+        }
+        // Une capacité
+        else if (actionPlayed.GetComponent<AbilityDisplay>() != null) {
+            // Qui cible un monstre
+            if (target.GetComponent<MonsterDisplay>() != null) {
+                actionPlayed.GetComponent<AbilityDisplay>().activeAbility(target);
+            }
+            // Qui cible une carte
+            else if (target.GetComponent<CardDisplay>() != null) {
+                actionPlayed.GetComponent<AbilityDisplay>().activeAbility(target);
+            }
+        }
+
+        // On détruit le GO
+        Destroy(gameObject);
     }
 
     /// <summary>

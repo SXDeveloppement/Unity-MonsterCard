@@ -318,8 +318,12 @@ public class GameManager : MonoBehaviour {
             }
 
             listActions = new List<ActionPlayer>();
-            playerAction = null;
-            oppoAction = null;
+            if (playerAction != null) {
+                Destroy(playerAction.gameObject);
+            }
+            if (oppoAction != null) {
+                Destroy(oppoAction.gameObject);
+            }
 
             // Si les deux joueurs ont passé, on fini le tour
             if (finishTurn) {
@@ -433,12 +437,28 @@ public class GameManager : MonoBehaviour {
     public static void activeAbilityOnTarget(AbilityDisplay abilityDisplay, GameObject target) {
         // On active la capacité si son cout en mana est inférieur ou égal au mana disponible
         if (abilityDisplay.GetManaCost() <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable) {
-            abilityDisplay.activeAbility(target);
+
+            // On ajoute l'action a la liste
+            GameObject.FindAnyObjectByType<GameManager>().AddAction(abilityDisplay.gameObject, target);
+            //abilityDisplay.activeAbility(target);
+
+            // On soustrait le cout en mana de la capacité et on actualise la barre de mana
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= abilityDisplay.GetManaCost();
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
         } else {
             // On affiche un message d'erreur
             Debug.Log("ERR : no mana available");
+        }
+    }
+
+    // On ajoute une action a la liste
+    public void AddAction(GameObject cardPlayed, GameObject target) {
+        ActionPlayer actionPlayer = ActionPlayer.ActionPlayerCreate(cardPlayed, target);
+        listActions.Add(actionPlayer);
+        if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+            playerAction = actionPlayer;
+        } else {
+            oppoAction = actionPlayer;
         }
     }
 
@@ -448,33 +468,22 @@ public class GameManager : MonoBehaviour {
         // Si ce n'est pas une carte ECHO
         if (cardPlayed.GetComponent<CardDisplay>().card.manaCost <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable
             && cardPlayed.GetComponent<CardDisplay>().card.type != CardType.Echo) {
-            ActionPlayer actionPlayer = ActionPlayer.ActionPlayerCreate(cardPlayed, target);
-            listActions.Add(actionPlayer);
-            if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
-                playerAction = actionPlayer;
-            } else {
-                oppoAction = actionPlayer;
-            }
+            // On enregistre l'action
+            AddAction(cardPlayed, target);
+
             //cardPlayed.GetComponent<CardDisplay>().activeCard(target);
+            // On soustrait le cout de la carte et on actualise la barre de mana
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= cardPlayed.GetComponent<CardDisplay>().card.manaCost;
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
         } 
         // Si c'est une carte ECHO
         else if (cardPlayed.GetComponent<CardDisplay>().card.type == CardType.Echo && cardPlayed.GetComponent<CardDisplay>().status == CardStatus.SlotVisible) {
-            cardPlayed.GetComponent<CardDisplay>().activeCard(target);
+            //cardPlayed.GetComponent<CardDisplay>().activeCard(target);
+            // On enregistre l'action
+            AddAction(cardPlayed, target);
         } else {
             // On affiche un message d'erreur
             Debug.Log("ERR : no mana available");
-        }
-    }
-
-    // Ajoute une action a la liste d'action
-    public void addActionToList(ActionPlayer actionPlayer) {
-        listActions.Add(actionPlayer);
-        if (!actionPlayer.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
-
-        } else {
-
         }
     }
 
@@ -568,17 +577,21 @@ public class GameManager : MonoBehaviour {
         if (isVisible) {
             // On place la carte si son cout en mana est inférieur ou égal au mana disponible
             if (cardPlayed.GetComponent<CardDisplay>().card.manaCost <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable) {
-                cardPlayed.GetComponent<CardDisplay>().putOnBoard(target, true);
+                // On place la carte sur le terrain
+                //cardPlayed.GetComponent<CardDisplay>().putOnBoard(target, true);
+                GameObject.FindAnyObjectByType<GameManager>().AddAction(cardPlayed, target);
+
+                // On soustrait le cout en mana de la carte et on actualise la barre de mana
                 GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= cardPlayed.GetComponent<CardDisplay>().card.manaCost;
                 GO_MonsterInvoked.GetComponent<MonsterDisplay>().refreshManaPoint();
 
-                // Si c'est un enchantement on stock le GO de la carte dans MonsterDisplay
-                if (target.GetComponent<EquipmentDisplay>() != null) {
-                    GO_MonsterInvoked.GetComponent<MonsterDisplay>().cardEnchantments[target.GetComponent<EquipmentDisplay>().slotId] = cardPlayed.GetComponent<CardDisplay>().card;
-                    cardPlayed.transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
-                    cardPlayed.transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
-                    cardPlayed.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-                }
+                //// Si c'est un enchantement on stock le GO de la carte dans MonsterDisplay
+                //if (target.GetComponent<EquipmentDisplay>() != null) {
+                //    GO_MonsterInvoked.GetComponent<MonsterDisplay>().cardEnchantments[target.GetComponent<EquipmentDisplay>().slotId] = cardPlayed.GetComponent<CardDisplay>().card;
+                //    cardPlayed.transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+                //    cardPlayed.transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
+                //    cardPlayed.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+                //}
                 return true;
             } else {
                 // On affiche un message d'erreur
@@ -586,8 +599,9 @@ public class GameManager : MonoBehaviour {
             }
         }
         // Carte face caché, pas besoin de dépenser de mana
-        else { 
-            cardPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
+        else {
+            //cardPlayed.GetComponent<CardDisplay>().putOnBoard(target, false);
+            GameObject.FindAnyObjectByType<GameManager>().AddAction(cardPlayed, target);
             return true;
         }
 

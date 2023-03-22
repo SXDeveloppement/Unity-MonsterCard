@@ -57,8 +57,8 @@ public class EquipmentDisplay : MonoBehaviour
                 // On vérifie les conditions de ciblage pour pouvoir placer la carte
                 if (cardPlayed.GetComponent<CardDisplay>().targetIsAllowed(targetSlot)) {
                     if (gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true)) {
-                        cardOnSlot = cardPlayed;
-                        cardPlayed.GetComponent<CardDisplay>().activeCard(gameObject);
+                        //cardOnSlot = cardPlayed;
+                        //cardPlayed.GetComponent<CardDisplay>().activeCard(gameObject);
                         isPutOnBoard = true;
                     }
                 } else {

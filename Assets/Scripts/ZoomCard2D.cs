@@ -15,7 +15,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     int siblingIndex;
     Vector3 localPosition;
     Vector2 size;
-    GameObject equipment;
+    public GameObject equipment;
 
     GameManager gameManager;
     bool pointerIsEnter = false;
@@ -102,7 +102,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             }
 
             // Si c'est une carte d'enchantement, on affiche l'equipement
-            if (GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot) {
+            if (GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot && equipment != null) {
                 equipment.transform.localScale = cachedScale;
                 equipment.transform.localPosition = localPosition;
             }

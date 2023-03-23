@@ -252,7 +252,8 @@ public class Draggable2D : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         isDragged = false;
         isHalfDragged = false;
-        gameManager.ArrowEmitter.SetActive(false);
+        if (!gameManager.ArrowEmitter.GetComponent<BezierArrow>().isFixed)
+            gameManager.ArrowEmitter.SetActive(false);
         Cursor.visible = true;
 
     }

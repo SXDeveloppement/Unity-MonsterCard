@@ -210,8 +210,13 @@ public class MonsterDisplay : MonoBehaviour
 
                     if (!sbireHaveTaunt) {
                         GameManager.dragged = false;
-                        //cardPlayed.GetComponent<SbireDisplay>().fightMonster(this);
                         gameManager.AddAction(cardPlayed, target);
+                        if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+                            gameManager.GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target);
+                        } else {
+                            gameManager.GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target);
+                        }
+                        isPutOnBoard = true;
                     } else {
                         Debug.Log("ERR : Bad target, one sbire or more have Taunt");
                     }
@@ -219,6 +224,7 @@ public class MonsterDisplay : MonoBehaviour
                 } else {
                     Debug.Log("Card on monster");
                     gameManager.activeCardOnTarget(cardPlayed, target);
+                    isPutOnBoard = true;
                 }
             } else {
                 Debug.Log("ERR : bad target [" + target.name + "] / ownByOppo = " + ownedByOppo.ToString());
@@ -389,12 +395,18 @@ public class MonsterDisplay : MonoBehaviour
         speedEquiped = speed;
     }
 
-    // Renvoi le la speed total du monstre
+    // Renvoi la speed total du monstre
     public int totalSpeed() {
         return speedEquiped + buffSpeed;
     }
 
-    //*********** ACTUALISATION de l'UI ***************//
+    // Renvoi la position du monstre
+    public Vector3 GetPosition() {
+        return illustration.transform.position;
+    }
+
+
+    #region Actualisation de l'UI
 
     // Actualise la puissance du monstre
     public void refreshPower() {
@@ -458,4 +470,6 @@ public class MonsterDisplay : MonoBehaviour
         float width = manaBar.GetComponent<RectTransform>().rect.width * manaBar.transform.localScale.x;
         return new Vector3(-width * ( 1 - (float)manaAvailable / manaMax), manaBar.transform.localPosition.y, manaBar.transform.localPosition.z);
     }
+
+    #endregion
 }

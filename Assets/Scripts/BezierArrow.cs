@@ -24,6 +24,9 @@ public class BezierArrow : MonoBehaviour
     public Color colorValidTarget;
     #endregion
 
+    public Vector3 targetPosition;
+    public bool isFixed = false;
+
     #region Private Fields
     /// <summary>
     /// The position of P0 (the arrow emitter point)
@@ -75,46 +78,48 @@ public class BezierArrow : MonoBehaviour
     /// Executes every frame
     /// </summary>
     private void Update() {
-        // P0 is at the arrow emitter point
-        this.controlPoints[0] = new Vector2(this.origin.position.x, this.origin.position.y);
+        if (!isFixed) {
+            // P0 is at the arrow emitter point
+            this.controlPoints[0] = new Vector2(this.origin.position.x, this.origin.position.y);
 
-        // P3 is at the mouse position
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        this.controlPoints[3] = new Vector2(mousePosition.x, mousePosition.y);
+            // P3 is at the mouse position
+            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            this.controlPoints[3] = new Vector2(mousePosition.x, mousePosition.y);
 
-        // P1, P2 determines by P0 and P3
-        // P1 = P0 + (P3 - P0) * Vector2(-0.3f, 0.8f)
-        // P2 = P0 + (P3 - P0) * Vector2(0.1f, 1.4f)
-        this.controlPoints[1] = this.controlPoints[0] + (this.controlPoints[3] - this.controlPoints[0]) * this.controlPointFactors[0];
-        this.controlPoints[2] = this.controlPoints[0] + (this.controlPoints[3] - this.controlPoints[0]) * this.controlPointFactors[1];
+            // P1, P2 determines by P0 and P3
+            // P1 = P0 + (P3 - P0) * Vector2(-0.3f, 0.8f)
+            // P2 = P0 + (P3 - P0) * Vector2(0.1f, 1.4f)
+            this.controlPoints[1] = this.controlPoints[0] + (this.controlPoints[3] - this.controlPoints[0]) * this.controlPointFactors[0];
+            this.controlPoints[2] = this.controlPoints[0] + (this.controlPoints[3] - this.controlPoints[0]) * this.controlPointFactors[1];
 
-        for (int i = 0; i < this.arrowNodes.Count; i++) {
-            // calculate t
-            float t = Mathf.Log(1f * i / (this.arrowNodes.Count - 1) + 1f, 2f);
+            for (int i = 0; i < this.arrowNodes.Count; i++) {
+                // calculate t
+                float t = Mathf.Log(1f * i / (this.arrowNodes.Count - 1) + 1f, 2f);
 
-            // Cubic Bezier curve
-            // B(t) = (1-t)^3 * P0 + 3 * (1-t)^2 * t * P1 + 3 * (1-t) * t^2 * P2 + t^3 * P3
-            this.arrowNodes[i].position =
-                Mathf.Pow(1 - t, 3) * this.controlPoints[0] +
-                3 * Mathf.Pow(1 - t, 2) * t * this.controlPoints[1] +
-                3 * (1 - t) * Mathf.Pow(t, 2) * this.controlPoints[2] +
-                Mathf.Pow(t, 3) * this.controlPoints[3];
+                // Cubic Bezier curve
+                // B(t) = (1-t)^3 * P0 + 3 * (1-t)^2 * t * P1 + 3 * (1-t) * t^2 * P2 + t^3 * P3
+                this.arrowNodes[i].position =
+                    Mathf.Pow(1 - t, 3) * this.controlPoints[0] +
+                    3 * Mathf.Pow(1 - t, 2) * t * this.controlPoints[1] +
+                    3 * (1 - t) * Mathf.Pow(t, 2) * this.controlPoints[2] +
+                    Mathf.Pow(t, 3) * this.controlPoints[3];
 
-            this.arrowNodes[i].localPosition = new Vector3(this.arrowNodes[i].localPosition.x, this.arrowNodes[i].localPosition.y, 0);
+                this.arrowNodes[i].localPosition = new Vector3(this.arrowNodes[i].localPosition.x, this.arrowNodes[i].localPosition.y, 0);
 
-            // calculates rotations for each arrow node
-            if (i > 0) {
-                Vector3 euler = new Vector3(0, 0, Vector2.SignedAngle(Vector2.up, this.arrowNodes[i].position - this.arrowNodes[i - 1].position));
-                this.arrowNodes[i].rotation = Quaternion.Euler(euler);
+                // calculates rotations for each arrow node
+                if (i > 0) {
+                    Vector3 euler = new Vector3(0, 0, Vector2.SignedAngle(Vector2.up, this.arrowNodes[i].position - this.arrowNodes[i - 1].position));
+                    this.arrowNodes[i].rotation = Quaternion.Euler(euler);
+                }
+
+                // calculates scales for each arrow node
+                float scale = this.scaleFactor * (1 - 0.03f * (this.arrowNodes.Count - 1 - i));
+                this.arrowNodes[i].localScale = new Vector3(scale, scale, 1f);
             }
 
-            // calculates scales for each arrow node
-            float scale = this.scaleFactor * (1 - 0.03f * (this.arrowNodes.Count - 1 - i));
-            this.arrowNodes[i].localScale = new Vector3(scale, scale, 1f);
+            // the first arrow node's rotation
+            this.arrowNodes[0].transform.rotation = this.arrowNodes[1].transform.rotation;
         }
-
-        // the first arrow node's rotation
-        this.arrowNodes[0].transform.rotation = this.arrowNodes[1].transform.rotation;
     }
     #endregion
 
@@ -135,6 +140,55 @@ public class BezierArrow : MonoBehaviour
         }
     }
 
+    public void activeTargetArrow() {
+        if (isFixed) {
+            // P0 is at the arrow emitter point
+            this.controlPoints[0] = new Vector2(this.origin.position.x, this.origin.position.y);
+
+            // P3 is at the target position
+            this.controlPoints[3] = new Vector2(targetPosition.x, targetPosition.y);
+
+            // P1, P2 determines by P0 and P3
+            // P1 = P0 + (P3 - P0) * Vector2(-0.3f, 0.8f)
+            // P2 = P0 + (P3 - P0) * Vector2(0.1f, 1.4f)
+            this.controlPoints[1] = this.controlPoints[0] + (this.controlPoints[3] - this.controlPoints[0]) * this.controlPointFactors[0];
+            this.controlPoints[2] = this.controlPoints[0] + (this.controlPoints[3] - this.controlPoints[0]) * this.controlPointFactors[1];
+
+            for (int i = 0; i < this.arrowNodes.Count; i++) {
+                // calculate t
+                float t = Mathf.Log(1f * i / (this.arrowNodes.Count - 1) + 1f, 2f);
+
+                // Cubic Bezier curve
+                // B(t) = (1-t)^3 * P0 + 3 * (1-t)^2 * t * P1 + 3 * (1-t) * t^2 * P2 + t^3 * P3
+                this.arrowNodes[i].position =
+                    Mathf.Pow(1 - t, 3) * this.controlPoints[0] +
+                    3 * Mathf.Pow(1 - t, 2) * t * this.controlPoints[1] +
+                    3 * (1 - t) * Mathf.Pow(t, 2) * this.controlPoints[2] +
+                    Mathf.Pow(t, 3) * this.controlPoints[3];
+
+                this.arrowNodes[i].localPosition = new Vector3(this.arrowNodes[i].localPosition.x, this.arrowNodes[i].localPosition.y, 0);
+
+                // calculates rotations for each arrow node
+                if (i > 0) {
+                    Vector3 euler = new Vector3(0, 0, Vector2.SignedAngle(Vector2.up, this.arrowNodes[i].position - this.arrowNodes[i - 1].position));
+                    this.arrowNodes[i].rotation = Quaternion.Euler(euler);
+                }
+
+                // calculates scales for each arrow node
+                float scale = this.scaleFactor * (1 - 0.03f * (this.arrowNodes.Count - 1 - i));
+                this.arrowNodes[i].localScale = new Vector3(scale, scale, 1f);
+            }
+
+            // the first arrow node's rotation
+            this.arrowNodes[0].transform.rotation = this.arrowNodes[1].transform.rotation;
+
+            // On met la couleur colorValidTarget
+            foreach (SpriteRenderer spriteRender in transform.GetComponentsInChildren<SpriteRenderer>()) {
+                spriteRender.color = colorValidTarget;
+            }
+        }
+    }
+   
     #endregion
 
 }

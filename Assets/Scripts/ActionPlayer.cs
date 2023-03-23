@@ -97,6 +97,8 @@ public class ActionPlayer : MonoBehaviour {
                 actionPlayed.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
                 // On lie la carte joué a l'emplacement
                 target.GetComponent<EquipmentDisplay>().cardOnSlot = actionPlayed;
+                // On lie l'equipement a la carte
+                actionPlayed.GetComponent<ZoomCard2D>().equipment = target;
                 // On active la carte
                 actionPlayed.GetComponent<CardDisplay>().activeCard(target);
             }

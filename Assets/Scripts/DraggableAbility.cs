@@ -100,7 +100,8 @@ public class DraggableAbility : MonoBehaviour, IPointerClickHandler, IBeginDragH
         GameManager.dragged = false;
 
         isDragged = false;
-        FindAnyObjectByType<GameManager>().ArrowEmitter.SetActive(false);
+        if (!FindAnyObjectByType<GameManager>().ArrowEmitter.GetComponent<BezierArrow>().isFixed)
+            FindAnyObjectByType<GameManager>().ArrowEmitter.SetActive(false);
         Cursor.visible = true;
     }
 

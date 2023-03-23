@@ -35,13 +35,6 @@ public class AuraDisplay : MonoBehaviour
                 // On vérifie les conditions de ciblage pour pouvoir placer la carte
                 if (cardPlayed.GetComponent<CardDisplay>().targetIsAllowed(targetSlot)) {
                     if (gameManager.tryToPutOnBoard(cardPlayed, targetSlot, true)) {
-                        //// On place la carte sur le terrain
-                        //cardPlayed.GetComponent<CardDisplay>().putOnBoard(targetSlot, true);
-                        //// On lie la carte joué a l'emplacement
-                        //cardOnSlot = cardPlayed;
-                        //// On active la carte
-                        //cardPlayed.GetComponent<CardDisplay>().activeCard(gameObject);
-                        
                         isPutOnBoard = true;
                     }
                 } else {

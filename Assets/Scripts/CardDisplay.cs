@@ -87,12 +87,14 @@ public class CardDisplay : MonoBehaviour
                 // Ciblage d'une aura ou d'un enchantement
                 if (card.type == CardType.Aura || card.type == CardType.Enchantment) {
                     gameManager.activeCardOnTarget(cardPlayed, target);
+                    isPutOnBoard = true;
                 }
                 // Ciblage d'un sbire
                 else if (card.type == CardType.Sbire) {
                     // Par un spell
                     if (cardPlayed.GetComponent<CardDisplay>().card.type != CardType.Sbire) {
                         gameManager.activeCardOnTarget(cardPlayed, target);
+                        isPutOnBoard = true;
                     }
                     // Par un autre sbire
                     else {
@@ -107,10 +109,13 @@ public class CardDisplay : MonoBehaviour
                         }
 
                         if (!sbireHaveTaunt || GetComponent<SbireDisplay>().haveTank()) {
-                            //SbireDisplay sbireDisplay = cardPlayed.GetComponent<SbireDisplay>();
-                            //SbireDisplay targetSbireDisplay = target.GetComponent<SbireDisplay>();
-                            //StartCoroutine(sbireDisplay.fightVersus(targetSbireDisplay));
                             gameManager.AddAction(cardPlayed, target);
+                            if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+                                gameManager.GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target);
+                            } else {
+                                gameManager.GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target);
+                            }
+                            isPutOnBoard = true;
                         } else {
                             Debug.Log("ERR : Bad target, one sbire or more have Taunt");
                         }
@@ -242,20 +247,21 @@ public class CardDisplay : MonoBehaviour
                 status = CardStatus.SlotVisible;
             }
             transform.SetParent(target.GetComponent<SlotDisplay>().slotCard.transform);
-            transform.localPosition = Vector3.zero;
             target.GetComponent<SlotDisplay>().cardOnSlot = this.gameObject;
         } else if (target.GetComponent<AuraDisplay>() != null) {
             
             status = CardStatus.AuraSlot;
             transform.SetParent(target.GetComponent<AuraDisplay>().slotCard.transform);
-            transform.localPosition = Vector3.zero;
             target.GetComponent<AuraDisplay>().cardOnSlot = this.gameObject;
         } else if (target.GetComponent<EquipmentDisplay>() != null) {
             status = CardStatus.EnchantmentSlot;
             transform.SetParent(target.transform.parent.parent.GetChild(1));
-            transform.localPosition = Vector3.zero;
-            transform.localScale = Vector3.one;
         }
+
+        ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerExitHandler);
+        transform.localPosition = Vector3.zero;
+        transform.localScale = Vector3.one;
+        GetComponent<LayoutElement>().ignoreLayout = false;
 
         // Si c'est un sbire
         if (card.type == CardType.Sbire) {

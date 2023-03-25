@@ -29,6 +29,10 @@ public enum AbilityType {
     Global, Trigger, Active
 }
 
+public enum AbilityStatus {
+    Board, Action, TeamLayout
+}
+
 /// <summary>
 /// quickness = célérité / pierce = piétinement / Domination = Initiative / Tank = provocation de HS
 /// </summary>

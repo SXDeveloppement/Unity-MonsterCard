@@ -18,7 +18,6 @@ public class MonsterDisplay : MonoBehaviour
     public TMP_Text speedText;
     public TMP_Text healthText;
     public TMP_Text manaText;
-    public Image artworkImage;
     public SpriteRenderer illustration;
     public GameObject GO_Affinity;
     public AbilityDisplay abilityDisplay; // La capacité du monstre
@@ -119,10 +118,7 @@ public class MonsterDisplay : MonoBehaviour
         manaAvailable = manaMax;
 
         // On ajout l'illustration du monstre
-        if (artworkImage != null)
-            artworkImage.sprite = monster.artwork;
-        if (illustration != null)
-            illustration.sprite = monster.artwork;
+        illustration.sprite = monster.artwork;
 
         // Affichage des affinités élémentaires du monstre
         foreach (ElementalAffinity affinity in monster.elementalAffinity) {
@@ -267,10 +263,7 @@ public class MonsterDisplay : MonoBehaviour
         manaText.gameObject.transform.localScale = flipX;
 
         // text et illustration de la capacité
-        abilityDisplay.textCooldown.gameObject.transform.localScale = flipX;
-        abilityDisplay.textManaCost.gameObject.transform.localScale = flipX;
-        abilityDisplay.illustration.gameObject.transform.localScale = flipX;
-        abilityDisplay.textTooltip.gameObject.transform.localScale = flipX;
+        abilityDisplay.ReverseText();
     }
 
     // Réinitiliation du mana

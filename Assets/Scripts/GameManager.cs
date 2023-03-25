@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour {
     static Dictionary<ElementalAffinity, float> mentalDico;
     static Dictionary<ElementalAffinity, float> neutralDico;
     #endregion
-
+    
     #region Private variable
     private bool init = true;
     private bool firstTurn = true; // Si c'est le premier tour
@@ -367,8 +367,9 @@ public class GameManager : MonoBehaviour {
             refreshDeckText();
             GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
 
-            // On active les listeners
-            OnDraw?.Invoke(GO_MonsterInvoked.GetComponent<MonsterDisplay>());
+            // On active les listeners si on pioche plus d'une carte
+            if (drawAmount > 0)
+                OnDraw?.Invoke(GO_MonsterInvoked.GetComponent<MonsterDisplay>());
         } else {
             Debug.Log("ERR : no card in deck");
         }

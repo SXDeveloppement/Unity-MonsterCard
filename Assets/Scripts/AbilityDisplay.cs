@@ -7,14 +7,18 @@ public class AbilityDisplay : MonoBehaviour
 {
     public Ability ability;
     public SpriteRenderer illustration;
+    public TMP_Text textName;
     public TMP_Text textManaCost;
     public TMP_Text textCooldown;
-    public TMP_Text textTooltip;
+    public TMP_Text textPriority;
+    public TMP_Text textType;
+    public TMP_Text textDescription;
     public GameObject GO_ManaCost;
     public GameObject GO_Disable;
     public GameObject GO_DisableManaCost;
     public GameObject GO_Tooltip;
-    //public MonsterDisplay monsterOwnThis; // Le MonsterDisplay qui possède cette capacité
+    public GameObject GO_Tooltip2;
+    public AbilityStatus abilityStatus = AbilityStatus.Board;
 
     public int cooldown = 0; // Temps de rechargement de la capacité
     public int cooldownTemp;
@@ -28,8 +32,13 @@ public class AbilityDisplay : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
+        if (abilityStatus == AbilityStatus.TeamLayout) return;
+
         illustration.sprite = ability.illustration;
-        textTooltip.text = ability.description;
+        textName.text = ability.name;
+        textPriority.text = ability.priority.ToString();
+        textType.text = ability.abilityType.ToString();
+        textDescription.text = ability.description;
 
         // On affiche le sprite du cout en mana
         if (ability.manaCost >= 0) {
@@ -40,6 +49,8 @@ public class AbilityDisplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (abilityStatus == AbilityStatus.TeamLayout) return;
+
         // Initialisation
         if (init) {
             init = false;
@@ -91,12 +102,8 @@ public class AbilityDisplay : MonoBehaviour
             GO_DisableManaCost.SetActive(false);
         }
 
-        //if (GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis) != null) {
-        //    textTooltip.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, monsterOwnThis);
-        //}
-
         if (GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis) != null) {
-            textTooltip.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis);
+            textDescription.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis);
         }
     }
 
@@ -177,5 +184,22 @@ public class AbilityDisplay : MonoBehaviour
                 return true;
         }
         return false;
+    }
+
+    // Renverse sur x les textes et l'illustration
+    public void ReverseText() {
+        illustration.transform.localScale = new Vector3(-1, illustration.transform.localScale.y, illustration.transform.localScale.z);
+
+        textName.transform.localScale = new Vector3(-1, textName.transform.localScale.y, textName.transform.localScale.z);
+        textManaCost.transform.localScale = new Vector3(-1, textManaCost.transform.localScale.y, textManaCost.transform.localScale.z);
+        textPriority.transform.localScale = new Vector3(-1, textPriority.transform.localScale.y, textPriority.transform.localScale.z);
+        textType.transform.localScale = new Vector3(-1, textType.transform.localScale.y, textType.transform.localScale.z);
+        textDescription.transform.localScale = new Vector3(-1, textDescription.transform.localScale.y, textDescription.transform.localScale.z);
+    }
+
+    // Affiche / cache le tooltip
+    public void ShowHideTooltip(bool show) {
+        GetComponent<AbilityDisplay>().GO_Tooltip.SetActive(show);
+        GetComponent<AbilityDisplay>().GO_Tooltip2.SetActive(show);
     }
 }

@@ -17,7 +17,8 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
     public GameObject affinityLayout;
     public GameObject buttonSwap;
     public SpriteRenderer illustrationAbility;
-    public AbilityLayoutTeamDisplay abilityDisplay;
+    public AbilityDisplay abilityDisplay;
+    //public AbilityLayoutTeamDisplay abilityDisplay;
 
 
     // Start is called before the first frame update
@@ -66,7 +67,7 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
         abilityDisplay.ability = monsterDisplay.abilityDisplay.ability;
         abilityDisplay.cooldown = monsterDisplay.abilityDisplay.cooldown;
         abilityDisplay.manaCostModif = monsterDisplay.abilityDisplay.manaCostModif;
-        abilityDisplay.monsterOwnThis = GetComponent<OwnedByOppo>().monsterOwnThis;
+        abilityDisplay.GetComponent<OwnedByOppo>().monsterOwnThis = GetComponent<OwnedByOppo>().monsterOwnThis;
         abilityDisplay.refreshDisplayAbility();
     }
 

@@ -18,42 +18,33 @@ public class ActionSlotDisplay : MonoBehaviour {
     public void AddActionGO(GameObject gameObjectAction, GameObject target, bool isVisible = true) {
         GameObject gameObjectAction2 = null;
 
+        ExecuteEvents.Execute(gameObjectAction, new PointerEventData(EventSystem.current), ExecuteEvents.pointerExitHandler);
+
         // Si c'est une carte (autre qu'un sbire sur le terrain qui attaque)
         if (gameObjectAction.GetComponent<CardDisplay>() != null && (gameObjectAction.GetComponent<CardDisplay>().card.type != CardType.Sbire || gameObjectAction.GetComponent<CardDisplay>().status != CardStatus.SlotVisible)) {
             gameObjectAction2 = gameObjectAction;
-
-            // On deplace la carte dans un emplacement d'action
-            gameObjectAction.transform.SetParent(transform);
-            ExecuteEvents.Execute(gameObjectAction, new PointerEventData(EventSystem.current), ExecuteEvents.pointerExitHandler);
-            gameObjectAction.transform.localPosition = Vector3.zero;
-            gameObjectAction.transform.localScale = Vector3.one;
-            gameObjectAction.GetComponent<LayoutElement>().ignoreLayout = false;
-            gameObjectAction.GetComponent<CardDisplay>().status = CardStatus.ActionSlot;
+            gameObjectAction2.GetComponent<LayoutElement>().ignoreLayout = false;
+            gameObjectAction2.GetComponent<CardDisplay>().status = CardStatus.ActionSlot;
         }
         // Si c'est un sbire sur le terrain
         else if (gameObjectAction.GetComponent<CardDisplay>() != null && gameObjectAction.GetComponent<CardDisplay>().card.type == CardType.Sbire && gameObjectAction.GetComponent<CardDisplay>().status == CardStatus.SlotVisible) {
             // On clone le sbire
             gameObjectAction2 = Instantiate(gameObjectAction);
-
-            // On deplace la carte dans un emplacement d'action
-            gameObjectAction2.transform.SetParent(transform);
-            ExecuteEvents.Execute(gameObjectAction, new PointerEventData(EventSystem.current), ExecuteEvents.pointerExitHandler);
-            gameObjectAction2.transform.localPosition = Vector3.zero;
-            gameObjectAction2.transform.localScale = Vector3.one;
             gameObjectAction2.GetComponent<LayoutElement>().ignoreLayout = false;
             gameObjectAction2.GetComponent<CardDisplay>().status = CardStatus.ActionSlot;
         }
         // Si c'est une capacité
         else if (gameObjectAction.GetComponent<AbilityDisplay>() != null) {
-            // On clone la capacité
+            // On clone la capacité et on deplace la carte dans un emplacement d'action
             gameObjectAction2 = Instantiate(gameObjectAction);
-
-            // On deplace la carte dans un emplacement d'action
-            gameObjectAction2.transform.SetParent(transform);
-            ExecuteEvents.Execute(gameObjectAction, new PointerEventData(EventSystem.current), ExecuteEvents.pointerExitHandler);
-            gameObjectAction2.transform.localPosition = Vector3.zero;
-            gameObjectAction2.transform.localScale = new Vector3(0.7f, 0.7f, 1);
+            gameObjectAction2.GetComponent<AbilityDisplay>().abilityStatus = AbilityStatus.Action;
+            gameObjectAction2.GetComponent<AbilityDisplay>().ShowHideTooltip(true);
         }
+
+        gameObjectAction2.transform.SetParent(transform);
+        gameObjectAction2.transform.localPosition = Vector3.zero;
+        Vector3 newVec3 = Constante.FlatScale(Constante.SCALE_CARD_ACTION);
+        gameObjectAction2.transform.localScale = newVec3;
 
         // On active la la fleche de ciblage
         GameObject arrowEmitter = FindAnyObjectByType<GameManager>().ArrowEmitter;

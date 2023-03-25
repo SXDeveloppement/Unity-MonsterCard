@@ -46,7 +46,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             if (GetComponent<CardDisplay>().status == CardStatus.Hand) {
                 siblingIndex = transform.GetSiblingIndex();
                 localPosition = transform.localPosition;
-                transform.localScale = new Vector3(scaleZoom, scaleZoom, scaleZoom);
+                transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, transform.parent.gameObject);
                 gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
                 createPlaceholder();
 
@@ -58,7 +58,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             }
             // Si la souris est sur une carte du terrain
             else if (GetComponent<CardDisplay>().status != CardStatus.Hand && GetComponent<CardDisplay>().status != CardStatus.Graveyard) {
-                transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
+                transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, transform.parent.gameObject);
                 localPosition = transform.localPosition;
                 transform.localPosition = new Vector3(localPosition.x, localPosition.y, localPosition.z - 2f);
 
@@ -72,7 +72,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 // Si c'est une carte d'enchantement, on affiche l'equipement
                 if (GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot) {
                     equipment = transform.parent.parent.Find("Equipment").GetChild(0).gameObject;
-                    equipment.transform.localScale = new Vector3(scaleZoomBoard, scaleZoomBoard, scaleZoomBoard);
+                    equipment.transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, transform.parent.gameObject);
                     float positionX = equipment.GetComponent<RectTransform>().rect.width * equipment.transform.localScale.x;
                     equipment.transform.localPosition = new Vector3(localPosition.x + positionX, localPosition.y, localPosition.z - 2f);
                 }
@@ -86,12 +86,12 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (GameManager.dragged || !pointerIsEnter) return;
 
         if (GetComponent<CardDisplay>().status == CardStatus.Hand) {
-            transform.localScale = cachedScale;
+            transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND, transform.parent.gameObject);
             transform.localPosition = localPosition;
             changeWithPlaceholder();
             pointerIsEnter = false;
         } else if (GetComponent<CardDisplay>().status != CardStatus.Hand && GetComponent<CardDisplay>().status != CardStatus.Graveyard) {
-            transform.localScale = cachedScale;
+            transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_BOARD, transform.parent.gameObject);
             transform.localPosition = localPosition;
 
             // Si c'est une carte face caché, on la replace en position face caché
@@ -103,7 +103,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
             // Si c'est une carte d'enchantement, on affiche l'equipement
             if (GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot && equipment != null) {
-                equipment.transform.localScale = cachedScale;
+                equipment.transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_BOARD, transform.parent.gameObject);
                 equipment.transform.localPosition = localPosition;
             }
             pointerIsEnter = false;
@@ -119,7 +119,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         placeHolder.gameObject.GetComponent<RectTransform>().sizeDelta = size;
         placeHolder.transform.position = transform.position;
         placeHolder.gameObject.transform.SetParent(transform.parent);
-        placeHolder.transform.SetSiblingIndex(siblingIndex);        
+        placeHolder.transform.SetSiblingIndex(siblingIndex);
     }
 
     // Prend la position du placeholder dans le layout

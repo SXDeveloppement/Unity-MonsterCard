@@ -29,8 +29,8 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
 
     // Actualisation de toutes les infos du monstre dans le fenêtre de l'équipe
     public void refreshMonsterUI() {
-        transform.localPosition = Vector3.zero;
-        transform.localScale = new Vector3(0.35f, 0.35f, 1);
+        //transform.localPosition = Vector3.zero;
+        //transform.localScale = new Vector3(0.35f, 0.35f, 1);
 
         MonsterDisplay monsterDisplay = GetComponent<OwnedByOppo>().monsterOwnThis;
         illustration.sprite = monsterDisplay.illustration.sprite;

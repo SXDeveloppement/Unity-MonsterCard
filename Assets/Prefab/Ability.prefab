@@ -926,7 +926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd451294989492f42a796f7f1e8ee590, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ability: {fileID: 11400000, guid: 721bc1fcdb08bd847a44b1052edfc6af, type: 2}
+  ability: {fileID: 0}
   illustration: {fileID: 4940472651217390506}
   textName: {fileID: 0}
   textManaCost: {fileID: 6386617812042619333}
@@ -938,6 +938,8 @@ MonoBehaviour:
   GO_Disable: {fileID: 989064061725897534}
   GO_DisableManaCost: {fileID: 7915892785217126761}
   GO_Tooltip: {fileID: 6864496900945683184}
+  GO_Tooltip2: {fileID: 0}
+  abilityStatus: 0
   cooldown: 0
   cooldownTemp: 0
   manaCostModif: 0

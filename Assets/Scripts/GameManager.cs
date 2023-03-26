@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
     public GameObject GO_Monster; // Prefab
     public GameObject GO_Equipment; // Prefab
     public GameObject GO_BuffDebuff; // Prefab
+    public GameObject GO_CardPass; // Prefab
     #endregion
 
     #region Public Area
@@ -126,7 +127,6 @@ public class GameManager : MonoBehaviour {
             i++;
         }
 
-
         // Création de l'équipe de 4 monstre pour l'adversaire
         addedMonster = new List<Monster>();
         int j = 0;
@@ -206,6 +206,7 @@ public class GameManager : MonoBehaviour {
             i++;
         }
     }
+
     // Event OnEndTurn
     public static event Action OnEndTurn;
     // Termine le tour en cours
@@ -265,11 +266,11 @@ public class GameManager : MonoBehaviour {
         }
 
         // On commence les phases d'actions
-        StartCoroutine(phaseAction());
+        StartCoroutine(PhaseAction());
     }
 
     // Phase dans un tour
-    public IEnumerator phaseAction() {
+    public IEnumerator PhaseAction() {
         // On commence une phase
         listActions = new List<ActionPlayer>();
         playerAction = null;
@@ -290,14 +291,10 @@ public class GameManager : MonoBehaviour {
 
             // On fait passer les joueurs qui n'ont fait aucune action
             if (playerAction == null) {
-                ActionPlayer skipAction = ActionPlayer.ActionPlayerCreate(GO_MonsterInvoked, GO_MonsterInvoked, true);
-                listActions.Add(skipAction);
-                playerAction = skipAction;
+                PassAction(false);
             }
             if (oppoAction == null) {
-                ActionPlayer skipAction = ActionPlayer.ActionPlayerCreate(GO_MonsterInvokedOppo, GO_MonsterInvokedOppo, true);
-                listActions.Add(skipAction);
-                oppoAction = skipAction;
+                PassAction(true);
             }
 
             // On classe listActions par ordre de priorité decroissant
@@ -341,10 +338,26 @@ public class GameManager : MonoBehaviour {
             }
 
             // Si les deux joueurs ont passé, on fini le tour
-            if (finishTurn) {
+            if (finishTurn) { 
                 endTurn();
                 break;
             }
+        }
+    }
+
+    /// <summary>
+    /// Action de passé lors d'un clique sur le bouton
+    /// </summary>
+    public void PassAction(bool isAnOppoAction = false) {
+        // Si c'est une action du joueur
+        if (!isAnOppoAction && playerAction == null) {
+            AddAction(GO_MonsterInvoked, GO_MonsterInvoked, true);
+            GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(GO_MonsterInvoked, GO_MonsterInvoked, true, true);
+        }
+        // Si c'est une action de l'adversaire
+        else if (isAnOppoAction && oppoAction == null) {
+            AddAction(GO_MonsterInvokedOppo, GO_MonsterInvokedOppo, true);
+            GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(GO_MonsterInvokedOppo, GO_MonsterInvokedOppo, true, true);
         }
     }
 
@@ -455,12 +468,8 @@ public class GameManager : MonoBehaviour {
         if (abilityDisplay.GetManaCost() <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable) {
 
             // On ajoute l'action a la liste
-            GameObject.FindAnyObjectByType<GameManager>().AddAction(abilityDisplay.gameObject, target);
-            if (!abilityDisplay.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
-                GameObject.FindAnyObjectByType<GameManager>().GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(abilityDisplay.gameObject, target);
-            } else {
-                GameObject.FindAnyObjectByType<GameManager>().GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(abilityDisplay.gameObject, target);
-            }
+            FindAnyObjectByType<GameManager>().AddAction(abilityDisplay.gameObject, target);
+            FindAnyObjectByType<GameManager>().AddActionRedirect(abilityDisplay.gameObject, target);
 
             // On soustrait le cout en mana de la capacité et on actualise la barre de mana
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= abilityDisplay.GetManaCost();
@@ -472,13 +481,22 @@ public class GameManager : MonoBehaviour {
     }
 
     // On ajoute une action a la liste
-    public void AddAction(GameObject cardPlayed, GameObject target) {
-        ActionPlayer actionPlayer = ActionPlayer.ActionPlayerCreate(cardPlayed, target);
+    public void AddAction(GameObject actionPlayed, GameObject target, bool skip = false, bool swap = false) {
+        ActionPlayer actionPlayer = ActionPlayer.ActionPlayerCreate(actionPlayed, target, skip, swap);
         listActions.Add(actionPlayer);
-        if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+        if (!actionPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
             playerAction = actionPlayer;
         } else {
             oppoAction = actionPlayer;
+        }
+    }
+
+    // On regarde si c'est une action du joueur ou de l'adversaire
+    public void AddActionRedirect(GameObject gameObjectAction, GameObject target, bool isVisible = true, bool isPass = false, bool isSwap = false) {
+        if (!gameObjectAction.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+            GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(gameObjectAction, target, isVisible, isPass, isSwap);
+        } else {
+            GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(gameObjectAction, target, isVisible, isPass, isSwap);
         }
     }
 
@@ -490,12 +508,7 @@ public class GameManager : MonoBehaviour {
             && cardPlayed.GetComponent<CardDisplay>().card.type != CardType.Echo) {
             // On enregistre l'action
             AddAction(cardPlayed, target);
-            if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
-                GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target);
-            } else {
-                GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target);
-            }
-            
+            AddActionRedirect(cardPlayed, target);
 
             // On soustrait le cout de la carte et on actualise la barre de mana
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= cardPlayed.GetComponent<CardDisplay>().card.manaCost;
@@ -506,6 +519,7 @@ public class GameManager : MonoBehaviour {
             //cardPlayed.GetComponent<CardDisplay>().activeCard(target);
             // On enregistre l'action
             AddAction(cardPlayed, target);
+            AddActionRedirect(cardPlayed, target);
         } else {
             // On affiche un message d'erreur
             Debug.Log("ERR : no mana available");
@@ -604,11 +618,7 @@ public class GameManager : MonoBehaviour {
             if (cardPlayed.GetComponent<CardDisplay>().card.manaCost <= GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable) {
                 // On enregistre l'action
                 AddAction(cardPlayed, target);
-                if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
-                    GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target, isVisible);
-                } else {
-                    GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target, isVisible);
-                }
+                AddActionRedirect(cardPlayed, target, isVisible);
 
                 // On soustrait le cout en mana de la carte et on actualise la barre de mana
                 GO_MonsterInvoked.GetComponent<MonsterDisplay>().manaAvailable -= cardPlayed.GetComponent<CardDisplay>().card.manaCost;
@@ -623,11 +633,7 @@ public class GameManager : MonoBehaviour {
         // Carte face caché, pas besoin de dépenser de mana
         else {
             AddAction(cardPlayed, target);
-            if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
-                GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target, isVisible);
-            } else {
-                GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target, isVisible);
-            }
+            AddActionRedirect(cardPlayed, target, isVisible);
             return true;
         }
 

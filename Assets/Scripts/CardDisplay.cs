@@ -110,11 +110,7 @@ public class CardDisplay : MonoBehaviour
 
                         if (!sbireHaveTaunt || GetComponent<SbireDisplay>().haveTank()) {
                             gameManager.AddAction(cardPlayed, target);
-                            if (!cardPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
-                                gameManager.GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target);
-                            } else {
-                                gameManager.GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(cardPlayed, target);
-                            }
+                            FindAnyObjectByType<GameManager>().AddActionRedirect(cardPlayed, target);
                             isPutOnBoard = true;
                         } else {
                             Debug.Log("ERR : Bad target, one sbire or more have Taunt");

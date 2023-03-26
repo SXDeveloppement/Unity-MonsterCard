@@ -2227,6 +2227,7 @@ GameObject:
   - component: {fileID: 3317279633357488865}
   - component: {fileID: 8792819049694698124}
   - component: {fileID: 2610488216276782425}
+  - component: {fileID: -705337019901392383}
   m_Layer: 0
   m_Name: Monster2D
   m_TagString: Untagged
@@ -2307,7 +2308,6 @@ MonoBehaviour:
   speedText: {fileID: 3529158897110888165}
   healthText: {fileID: 2951855680294703770}
   manaText: {fileID: 4642242590867795370}
-  artworkImage: {fileID: 0}
   illustration: {fileID: 2149591283163487996}
   GO_Affinity: {fileID: 5651986507789443501}
   abilityDisplay: {fileID: 8431991423090335608}
@@ -2332,6 +2332,19 @@ MonoBehaviour:
   buffDamagePercent: 0
   ownedByOppo: 0
   isKO: 0
+--- !u!114 &-705337019901392383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7582068438175370699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de68298a3188aad4792f972c1846018e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  monsterOwnThis: {fileID: 2610488216276782425}
 --- !u!1 &7597537004652065485
 GameObject:
   m_ObjectHideFlags: 0

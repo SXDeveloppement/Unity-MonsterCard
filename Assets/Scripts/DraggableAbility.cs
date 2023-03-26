@@ -23,6 +23,7 @@ public class DraggableAbility : MonoBehaviour, IPointerClickHandler, IBeginDragH
     // On peut activé la capacité activable avec un clique si elle n'a pas besoin de cible, qu'elle ne soit pas en cooldown et qu'elle ne soit pas possédée par l'adversaire
     public void OnPointerClick(PointerEventData eventData) {
         if (FindAnyObjectByType<GameManager>().playerAction != null) return;
+        if (GetComponent<AbilityDisplay>().abilityStatus == AbilityStatus.TeamLayout) return;
 
         if (GetComponent<AbilityDisplay>().ability.abilityType == AbilityType.Active
             && GetComponent<AbilityDisplay>().ability.targetType.Length <= 0
@@ -34,6 +35,7 @@ public class DraggableAbility : MonoBehaviour, IPointerClickHandler, IBeginDragH
 
     public void OnBeginDrag(PointerEventData eventData) {
         if (FindAnyObjectByType<GameManager>().playerAction != null) return;
+        if (GetComponent<AbilityDisplay>().abilityStatus == AbilityStatus.TeamLayout) return;
 
         if (GetComponent<AbilityDisplay>().cooldown <= 0 && !GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo && GetComponent<AbilityDisplay>().ability.targetType.Length > 0) {
             GameManager.dragged = true;
@@ -48,6 +50,7 @@ public class DraggableAbility : MonoBehaviour, IPointerClickHandler, IBeginDragH
 
     public void OnDrag(PointerEventData eventData) {
         if (!isDragged) return;
+        if (GetComponent<AbilityDisplay>().abilityStatus == AbilityStatus.TeamLayout) return;
         if (FindAnyObjectByType<GameManager>().playerAction == null) {
 
             GameObject arrowEmitter = FindAnyObjectByType<GameManager>().ArrowEmitter;
@@ -67,6 +70,7 @@ public class DraggableAbility : MonoBehaviour, IPointerClickHandler, IBeginDragH
 
     public void OnEndDrag(PointerEventData eventData) {
         if (!isDragged) return;
+        if (GetComponent<AbilityDisplay>().abilityStatus == AbilityStatus.TeamLayout) return;
 
         bool dropZoneValid = false;
         if (FindAnyObjectByType<GameManager>().playerAction == null) {

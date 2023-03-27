@@ -30,13 +30,4 @@ public class TimerDisplay : MonoBehaviour {
     public void refreshTimer() {
         timerText.text = timer.ToString();
     }
-
-    public IEnumerator startTimerAt(int timeInSecond) {
-        timer = timeInSecond;
-        gameObject.SetActive(true);
-        while (timer >= 0) {
-            timer--;
-            yield return new WaitForSeconds(1);
-        }
-    }
 }

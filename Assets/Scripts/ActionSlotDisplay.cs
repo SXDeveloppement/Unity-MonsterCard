@@ -27,6 +27,9 @@ public class ActionSlotDisplay : MonoBehaviour {
                 gameObjectAction2 = gameObjectAction;
                 gameObjectAction2.GetComponent<LayoutElement>().ignoreLayout = false;
                 gameObjectAction2.GetComponent<CardDisplay>().status = CardStatus.ActionSlot;
+                gameObjectAction2.GetComponent<SbireDisplay>().attackAura.SetActive(false);
+                gameObjectAction2.transform.SetParent(transform);
+                gameObjectAction2.transform.localPosition = Vector3.zero;
             }
             // Si c'est un sbire sur le terrain
             else if (gameObjectAction.GetComponent<CardDisplay>() != null && gameObjectAction.GetComponent<CardDisplay>().card.type == CardType.Sbire && gameObjectAction.GetComponent<CardDisplay>().status == CardStatus.SlotVisible) {
@@ -34,6 +37,10 @@ public class ActionSlotDisplay : MonoBehaviour {
                 gameObjectAction2 = Instantiate(gameObjectAction);
                 gameObjectAction2.GetComponent<LayoutElement>().ignoreLayout = false;
                 gameObjectAction2.GetComponent<CardDisplay>().status = CardStatus.ActionSlot;
+                gameObjectAction2.GetComponent<SbireDisplay>().ShowActionAttckIcon();
+                gameObjectAction2.GetComponent<SbireDisplay>().attackAura.SetActive(false);
+                gameObjectAction2.transform.SetParent(transform);
+                gameObjectAction2.transform.localPosition = Vector3.zero;
             }
             // Si c'est une capacité
             else if (gameObjectAction.GetComponent<AbilityDisplay>() != null) {
@@ -42,10 +49,10 @@ public class ActionSlotDisplay : MonoBehaviour {
                 gameObjectAction2.GetComponent<AbilityDisplay>().abilityStatus = AbilityStatus.Action;
                 gameObjectAction2.GetComponent<AbilityDisplay>().ShowHideTooltip(true);
                 gameObjectAction2.GetComponent<AbilityDisplay>().refreshDisplayAbility();
+                gameObjectAction2.transform.SetParent(transform);
+                gameObjectAction2.transform.localPosition = new Vector3(0, 0.386f, 0);
             }
 
-            gameObjectAction2.transform.SetParent(transform);
-            gameObjectAction2.transform.localPosition = Vector3.zero;
             Vector3 newVec3 = Constante.FlatScale(Constante.SCALE_CARD_ACTION);
             gameObjectAction2.transform.localScale = newVec3;
 
@@ -59,20 +66,23 @@ public class ActionSlotDisplay : MonoBehaviour {
         }
         // Si c'est une action de swap
         else if (isSwap) {
-            Debug.Log("Affiche card swap");
+            GameObject GO_CardPass = FindAnyObjectByType<GameManager>().GO_CardSwap;
+            gameObjectAction2 = Instantiate(GO_CardPass);
+            gameObjectAction2.GetComponent<LayoutElement>().ignoreLayout = false;
+            gameObjectAction2.transform.SetParent(transform);
+            gameObjectAction2.transform.localPosition = Vector3.zero;
+            Vector3 newVec3 = Constante.FlatScale(Constante.SCALE_CARD_ACTION);
+            gameObjectAction2.transform.localScale = newVec3;
         }
         // Si c'est une action de passer
         else if (isPass) {
             GameObject GO_CardPass = FindAnyObjectByType<GameManager>().GO_CardPass;
             gameObjectAction2 = Instantiate(GO_CardPass);
             gameObjectAction2.GetComponent<LayoutElement>().ignoreLayout = false;
-            gameObjectAction2.GetComponent<CardDisplay>().status = CardStatus.ActionSlot;
             gameObjectAction2.transform.SetParent(transform);
             gameObjectAction2.transform.localPosition = Vector3.zero;
             Vector3 newVec3 = Constante.FlatScale(Constante.SCALE_CARD_ACTION);
             gameObjectAction2.transform.localScale = newVec3;
-
-            Debug.Log("Affiche card pass");
         }
     }
 }

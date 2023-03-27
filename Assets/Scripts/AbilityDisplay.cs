@@ -133,12 +133,8 @@ public class AbilityDisplay : MonoBehaviour
         // On modifie le texte de la capacité pour afficher les dégâts réels infligés
         if (GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis) != null) {
             textDescription.text = GameManager.fullDamageIntegred(ability.description, ability.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis);
-            if (abilityStatus == AbilityStatus.Action)
-                Debug.Log(gameObject.name);
         } else {
             textDescription.text = ability.description;
-            if (abilityStatus == AbilityStatus.Action)
-                Debug.Log("Copy description from ability");
         }
     }
 

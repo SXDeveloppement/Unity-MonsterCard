@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour {
     public GameObject GO_Equipment; // Prefab
     public GameObject GO_BuffDebuff; // Prefab
     public GameObject GO_CardPass; // Prefab
+    public GameObject GO_CardSwap; // Prefab
     #endregion
 
     #region Public Area
@@ -41,10 +42,9 @@ public class GameManager : MonoBehaviour {
     public TimerDisplay timerDisplay;
     public GameObject GO_ActionSlotsPlayer;
     public GameObject GO_ActionSlotsOppo;
+    public GameObject GO_ListActions;
     #endregion
 
-    public Texture2D cursorTargetTexture; // Icon cursor lors d'un ciblage
-    public Texture2D cursorNoTargetTexture; // Icon cursor lorsque la cible n'est pas valide
     public GameObject ArrowEmitter; // Fleche de ciblage dynamique
     public List<GameObject> monstersGOList; // Liste des GO de tous les monstres
     public List<GameObject> monstersGOListOppo; // Liste des GO de tous les monstres de l'adversaire
@@ -56,8 +56,10 @@ public class GameManager : MonoBehaviour {
     public static bool dragged; // TRUE si on drag&drop une carte
     public static GameObject GO_MonsterInvoked; // Le monstre actif du joueur
     public static GameObject GO_MonsterInvokedOppo; // Le monstre actif de l'adversaire
-    public static bool playerTakenAction = false; // Le joueur a effectué une action
-    public static bool oppoTakenAction = false; // L'adversaire a effectué une action
+    public static bool playerTakenAction; // Le joueur a effectué une action
+    public static bool oppoTakenAction; // L'adversaire a effectué une action
+    public static bool playerTakenSwap; // Le joueur a swap de monstre (autre qu'une action de carte)
+    public static bool oppoTakenSwap; // L'adversaire a swap de monstre (autre qu'une action de carte)
     #endregion
 
     #region Dictionary Elemental Affinity
@@ -219,7 +221,7 @@ public class GameManager : MonoBehaviour {
 
         // On active les listeners
         OnEndTurn?.Invoke();
-
+        
         newTurn();
     }
 
@@ -234,7 +236,7 @@ public class GameManager : MonoBehaviour {
         } 
         // Si ce n'est pas le premier tour
         else {
-            //draw(1);
+            draw(1);
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().newTurn();
 
             // On passe les sbires sur le terrain en position repos
@@ -265,6 +267,18 @@ public class GameManager : MonoBehaviour {
             OnNewTurn?.Invoke();
         }
 
+        // Initialisation
+        listActions = new List<ActionPlayer>();
+        playerAction = null;
+        oppoAction = null;
+        playerTakenAction = false;
+        oppoTakenAction = false;
+        playerTakenSwap = false;
+        oppoTakenSwap = false;
+
+        // On actualise le fenetre de team
+        refreshTeamAreaLayout();
+
         // On commence les phases d'actions
         StartCoroutine(PhaseAction());
     }
@@ -272,15 +286,27 @@ public class GameManager : MonoBehaviour {
     // Phase dans un tour
     public IEnumerator PhaseAction() {
         // On commence une phase
-        listActions = new List<ActionPlayer>();
-        playerAction = null;
-        oppoAction = null;
         while (true) {
-            Debug.Log("New Phase");
+            // Si le joueur a utiliser une action de swap (autre que effet de carte) on le fait passer automatiquement
+            if (playerTakenSwap && playerAction == null) {
+                PassAction(false);
+                Debug.Log("blabla");
+            }
+            if (oppoTakenSwap && oppoAction == null) {
+                PassAction(true);
+            }
+
             // On active l'affichage du timer
             int timePhase = TIME_PHASE;
-            StartCoroutine(timerDisplay.startTimerAt(timePhase));
-            while (timePhase > 0) {
+            timerDisplay.gameObject.SetActive(true);
+            while (timePhase >= 0) {
+                timerDisplay.timer = timePhase;
+
+                // Si les deux joueurs on fait une action, on cache le timer et on passe a la résolution des actions
+                if (playerAction != null && oppoAction != null) {
+                    timerDisplay.gameObject.SetActive(false);
+                    break;
+                }
                 timePhase--;
                 yield return new WaitForSeconds(1);
             }
@@ -304,21 +330,45 @@ public class GameManager : MonoBehaviour {
             // On active les actions des joueurs
             bool finishTurn = false;
             bool previousActionisSkiped = false;
+            int i = 0;
             foreach (ActionPlayer actionPlayer in listActions) {
+                yield return new WaitForSeconds(1);
+
                 // Si les deux joueurs passe le tour, on lance le prochain tour
                 if (actionPlayer.skip && previousActionisSkiped) {
                     finishTurn = true;
                     break;
                 }
-                // Si l'action n'est pas de passer ou de changé de monstre
+                // Si l'action n'est pas de passer
                 if (!actionPlayer.skip) {
                     actionPlayer.Active();
+                    // On détruit les GO card des action
+                    if (!actionPlayer.IsOwnedByOppo()) {
+                        foreach (Transform child in GO_ActionSlotsPlayer.transform) {
+                            Destroy(child.gameObject);
+                        }
+                    } else {
+                        foreach (Transform child in GO_ActionSlotsOppo.transform) {
+                            Destroy(child.gameObject);
+                        }
+                    }
                 }
                 // Si c'est une action de passé
                 else if (actionPlayer.skip) {
                     previousActionisSkiped = true;
+
+                    // On détruit les GO card des action
+                    if (i == 0) {
+                        foreach (Transform child in GO_ActionSlotsPlayer.transform) {
+                            Destroy(child.gameObject);
+                        }
+                        foreach (Transform child in GO_ActionSlotsOppo.transform) {
+                            Destroy(child.gameObject);
+                        }
+                    }
                 }
-                yield return new WaitForSeconds(1);
+
+                i++;
             }
 
             listActions = new List<ActionPlayer>();
@@ -342,6 +392,8 @@ public class GameManager : MonoBehaviour {
                 endTurn();
                 break;
             }
+
+            yield return new WaitForEndOfFrame();
         }
     }
 
@@ -353,6 +405,7 @@ public class GameManager : MonoBehaviour {
         if (!isAnOppoAction && playerAction == null) {
             AddAction(GO_MonsterInvoked, GO_MonsterInvoked, true);
             GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(GO_MonsterInvoked, GO_MonsterInvoked, true, true);
+            Debug.Log("Pass action");
         }
         // Si c'est une action de l'adversaire
         else if (isAnOppoAction && oppoAction == null) {
@@ -486,8 +539,10 @@ public class GameManager : MonoBehaviour {
         listActions.Add(actionPlayer);
         if (!actionPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
             playerAction = actionPlayer;
+            playerTakenAction = true;
         } else {
             oppoAction = actionPlayer;
+            oppoTakenAction = true;
         }
     }
 
@@ -938,9 +993,6 @@ public class GameManager : MonoBehaviour {
         refreshDeckText();
         refreshGraveText();
         refreshTeamAreaLayout();
-
-        // On ferme la fenêtre d'équipe
-        GO_TeamArea.SetActive(false);
     }
 
     // Event avant le swap du monstre adverse
@@ -1002,6 +1054,25 @@ public class GameManager : MonoBehaviour {
         // De l'adversaire
 
         refreshTeamAreaLayout();
+    }
+
+    /// <summary>
+    /// Ajoute l'action de swap de monstre a la liste d'action
+    /// </summary>
+    /// <param name="monsterSwap"></param>
+    public void SwapAction(GameObject monsterSwap) {
+        // On ajoute l'action de swap si le joueur qui veut swap n'a pas déjà fait une action dans le tour
+        if (!monsterSwap.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo 
+            && (playerAction != null || playerTakenAction)
+            || monsterSwap.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo 
+            && (oppoAction != null || oppoTakenAction)) return;
+
+        GameObject actifMonster = monsterSwap.GetComponent<OwnedByOppo>().monsterOwnThis.gameObject;
+        AddAction(actifMonster, monsterSwap, false, true);
+        AddActionRedirect(actifMonster, monsterSwap, true, false, true);
+
+        // On ferme la fenêtre d'équipe
+        GO_TeamArea.SetActive(false);
     }
 
     // Actualisation des dégâts affichés sur les cartes et capacités

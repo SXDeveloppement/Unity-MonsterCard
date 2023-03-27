@@ -12,6 +12,7 @@ public class SbireDisplay : MonoBehaviour
     public TMP_Text sbireHealthPoint;
     public TMP_Text sbirePowerPoint;
     public GameObject attackAura;
+    public GameObject actionAttackIcon;
 
     public bool sbireIsExhausted = true;
     public bool sbireIsExhaustedTemp = false;
@@ -195,5 +196,12 @@ public class SbireDisplay : MonoBehaviour
         targetMonster.takeDamage(sbirePowerAvailable);
 
         yield return null;
+    }
+
+    /// <summary>
+    /// Affiche l'icon d'action d'attaque
+    /// </summary>
+    public void ShowActionAttckIcon() {
+        actionAttackIcon.SetActive(true);
     }
 }

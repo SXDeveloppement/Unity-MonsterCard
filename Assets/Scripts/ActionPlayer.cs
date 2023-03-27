@@ -16,6 +16,7 @@ public class ActionPlayer : MonoBehaviour {
     public static ActionPlayer ActionPlayerCreate(GameObject actionPlayed, GameObject target, bool skip = false, bool swap = false) {
         GameObject GO_ActionPlayer = new GameObject {name = "ActionPlayer"};
         ActionPlayer actionPlayer = GO_ActionPlayer.AddComponent<ActionPlayer>();
+        actionPlayer.transform.SetParent(FindAnyObjectByType<GameManager>().GO_ListActions.transform);
         actionPlayer.actionPlayed = actionPlayed;
         actionPlayer.target = target;
         actionPlayer.skip = skip;
@@ -24,35 +25,29 @@ public class ActionPlayer : MonoBehaviour {
         return actionPlayer;
     }
 
+    public bool IsOwnedByOppo() {
+        if (!actionPlayed.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public void Active() {
-        // Passer
-
-        // Swap de monstre
-
-        // Carte (cast)
-        // ---> qui cible un monstre
-        // ---> qui cible un sbire
-        // ---> qui cible une carte
-        // ---> qui cible un slot
-        // --->---> Counter attack
-        // --->--->---> Slot visible
-        // --->--->---> Slot hidden (pas un cast)
-        // --->---> Aura
-        // --->---> Equipment
-
-        // Sbire (attack)
-        // ---> qui cible un monstre
-        // ---> qui cible un sbire
-
-        // Capacité (activation)
-        // ---> qui cible un monstre
-        // ---> qui cible un sbire
-        // ---> qui cible une carte
-
+        // On swap de monstre
+        if (swap) {
+            int index = target.transform.GetSiblingIndex();
+            if (!IsOwnedByOppo()) {
+                FindAnyObjectByType<GameManager>().swapMonster(index);
+                GameManager.playerTakenSwap = true;
+                Debug.Log(GameManager.playerTakenSwap);
+            } else {
+                FindAnyObjectByType<GameManager>().swapMonsterOppo(index);
+                GameManager.oppoTakenSwap = true;
+            }
+        }
         // Une Carte (non sbire du terrain)
-        if (actionPlayed.GetComponent<CardDisplay>() != null
-            && (actionPlayed.GetComponent<CardDisplay>().card.type != CardType.Sbire
-            || actionPlayed.GetComponent<CardDisplay>().status != CardStatus.SlotVisible)) {
+        else if (actionPlayed.GetComponent<CardDisplay>() != null && (actionPlayed.GetComponent<CardDisplay>().card.type != CardType.Sbire || actionPlayed.GetComponent<CardDisplay>().status != CardStatus.SlotVisible)) {
             // Qui cible un monstre
             if (target.GetComponent<MonsterDisplay>() != null) {
                 Debug.Log("Active " + actionPlayed.name);
@@ -162,7 +157,7 @@ public class ActionPlayer : MonoBehaviour {
         }
 
         // On détruit le GO
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 
     /// <summary>

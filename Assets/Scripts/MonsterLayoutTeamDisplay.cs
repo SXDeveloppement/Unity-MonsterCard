@@ -6,8 +6,6 @@ using TMPro;
 
 public class MonsterLayoutTeamDisplay : MonoBehaviour
 {
-    //public GameObject monsterLinked;
-
     public SpriteRenderer illustration;
     public TMP_Text powerText;
     public TMP_Text guardText;
@@ -60,7 +58,12 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
         else if (monsterDisplay.isKO) {
             refreshButtonSwap(false, "K.O.");
         } else {
-            refreshButtonSwap(true, "Swap");
+            // Si le joueur a swap ou a déjà fait une action ce tour, on desactive les boutons de swap
+            if (GameManager.playerTakenSwap || GameManager.playerTakenAction) {
+                refreshButtonSwap(false, "Swap");
+            } else {
+                refreshButtonSwap(true, "Swap");
+            }
         }
 
         // On actualise l'affichage de la capacité
@@ -80,7 +83,6 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
 
     // On invoque le monstre si on clique sur le bouton swap
     public void swapMonster() {
-        int index = gameObject.transform.GetSiblingIndex();
-        GameObject.FindObjectOfType<GameManager>().swapMonster(index);
+        GameObject.FindObjectOfType<GameManager>().SwapAction(GetComponent<OwnedByOppo>().monsterOwnThis.gameObject);
     }
 }

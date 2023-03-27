@@ -28,6 +28,7 @@ public class TeamLayoutDisplay : MonoBehaviour
             hide();
         } else {
             gameObject.SetActive(true);
+            FindAnyObjectByType<GameManager>().refreshTeamAreaLayout();
         }
     }
 }

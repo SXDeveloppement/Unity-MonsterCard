@@ -25,11 +25,21 @@ public class Constante {
         return new Vector3(floatScale, floatScale, floatScale);
     }
 
-    public static Vector3 ScaleComparedParent(float floatScale, GameObject GO_parent) {
+    public static Vector3 ScaleComparedParent(float floatScale, GameObject GO) {
+        GameObject GO_parent = GO.transform.parent.gameObject;
+        int coefX = 1, coefY = 1, coefZ = 1;
+        if (GO.transform.lossyScale.x < 0) coefX = -1;
+        if (GO.transform.lossyScale.y < 0) coefY = -1;
+        if (GO.transform.lossyScale.z < 0) coefZ = -1;
         return new Vector3(
-            floatScale / GO_parent.transform.lossyScale.x,
-            floatScale / GO_parent.transform.lossyScale.y,
-            floatScale / GO_parent.transform.lossyScale.z
+            floatScale / GO_parent.transform.lossyScale.x * coefX,
+            floatScale / GO_parent.transform.lossyScale.y * coefY,
+            floatScale / GO_parent.transform.lossyScale.z * coefZ
             );
+        //return new Vector3(
+        //    floatScale / GO_parent.transform.lossyScale.x,
+        //    floatScale / GO_parent.transform.lossyScale.y,
+        //    floatScale / GO_parent.transform.lossyScale.z
+        //    );
     }
 }

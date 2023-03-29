@@ -46,7 +46,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             if (GetComponent<CardDisplay>().status == CardStatus.Hand) {
                 siblingIndex = transform.GetSiblingIndex();
                 localPosition = transform.localPosition;
-                transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, transform.parent.gameObject);
+                transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, gameObject);
                 gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
                 createPlaceholder();
 
@@ -57,8 +57,8 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 pointerIsEnter = true;
             }
             // Si la souris est sur une carte du terrain
-            else if (GetComponent<CardDisplay>().status != CardStatus.Hand && GetComponent<CardDisplay>().status != CardStatus.Graveyard) {
-                transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, transform.parent.gameObject);
+            else if (GetComponent<CardDisplay>().status == CardStatus.SlotVisible || GetComponent<CardDisplay>().status == CardStatus.SlotHidden || GetComponent<CardDisplay>().status == CardStatus.AuraSlot || GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot || GetComponent<CardDisplay>().status == CardStatus.ActionSlot) {
+                transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, gameObject);
                 localPosition = transform.localPosition;
                 transform.localPosition = new Vector3(localPosition.x, localPosition.y, localPosition.z - 2f);
 
@@ -72,7 +72,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 // Si c'est une carte d'enchantement, on affiche l'equipement
                 if (GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot) {
                     equipment = transform.parent.parent.Find("Equipment").GetChild(0).gameObject;
-                    equipment.transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, transform.parent.gameObject);
+                    equipment.transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND_ZOOM, gameObject);
                     float positionX = equipment.GetComponent<RectTransform>().rect.width * equipment.transform.localScale.x;
                     equipment.transform.localPosition = new Vector3(localPosition.x + positionX, localPosition.y, localPosition.z - 2f);
                 }
@@ -86,12 +86,12 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (GameManager.dragged || !pointerIsEnter) return;
 
         if (GetComponent<CardDisplay>().status == CardStatus.Hand) {
-            transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND, transform.parent.gameObject);
+            transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_HAND, gameObject);
             transform.localPosition = localPosition;
             changeWithPlaceholder();
             pointerIsEnter = false;
         } else if (GetComponent<CardDisplay>().status != CardStatus.Hand && GetComponent<CardDisplay>().status != CardStatus.Graveyard) {
-            transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_BOARD, transform.parent.gameObject);
+            transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_BOARD, gameObject);
             transform.localPosition = localPosition;
 
             // Si c'est une carte face caché, on la replace en position face caché
@@ -103,7 +103,7 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
             // Si c'est une carte d'enchantement, on affiche l'equipement
             if (GetComponent<CardDisplay>().status == CardStatus.EnchantmentSlot && equipment != null) {
-                equipment.transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_BOARD, transform.parent.gameObject);
+                equipment.transform.localScale = Constante.ScaleComparedParent(Constante.SCALE_CARD_BOARD, gameObject);
                 equipment.transform.localPosition = localPosition;
             }
             pointerIsEnter = false;

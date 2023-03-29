@@ -59,7 +59,7 @@ public class MonsterLayoutTeamDisplay : MonoBehaviour
             refreshButtonSwap(false, "K.O.");
         } else {
             // Si le joueur a swap ou a déjà fait une action ce tour, on desactive les boutons de swap
-            if (GameManager.playerTakenSwap || GameManager.playerTakenAction) {
+            if (GameManager.playerTakenSwap || GameManager.playerTakenAction || !FindAnyObjectByType<GameManager>().PlayerCanDoAction()) {
                 refreshButtonSwap(false, "Swap");
             } else {
                 refreshButtonSwap(true, "Swap");

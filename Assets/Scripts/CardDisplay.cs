@@ -17,11 +17,15 @@ public class CardDisplay : MonoBehaviour
     public Image artworkImage;
     public SpriteRenderer illustration;
     public GameObject folderBackgrounds;
+    public GameObject GO_MulliganSelection;
 
     public CardStatus status;
+    public bool selectedForMulligan = false; // Choici pour être mulligan
     public bool hiddenCard;
     public bool putOnBoardThisTurn = true;
     public bool putOnBoardThisTurnTemp = true;
+    public bool attackAura = false;
+    public bool attackAuraTemp = false;
 
     //public MonsterDisplay monsterOwnThis; // GO du monstre qui possède cette carte
 
@@ -72,7 +76,14 @@ public class CardDisplay : MonoBehaviour
         // On affiche l'aura d'activation de la carte ECHO
         if (putOnBoardThisTurn != putOnBoardThisTurnTemp && card.type == CardType.Echo) {
             putOnBoardThisTurnTemp = putOnBoardThisTurn;
-            GetComponent<SbireDisplay>().attackAura.SetActive(!putOnBoardThisTurn);
+            //GetComponent<SbireDisplay>().attackAura.SetActive(!putOnBoardThisTurn);
+            attackAura = true;
+        }
+
+        // On toggle l'attaque aura
+        if (attackAura != attackAuraTemp) {
+            attackAuraTemp = attackAura;
+            GetComponent<SbireDisplay>().attackAura.SetActive(attackAura);
         }
     }
 
@@ -267,6 +278,23 @@ public class CardDisplay : MonoBehaviour
         GetComponent<ZoomCard2D>().reinitCard();
     }
 
+    /// <summary>
+    /// On replace la carte dans le deck du monstre qui la possède 
+    /// </summary>
+    public void ReturnInDeck() {
+        GetComponent<OwnedByOppo>().monsterOwnThis.deckList.Add(card);
+        Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Carte en mode mulligan
+    /// </summary>
+    public void MulliganMode() {
+        status = CardStatus.Mulligan;
+        attackAura = true;
+        transform.localScale = Vector3.one;
+    }
+
     // On met a jour la description de la carte avec les dégâts qui seront réellement infligés au monstre adverse
     public void refreshDescriptionDamage() {
         // Si c'est une carte sbire
@@ -298,6 +326,21 @@ public class CardDisplay : MonoBehaviour
     public void showVisibleFace() {
         gameObject.transform.Find("Front").gameObject.SetActive(true);
         gameObject.transform.Find("Back").gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Affiche ou cache l'icon de sélection d'une carte lors d'un mulligan
+    /// </summary>
+    public void ToggleMulliganSelect() {
+        if (GO_MulliganSelection.activeSelf) {
+            GO_MulliganSelection.SetActive(false);
+            GetComponent<SbireDisplay>().attackAura.SetActive(true);
+            selectedForMulligan = false;
+        } else {
+            GO_MulliganSelection.SetActive(true);
+            GetComponent<SbireDisplay>().attackAura.SetActive(false);
+            selectedForMulligan = true;
+        }
     }
 
     // Animation de retournement de carte face visibile

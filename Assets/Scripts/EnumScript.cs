@@ -1,5 +1,5 @@
 public enum CardStatus {
-    Unreal, Hand, Graveyard, SlotVisible, SlotHidden, AuraSlot, EnchantmentSlot, ActionSlot
+    Unreal, Hand, Graveyard, SlotVisible, SlotHidden, AuraSlot, EnchantmentSlot, ActionSlot, Mulligan
 }
 
 public enum ElementalAffinity {

@@ -45,7 +45,7 @@ public class SbireDisplay : MonoBehaviour
     void Update()
     {
         // On affiche l'aura d'attaque si il n'a pas attaqué ce tour
-        if (sbireIsExhausted != sbireIsExhaustedTemp) {
+        if (sbireIsExhausted != sbireIsExhaustedTemp && GetComponent<CardDisplay>().status != CardStatus.Mulligan) {
             sbireIsExhaustedTemp = sbireIsExhausted;
             attackAura.SetActive(!sbireIsExhausted);
         }

@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour {
     #endregion
 
     #region Public Area
-    public GameObject GO_Hand;
+    public GameObject GO_HandWrap;
     public GameObject GO_DeckText;
     public GameObject GO_GraveText;
     public GameObject GO_GravePlayerList;
@@ -51,9 +51,12 @@ public class GameManager : MonoBehaviour {
     public List<ActionPlayer> listActions; // Liste des actions en attentes
     public ActionPlayer playerAction = null; // L'action du joueur
     public ActionPlayer oppoAction = null; // L'action de l'adversaire
+    public static Coroutine mulliganCoroutine; // Coroutine du mulligan
 
     #region Public Static
     public static bool dragged; // TRUE si on drag&drop une carte
+    public static bool firstTurn = true; // Si c'est le premier tour
+    public static bool waitingAnimation = false; // On attends la fin d'une animation
     public static GameObject GO_MonsterInvoked; // Le monstre actif du joueur
     public static GameObject GO_MonsterInvokedOppo; // Le monstre actif de l'adversaire
     public static bool playerTakenAction; // Le joueur a effectué une action
@@ -74,7 +77,7 @@ public class GameManager : MonoBehaviour {
     
     #region Private variable
     private bool init = true;
-    private bool firstTurn = true; // Si c'est le premier tour
+    public const int TIME_MULLIGAN = 2; // Temps pour faire son mulligan
     private const int TIME_PHASE = 10; // Temps d'une phase en seconde
     #endregion
 
@@ -159,7 +162,7 @@ public class GameManager : MonoBehaviour {
         GO_TeamArea.SetActive(true);
 
         // On lance le premier tour
-        newTurn();
+        StartCoroutine(newTurn());
     }
 
     // Update is called once per frame
@@ -222,16 +225,28 @@ public class GameManager : MonoBehaviour {
         // On active les listeners
         OnEndTurn?.Invoke();
         
-        newTurn();
+        StartCoroutine(newTurn());
     }
 
     // Event OnNewTurn
     public static event Action OnNewTurn;
     // Commence un nouveau tour
-    public void newTurn() {
+    public IEnumerator newTurn() {
+        yield return new WaitForSeconds(0.1f);
 
         // Si c'est le premier tour
         if (firstTurn) {
+            Debug.Log("First turn");
+
+            // Les deux joueurs pioches 5 cartes
+            draw(5);
+            yield return new WaitForSeconds(0.1f);
+
+            // On active le mode Mulligan
+            mulliganCoroutine = StartCoroutine(GO_HandWrap.GetComponent<HandDisplay>().MulliganCoroutine());
+            yield return mulliganCoroutine;
+            Debug.Log("After mulligan");
+
             firstTurn = false;
         } 
         // Si ce n'est pas le premier tour
@@ -280,7 +295,7 @@ public class GameManager : MonoBehaviour {
         refreshTeamAreaLayout();
 
         // On commence les phases d'actions
-        StartCoroutine(PhaseAction());
+        yield return StartCoroutine(PhaseAction());
     }
 
     // Phase dans un tour
@@ -401,6 +416,8 @@ public class GameManager : MonoBehaviour {
     /// Action de passé lors d'un clique sur le bouton
     /// </summary>
     public void PassAction(bool isAnOppoAction = false) {
+        if (!FindAnyObjectByType<GameManager>().PlayerCanDoAction()) return;
+
         // Si c'est une action du joueur
         if (!isAnOppoAction && playerAction == null) {
             AddAction(GO_MonsterInvoked, GO_MonsterInvoked, true);
@@ -414,6 +431,18 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Renvoi TRUE si le joueur peut réaliser une action
+    /// </summary>
+    /// <returns></returns>
+    public bool PlayerCanDoAction() {
+        if (firstTurn) return false;
+        if (playerAction != null) return false;
+        if (waitingAnimation) return false;
+        
+        return true;
+    }
+
     // Event OnDraw
     public static event Action<MonsterDisplay> OnDraw;
     // Ajoute X carte dans la main
@@ -421,7 +450,7 @@ public class GameManager : MonoBehaviour {
         if (GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count > 0) {
             for (int i = 0; i < drawAmount; i++) {
                 GameObject newCard = Instantiate(GO_Card);
-                newCard.gameObject.transform.SetParent(GO_Hand.gameObject.transform);
+                newCard.gameObject.transform.SetParent(GO_HandWrap.GetComponent<HandDisplay>().GO_Hand.gameObject.transform);
                 Random rand = new Random();
                 int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
                 newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
@@ -431,7 +460,7 @@ public class GameManager : MonoBehaviour {
                 GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
             }
             refreshDeckText();
-            GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
+            GO_HandWrap.GetComponent<HandDisplay>().childHaveChanged = true;
 
             // On active les listeners si on pioche plus d'une carte
             if (drawAmount > 0)
@@ -927,9 +956,9 @@ public class GameManager : MonoBehaviour {
         GameObject nextMonster = monstersGOList[indexMonster];
 
         // On compte le nombre de carte dans la main
-        int amountCardInHand = GO_Hand.transform.childCount;
+        int amountCardInHand = GO_HandWrap.GetComponent<HandDisplay>().GO_Hand.transform.childCount;
         // On remet les cartes de la main dans le deck du monstre précédant
-        foreach (Transform cardInHand in GO_Hand.transform) {
+        foreach (Transform cardInHand in GO_HandWrap.GetComponent<HandDisplay>().GO_Hand.transform) {
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Add(cardInHand.gameObject.GetComponent<CardDisplay>().card);
             Destroy(cardInHand.gameObject);
         }
@@ -1061,6 +1090,8 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     /// <param name="monsterSwap"></param>
     public void SwapAction(GameObject monsterSwap) {
+        if (!FindAnyObjectByType<GameManager>().PlayerCanDoAction()) return;
+
         // On ajoute l'action de swap si le joueur qui veut swap n'a pas déjà fait une action dans le tour
         if (!monsterSwap.GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo 
             && (playerAction != null || playerTakenAction)
@@ -1080,7 +1111,7 @@ public class GameManager : MonoBehaviour {
         yield return null;
         //// Cartes du joueur
         // Dans la main du joueur
-        foreach (CardDisplay cardDisplay in GO_Hand.transform.GetComponentsInChildren<CardDisplay>()) {
+        foreach (CardDisplay cardDisplay in GO_HandWrap.GetComponent<HandDisplay>().GO_Hand.transform.GetComponentsInChildren<CardDisplay>()) {
             if (cardDisplay.name != null) {
                 cardDisplay.refreshDescriptionDamage();
             }

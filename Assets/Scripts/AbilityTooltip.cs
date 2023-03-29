@@ -36,7 +36,7 @@ public class AbilityTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             else if (GetComponent<AbilityDisplay>().abilityStatus == AbilityStatus.TeamLayout)
                 floatNumber = Constante.SCALE_ABILITY_TEAM_ZOOM;
 
-            transform.localScale = Constante.ScaleComparedParent(floatNumber, transform.parent.gameObject);
+            transform.localScale = Constante.ScaleComparedParent(floatNumber, gameObject);
             positionCached = transform.localPosition;
             transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z - 2f);
         }
@@ -64,7 +64,7 @@ public class AbilityTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitH
                 floatNumber = Constante.SCALE_ABILITY_TEAM;
             }
               
-            transform.localScale = Constante.ScaleComparedParent(floatNumber, transform.parent.gameObject);
+            transform.localScale = Constante.ScaleComparedParent(floatNumber, gameObject);
             transform.localPosition = positionCached;
         }
         // Affichage du tooltip de la capacité dans le fenêtre de team

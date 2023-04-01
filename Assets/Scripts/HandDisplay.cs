@@ -12,6 +12,7 @@ public class HandDisplay : MonoBehaviour
 
     public GameObject GO_Hand;
     public GameObject GO_MulliganFeatures;
+    public GameObject GO_TimerMulligan;
     public GameObject GO_ButtonValidMulligan;
     public GameObject GO_ButtonShowBoard;
 
@@ -29,6 +30,7 @@ public class HandDisplay : MonoBehaviour
     private Vector3 handMulliganScale = new Vector3(2, 2, 1); // Scale de la main en mode Mulligan
     private TextAnchor childAlignementMulligan = TextAnchor.UpperCenter;
     private float childSpacingMulligan = 0.2f;
+
 
     // Start is called before the first frame update
     void Start()
@@ -63,7 +65,27 @@ public class HandDisplay : MonoBehaviour
 
     public IEnumerator MulliganCoroutine() {
         FirstHandMulligan();
-        yield return new WaitForSeconds(GameManager.TIME_MULLIGAN);
+
+        // Fair une boucle comme pour les actions
+        for (int i = 0; i < GameManager.TIME_MULLIGAN / GameManager.MULLIGAN_REFRESH_RATE; i++) {
+            // On break la boucle si on valide le mulligan
+            if (clickValidMulligan) {
+                yield return StartCoroutine(ValidMulligan());
+                break;
+            }
+
+            // On affiche le timer si il reste moins de 10sec
+            if (GameManager.TIME_MULLIGAN - i * GameManager.MULLIGAN_REFRESH_RATE < 10) {
+                GO_TimerMulligan.SetActive(true);
+                GO_TimerMulligan.GetComponentInChildren<TMP_Text>().text = ((int) (GameManager.TIME_MULLIGAN - i * GameManager.MULLIGAN_REFRESH_RATE)).ToString();
+            }
+
+            Debug.Log("Mulligan timer : " + i * GameManager.MULLIGAN_REFRESH_RATE);
+
+            yield return new WaitForSeconds(GameManager.MULLIGAN_REFRESH_RATE);
+        }
+
+        // A la fin du timer, on force la validation du mulligan
         if (!clickValidMulligan) {
             clickValidMulligan = true;
             yield return StartCoroutine(ValidMulligan());
@@ -157,7 +179,7 @@ public class HandDisplay : MonoBehaviour
         if (clickValidMulligan) return;
 
         clickValidMulligan = true;
-        StartCoroutine(ValidMulligan());
+        //StartCoroutine(ValidMulligan());
     }
 
     /// <summary>
@@ -188,6 +210,5 @@ public class HandDisplay : MonoBehaviour
         yield return new WaitForSeconds(2f);
 
         InitHand();
-        //StopCoroutine(GameManager.mulliganCoroutine);
     }
 }

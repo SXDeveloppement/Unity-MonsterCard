@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour {
     public List<ActionPlayer> listActions; // Liste des actions en attentes
     public ActionPlayer playerAction = null; // L'action du joueur
     public ActionPlayer oppoAction = null; // L'action de l'adversaire
-    public static Coroutine mulliganCoroutine; // Coroutine du mulligan
+    public Coroutine mulliganCoroutine; // Coroutine du mulligan
 
     #region Public Static
     public static bool dragged; // TRUE si on drag&drop une carte
@@ -77,7 +77,11 @@ public class GameManager : MonoBehaviour {
     
     #region Private variable
     private bool init = true;
-    public const int TIME_MULLIGAN = 2; // Temps pour faire son mulligan
+    #endregion
+
+    #region Constante
+    public const int TIME_MULLIGAN = 20; // Temps pour faire son mulligan
+    public const float MULLIGAN_REFRESH_RATE = 0.5f; // Temps de latence max de la validation du mulligan (en seconde)
     private const int TIME_PHASE = 10; // Temps d'une phase en seconde
     #endregion
 
@@ -179,6 +183,15 @@ public class GameManager : MonoBehaviour {
             refreshGraveText();
             init = false;
         }
+    }
+
+    /// <summary>
+    /// UNe simple coroutine de timer
+    /// </summary>
+    /// <param name="timeInSecond"></param>
+    /// <returns></returns>
+    public IEnumerator coroutineTimer(int timeInSecond) {
+        yield return new WaitForSeconds(timeInSecond);
     }
 
     // On instantie l'équipement d'un monstre
@@ -416,10 +429,10 @@ public class GameManager : MonoBehaviour {
     /// Action de passé lors d'un clique sur le bouton
     /// </summary>
     public void PassAction(bool isAnOppoAction = false) {
-        if (!FindAnyObjectByType<GameManager>().PlayerCanDoAction()) return;
-
         // Si c'est une action du joueur
         if (!isAnOppoAction && playerAction == null) {
+            if (!FindAnyObjectByType<GameManager>().PlayerCanDoAction()) return;
+
             AddAction(GO_MonsterInvoked, GO_MonsterInvoked, true);
             GO_ActionSlotsPlayer.GetComponent<ActionSlotDisplay>().AddActionGO(GO_MonsterInvoked, GO_MonsterInvoked, true, true);
             Debug.Log("Pass action");
@@ -428,6 +441,7 @@ public class GameManager : MonoBehaviour {
         else if (isAnOppoAction && oppoAction == null) {
             AddAction(GO_MonsterInvokedOppo, GO_MonsterInvokedOppo, true);
             GO_ActionSlotsOppo.GetComponent<ActionSlotDisplay>().AddActionGO(GO_MonsterInvokedOppo, GO_MonsterInvokedOppo, true, true);
+            Debug.Log("Pass action Oppo");
         }
     }
 

@@ -12072,7 +12072,19 @@ MonoBehaviour:
   - eventID: 4
     callback:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 2135458307}
+          m_TargetAssemblyTypeName: HandDisplay, Assembly-CSharp
+          m_MethodName: ButtonValidMulliganClick
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!61 &1852286079
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -15237,8 +15249,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zStep: 0.01
   childHaveChanged: 0
+  clickValidMulligan: 0
   GO_Hand: {fileID: 1741655269}
   GO_MulliganFeatures: {fileID: 94929658}
+  GO_ButtonValidMulligan: {fileID: 1852286076}
   GO_ButtonShowBoard: {fileID: 544010089}
 --- !u!1 &2142680280
 GameObject:

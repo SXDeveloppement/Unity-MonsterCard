@@ -43,27 +43,28 @@ public class CardDisplay : MonoBehaviour
     void Start() {
         gameManager = GameObject.FindAnyObjectByType<GameManager>();
 
-        // On affiche le bon background en fonction du type élémentaire de la carte
-        foreach (Transform childBackground in folderBackgrounds.transform) {
-            childBackground.gameObject.SetActive(false);
-            if (childBackground.gameObject.name == card.elementalAffinity.ToString()) {
-                childBackground.gameObject.SetActive(true);
+        // Si card est défini
+        if (card != null) {
+            // On affiche le bon background en fonction du type élémentaire de la carte
+            foreach (Transform childBackground in folderBackgrounds.transform) {
+                childBackground.gameObject.SetActive(false);
+                if (childBackground.gameObject.name == card.elementalAffinity.ToString()) {
+                    childBackground.gameObject.SetActive(true);
+                }
             }
+
+            nameText.text = card.name;
+            descriptionText.text = card.description;
+            manaText.text = card.manaCost.ToString();
+            priorityText.text = card.priority.ToString();
+            typeText.text = card.type.ToString();
+            if (artworkImage != null)
+                artworkImage.sprite = card.artwork;
+            if (illustration != null)
+                illustration.sprite = card.artwork;
+
+            cardDescriptionCached = card.description;
         }
-
-        nameText.text = card.name;
-        descriptionText.text = card.description;
-        manaText.text = card.manaCost.ToString();
-        priorityText.text = card.priority.ToString();
-        typeText.text = card.type.ToString();
-        if (artworkImage != null)
-            artworkImage.sprite = card.artwork;
-        if (illustration != null)
-            illustration.sprite = card.artwork;
-
-        cardDescriptionCached = card.description;
-
-        //refreshDescriptionDamage();
     }
 
     // Update is called once per frame
@@ -297,21 +298,23 @@ public class CardDisplay : MonoBehaviour
 
     // On met a jour la description de la carte avec les dégâts qui seront réellement infligés au monstre adverse
     public void refreshDescriptionDamage() {
-        // Si c'est une carte sbire
-        if (card.type == CardType.Sbire) {
-            int sbireBasePower = card.sbirePowerPoint;
-            int outputSbireDamage;
-            if (!GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
-                outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>(), card.elementalAffinity, sbireBasePower, GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>());
-            } else {
-                outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>(), card.elementalAffinity, sbireBasePower, GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
+        if (card != null) {
+            // Si c'est une carte sbire
+            if (card.type == CardType.Sbire) {
+                int sbireBasePower = card.sbirePowerPoint;
+                int outputSbireDamage;
+                if (!GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo) {
+                    outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>(), card.elementalAffinity, sbireBasePower, GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>());
+                } else {
+                    outputSbireDamage = GameManager.calculateDamage(GameManager.GO_MonsterInvoked.GetComponent<MonsterDisplay>(), card.elementalAffinity, sbireBasePower, GameManager.GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
+                }
+                GetComponent<SbireDisplay>().sbirePowerAvailable = outputSbireDamage;
             }
-            GetComponent<SbireDisplay>().sbirePowerAvailable = outputSbireDamage;
-        }
-        // Si c'est un sort
-        else {
-            if (GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis) != null) {
-                descriptionText.text = GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis);
+            // Si c'est un sort
+            else {
+                if (GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis) != null) {
+                    descriptionText.text = GameManager.fullDamageIntegred(cardDescriptionCached, card.elementalAffinity, GetComponent<OwnedByOppo>().monsterOwnThis);
+                }
             }
         }
     }

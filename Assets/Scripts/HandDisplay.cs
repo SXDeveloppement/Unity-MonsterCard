@@ -15,6 +15,7 @@ public class HandDisplay : MonoBehaviour
     public GameObject GO_TimerMulligan;
     public GameObject GO_ButtonValidMulligan;
     public GameObject GO_ButtonShowBoard;
+    public bool ownedByOppo;
 
     private bool mulliganDone = false; // Si le mulligan est terminé
     private bool mulliganIsVisible = true; // Si la fenêtre de mulligan est visible
@@ -57,7 +58,7 @@ public class HandDisplay : MonoBehaviour
         }
 
         // On replace la main dans sa position normal
-        if (!GameManager.firstTurn && !mulliganDone) {
+        if (!GameManager.firstTurn && !mulliganDone && !ownedByOppo) {
             mulliganDone = true;
             InitHand();
         }
@@ -67,22 +68,20 @@ public class HandDisplay : MonoBehaviour
         FirstHandMulligan();
 
         // Fair une boucle comme pour les actions
-        for (int i = 0; i < GameManager.TIME_MULLIGAN / GameManager.MULLIGAN_REFRESH_RATE; i++) {
+        for (int i = 0; i < Constante.TIME_MULLIGAN / Constante.MULLIGAN_REFRESH_RATE; i++) {
             // On break la boucle si on valide le mulligan
             if (clickValidMulligan) {
                 yield return StartCoroutine(ValidMulligan());
                 break;
             }
 
-            // On affiche le timer si il reste moins de 10sec
-            if (GameManager.TIME_MULLIGAN - i * GameManager.MULLIGAN_REFRESH_RATE < 10) {
+            // On affiche le timer si il reste moins de Xsec
+            if (Constante.TIME_MULLIGAN - i * Constante.MULLIGAN_REFRESH_RATE < Constante.MULLIGAN_SHOW_TIMER_IF_ABOVE) {
                 GO_TimerMulligan.SetActive(true);
-                GO_TimerMulligan.GetComponentInChildren<TMP_Text>().text = ((int) (GameManager.TIME_MULLIGAN - i * GameManager.MULLIGAN_REFRESH_RATE)).ToString();
+                GO_TimerMulligan.GetComponentInChildren<TMP_Text>().text = ((int) (Constante.TIME_MULLIGAN - i * Constante.MULLIGAN_REFRESH_RATE)).ToString();
             }
 
-            Debug.Log("Mulligan timer : " + i * GameManager.MULLIGAN_REFRESH_RATE);
-
-            yield return new WaitForSeconds(GameManager.MULLIGAN_REFRESH_RATE);
+            yield return new WaitForSeconds(Constante.MULLIGAN_REFRESH_RATE);
         }
 
         // A la fin du timer, on force la validation du mulligan
@@ -179,7 +178,6 @@ public class HandDisplay : MonoBehaviour
         if (clickValidMulligan) return;
 
         clickValidMulligan = true;
-        //StartCoroutine(ValidMulligan());
     }
 
     /// <summary>

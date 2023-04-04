@@ -30,14 +30,16 @@ public class SbireDisplay : MonoBehaviour
     {
         gameManager = GameObject.FindAnyObjectByType<GameManager>();
 
-        Card card = GetComponent<CardDisplay>().card;
-        if (card.type == CardType.Sbire && card.sbireHealthPoint > 0) {
-            sbireHealthMax = card.sbireHealthPoint;
-            sbireFeature.SetActive(true);
-            sbireHealthAvailable = card.sbireHealthPoint;
-            sbirePowerAvailable = card.sbirePowerPoint;
-        } else {
-            sbireFeature.SetActive(false);
+        if (GetComponent<CardDisplay>().card != null) {
+            Card card = GetComponent<CardDisplay>().card;
+            if (card.type == CardType.Sbire && card.sbireHealthPoint > 0) {
+                sbireHealthMax = card.sbireHealthPoint;
+                sbireFeature.SetActive(true);
+                sbireHealthAvailable = card.sbireHealthPoint;
+                sbirePowerAvailable = card.sbirePowerPoint;
+            } else {
+                sbireFeature.SetActive(false);
+            }
         }
     }
 

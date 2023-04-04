@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour {
 
     #region Public Area
     public GameObject GO_HandWrap;
+    public GameObject GO_HandWrapOppo;
     public GameObject GO_DeckText;
     public GameObject GO_GraveText;
     public GameObject GO_GravePlayerList;
@@ -78,14 +79,7 @@ public class GameManager : MonoBehaviour {
     #region Private variable
     private bool init = true;
     #endregion
-
-    #region Constante
-    public const int TIME_MULLIGAN = 20; // Temps pour faire son mulligan
-    public const float MULLIGAN_REFRESH_RATE = 0.5f; // Temps de latence max de la validation du mulligan (en seconde)
-    private const int TIME_PHASE = 10; // Temps d'une phase en seconde
-    #endregion
-
-
+    
     // DEBUG
     public List<Card> sbireList;
     public List<Card> auraList;
@@ -249,16 +243,15 @@ public class GameManager : MonoBehaviour {
 
         // Si c'est le premier tour
         if (firstTurn) {
-            Debug.Log("First turn");
 
             // Les deux joueurs pioches 5 cartes
             draw(5);
+            drawOppo(5);
             yield return new WaitForSeconds(0.1f);
 
             // On active le mode Mulligan
             mulliganCoroutine = StartCoroutine(GO_HandWrap.GetComponent<HandDisplay>().MulliganCoroutine());
             yield return mulliganCoroutine;
-            Debug.Log("After mulligan");
 
             firstTurn = false;
         } 
@@ -266,6 +259,9 @@ public class GameManager : MonoBehaviour {
         else {
             draw(1);
             GO_MonsterInvoked.GetComponent<MonsterDisplay>().newTurn();
+
+            drawOppo(1);
+            GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().newTurn();
 
             // On passe les sbires sur le terrain en position repos
             foreach (SbireDisplay sbireDisplay in GO_CounterAttackArea.transform.GetComponentsInChildren<SbireDisplay>()) {
@@ -325,7 +321,7 @@ public class GameManager : MonoBehaviour {
             }
 
             // On active l'affichage du timer
-            int timePhase = TIME_PHASE;
+            int timePhase = Constante.TIME_PHASE;
             timerDisplay.gameObject.SetActive(true);
             while (timePhase >= 0) {
                 timerDisplay.timer = timePhase;
@@ -463,15 +459,23 @@ public class GameManager : MonoBehaviour {
     public void draw(int drawAmount) {
         if (GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count > 0) {
             for (int i = 0; i < drawAmount; i++) {
-                GameObject newCard = Instantiate(GO_Card);
-                newCard.gameObject.transform.SetParent(GO_HandWrap.GetComponent<HandDisplay>().GO_Hand.gameObject.transform);
-                Random rand = new Random();
-                int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
-                newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
-                newCard.name = newCard.GetComponent<CardDisplay>().card.name;
-                newCard.GetComponent<CardDisplay>().status = CardStatus.Hand;
-                newCard.GetComponent<OwnedByOppo>().monsterOwnThis = GO_MonsterInvoked.GetComponent<MonsterDisplay>();
-                GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
+                if (GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count > 0) {
+                    GameObject newCard = Instantiate(GO_Card);
+                    Random rand = new Random();
+                    int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
+                    newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
+                    GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
+                    newCard.name = newCard.GetComponent<CardDisplay>().card.name;
+                    newCard.GetComponent<CardDisplay>().status = CardStatus.Hand;
+                    newCard.GetComponent<OwnedByOppo>().monsterOwnThis = GO_MonsterInvoked.GetComponent<MonsterDisplay>();
+
+                    // Si il y a encore de la place dans la main du joueur
+                    if (GO_HandWrap.GetComponent<HandDisplay>().GO_Hand.transform.childCount < Constante.MAX_CARD_IN_HAND) {
+                        newCard.gameObject.transform.SetParent(GO_HandWrap.GetComponent<HandDisplay>().GO_Hand.gameObject.transform);
+                    } else {
+                        inGrave(newCard);
+                    }
+                }
             }
             refreshDeckText();
             GO_HandWrap.GetComponent<HandDisplay>().childHaveChanged = true;
@@ -488,27 +492,29 @@ public class GameManager : MonoBehaviour {
     public static event Action<MonsterDisplay> OnDrawOppo;
     // Ajoute X carte dans la main
     public void drawOppo(int drawAmount) {
-        Debug.Log("Draw oppo");
-        if (GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().deckList.Count > 0) {
+        if (GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().deckList.Count - GO_HandWrapOppo.GetComponent<HandDisplay>().GO_Hand.transform.childCount > 0) {
             for (int i = 0; i < drawAmount; i++) {
-                if (GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().deckList.Count > 0) {
-                    //******************
-                    // Carte a ajouté dans la main de l'adversaire
-                    //*******************
+                if (GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().deckList.Count - GO_HandWrapOppo.GetComponent<HandDisplay>().GO_Hand.transform.childCount > 0) {
+                    GameObject newCard = Instantiate(GO_Card);
+                    newCard.GetComponent<CardDisplay>().showHiddenFace();
+                    newCard.name = "Cardhidden";
+                    newCard.GetComponent<CardDisplay>().status = CardStatus.Hand;
+                    newCard.GetComponent<OwnedByOppo>().monsterOwnThis = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>();
 
-                    //GameObject newCard = Instantiate(GO_Card);
-                    //newCard.gameObject.transform.SetParent(GO_Hand.gameObject.transform);
-                    //Random rand = new Random();
-                    //int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
-                    //newCard.GetComponent<CardDisplay>().card = GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList[iRand];
-                    //newCard.name = newCard.GetComponent<CardDisplay>().card.name;
-                    //newCard.GetComponent<CardDisplay>().status = CardStatus.Hand;
-                    //newCard.GetComponent<CardDisplay>().monsterOwnThis = GO_MonsterInvoked.GetComponent<MonsterDisplay>();
-                    //GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
+                    // Si il y a encore de la place dans la main du joueur
+                    if (GO_HandWrap.GetComponent<HandDisplay>().GO_Hand.transform.childCount < Constante.MAX_CARD_IN_HAND) {
+                        newCard.gameObject.transform.SetParent(GO_HandWrapOppo.GetComponent<HandDisplay>().GO_Hand.transform);
+                    } else {
+                        Random rand = new Random();
+                        int iRand = rand.Next(GO_MonsterInvoked.GetComponent<MonsterDisplay>().deckList.Count);
+                        newCard.GetComponent<CardDisplay>().card = GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().deckList[iRand];
+                        GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>().deckList.RemoveAt(iRand);
+                        inGrave(newCard);
+                    }
                 }
             }
             //refreshDeckText();
-            //GO_Hand.GetComponent<HandDisplay>().childHaveChanged = true;
+            GO_HandWrapOppo.GetComponent<HandDisplay>().childHaveChanged = true;
 
             // On active les listeners
             OnDrawOppo?.Invoke(GO_MonsterInvokedOppo.GetComponent<MonsterDisplay>());
@@ -536,6 +542,8 @@ public class GameManager : MonoBehaviour {
 
         if (cardDisplay.GetComponent<OwnedByOppo>().monsterOwnThis == GO_MonsterInvoked.GetComponent<MonsterDisplay>()) {
             refreshGraveText();
+        } else {
+
         }
     }
 

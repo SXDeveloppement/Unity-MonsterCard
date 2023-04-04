@@ -2683,6 +2683,8 @@ MonoBehaviour:
   hiddenCard: 0
   putOnBoardThisTurn: 1
   putOnBoardThisTurnTemp: 1
+  attackAura: 0
+  attackAuraTemp: 0
 --- !u!114 &7975290428659643675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2719,7 +2721,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fcb7c061563df64eb882b8bc447e566, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  marginBottom: 0.35
+  marginBottom: 0.29
   scaleZoom: 1.5
   scaleZoomBoard: 2
   placeHolder: {fileID: 0}

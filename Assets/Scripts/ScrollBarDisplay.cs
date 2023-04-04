@@ -26,7 +26,6 @@ public class ScrollBarDisplay : MonoBehaviour
             float cursorHeight = maxHeight / maxPosition;
             float firstPosition = (maxHeight - cursorHeight) / 2;
             float cursorPosition = firstPosition - cursorHeight * (actualPosition - 1);
-            Debug.Log(cursor.GetComponent<SpriteRenderer>().size.x + " / " + cursorHeight);
             cursor.GetComponent<SpriteRenderer>().size = new Vector2(cursor.GetComponent<SpriteRenderer>().size.x, cursorHeight);
             cursor.transform.localPosition = new Vector3(cursor.transform.localPosition.x, cursorPosition, cursor.transform.localPosition.z);
         } else {

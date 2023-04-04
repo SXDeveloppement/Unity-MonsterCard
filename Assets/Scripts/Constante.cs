@@ -19,6 +19,12 @@ public class Constante {
 
     public const float SCALE_ABILITY_TEAM = 0.7f;
     public const float SCALE_ABILITY_TEAM_ZOOM = 1.4f;
+
+    public const int TIME_MULLIGAN = 20; // Temps pour faire son mulligan
+    public const float MULLIGAN_REFRESH_RATE = 0.5f; // Temps de latence max de la validation du mulligan (en seconde)
+    public const int MULLIGAN_SHOW_TIMER_IF_ABOVE = 10; // Affiche le timer du mulligan si il reste moins de temps que la valeur
+    public const int TIME_PHASE = 10; // Temps d'une phase en seconde
+    public const int MAX_CARD_IN_HAND = 8; // Le nombre de carte maximum que l'on peut avoir dans la main d'un joueur
     #endregion
 
     public static Vector3 FlatScale(float floatScale) {

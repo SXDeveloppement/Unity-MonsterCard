@@ -38,7 +38,10 @@ public class ZoomCard2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     // Quand le curseur entre sur la carte
     public void OnPointerEnter(PointerEventData eventData) {
-        if (GameManager.dragged) return;
+        if (GameManager.dragged)
+            return;
+        if (GetComponent<CardDisplay>().status == CardStatus.Hand && GetComponent<OwnedByOppo>().monsterOwnThis.ownedByOppo)
+            return;
 
         // Si on ne déplace pas de carte
         if (!GameManager.dragged) { 
